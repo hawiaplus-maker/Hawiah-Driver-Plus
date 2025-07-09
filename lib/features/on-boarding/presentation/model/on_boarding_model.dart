@@ -26,48 +26,25 @@ class OnBoardingModel {
 
 class Data {
   int? id;
-  Title? title;
-  Title? about;
+  String? title;
+  String? about;
   String? image;
 
   Data({this.id, this.title, this.about, this.image});
 
   Data.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    title = json['title'] != null ? new Title.fromJson(json['title']) : null;
-    about = json['about'] != null ? new Title.fromJson(json['about']) : null;
+    title = json['title'];
+    about = json['about'];
     image = json['image'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['id'] = this.id;
-    if (this.title != null) {
-      data['title'] = this.title!.toJson();
-    }
-    if (this.about != null) {
-      data['about'] = this.about!.toJson();
-    }
+    data['title'] = this.title;
+    data['about'] = this.about;
     data['image'] = this.image;
-    return data;
-  }
-}
-
-class Title {
-  String? en;
-  String? ar;
-
-  Title({this.en, this.ar});
-
-  Title.fromJson(Map<String, dynamic> json) {
-    en = json['en'];
-    ar = json['ar'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['en'] = this.en;
-    data['ar'] = this.ar;
     return data;
   }
 }

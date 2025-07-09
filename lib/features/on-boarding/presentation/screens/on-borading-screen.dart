@@ -20,8 +20,8 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   @override
   void initState() {
     HiveMethods.updateFirstTime();
+    OnBoardingCubit.get(context).getOnboarding();
     super.initState();
-    Future.microtask(() => OnBoardingCubit.get(context).getOnboarding());
   }
 
   @override
@@ -34,10 +34,8 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
 
           if (state is OnBoardingLoading) {
             return Center(
-                child: Image.asset(
-              AppImages.onboarding1,
-              fit: BoxFit.fill,
-            ));
+              child: Image.asset(AppImages.onboarding1, fit: BoxFit.fill),
+            );
           }
 
           if (state is OnBoardingError || cubit.onBoardingList.isEmpty) {
@@ -51,9 +49,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           final onBoardingImages =
               cubit.onBoardingList.map((e) => e.image ?? "").toList();
           final onboardingTitles =
-              cubit.onBoardingList.map((e) => e.title?.ar ?? "").toList();
+              cubit.onBoardingList.map((e) => e.title ?? "").toList();
           final onboardingContents =
-              cubit.onBoardingList.map((e) => e.about?.ar ?? "").toList();
+              cubit.onBoardingList.map((e) => e.about ?? "").toList();
           final onboardingIcons = List.generate(
             cubit.onBoardingList.length,
             (index) => "",

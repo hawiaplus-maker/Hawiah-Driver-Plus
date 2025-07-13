@@ -107,5 +107,6 @@
         "confirm_date": "Confirm Date",
         "continue_payment": "Continue Payment",
         "confirm_address": "Confirm Address",
-        "back_order": "Back Order"
+        "back_order": "Back Order",
+        "today":"today"
     }

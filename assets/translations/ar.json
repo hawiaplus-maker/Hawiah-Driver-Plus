@@ -135,7 +135,8 @@
   "delete_address":"حذف العنوان",
   "delete":"حذف",
   "confirm":"تاكيد",
-  "currentAddress": "العنوان الحالي"
+  "currentAddress": "العنوان الحالي",
+  "today":"اليوم"
  
 
 }

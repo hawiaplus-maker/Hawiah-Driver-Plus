@@ -1,167 +1,170 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:hawiah_driver/core/custom_widgets/custom-text-field-widget.dart';
+import 'package:hawiah_driver/core/custom_widgets/custom_app_bar/custom_app_bar.dart';
+import 'package:hawiah_driver/core/custom_widgets/custom_image/custom_network_image.dart';
+import 'package:hawiah_driver/core/custom_widgets/custom_loading/custom_loading.dart';
+import 'package:hawiah_driver/core/images/app_images.dart';
+import 'package:hawiah_driver/core/locale/app_locale_key.dart';
+import 'package:hawiah_driver/core/theme/app_colors.dart';
+import 'package:hawiah_driver/core/utils/date_methods.dart';
+import 'package:hawiah_driver/features/chat/cubit/chat_cubit.dart';
+import 'package:hawiah_driver/features/chat/model/chat_model.dart';
+import 'package:hawiah_driver/features/chat/presentation/widget/message_widget.dart';
+import 'package:grouped_list/grouped_list.dart';
 
-class SingleChatScreen extends StatelessWidget {
-  SingleChatScreen({super.key});
+class SingleChatScreenArgs {
+  final String senderId;
+  final String reciverImage;
+  final String reciverName;
+  final String senderType;
+  final String orderId;
 
-  List<ChatMessage> messages = [
-    ChatMessage(messageContent: "Hello, Will", messageType: "receiver"),
-    ChatMessage(messageContent: "How have you been?", messageType: "receiver"),
-    ChatMessage(
-        messageContent: "Hey Kriss, I am doing fine dude. wbu?",
-        messageType: "sender"),
-    ChatMessage(messageContent: "ehhhh, doing OK.", messageType: "receiver"),
-    ChatMessage(
-        messageContent: "Is there any thing wrong?", messageType: "sender"),
-  ];
+  SingleChatScreenArgs({
+    required this.senderId,
+    required this.senderType,
+    required this.orderId,
+    required this.reciverImage,
+    required this.reciverName,
+  });
+}
+
+class SingleChatScreen extends StatefulWidget {
+  final SingleChatScreenArgs args;
+  static const routeName = 'ChatScreen';
+
+  const SingleChatScreen({super.key, required this.args});
+
+  @override
+  State<SingleChatScreen> createState() => _SingleChatScreenState();
+}
+
+class _SingleChatScreenState extends State<SingleChatScreen> {
+  final _messageEC = TextEditingController();
+  late ChatCubit _chatCubit;
+
+  @override
+  void initState() {
+    _chatCubit = ChatCubit();
+    _chatCubit.initialize(widget.args.orderId);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _chatCubit.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.white,
-        flexibleSpace: SafeArea(
-          child: Container(
-            padding: EdgeInsets.only(right: 16),
-            child: Row(
-              children: <Widget>[
-                CircleAvatar(
-                  backgroundImage:
-                      AssetImage("assets/images/person_chat_image.png"),
-                  maxRadius: 20,
-                ),
-                SizedBox(
-                  width: 12,
-                ),
-                Text(
-                  "Kriss Benwat",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-                Spacer(),
-                IconButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  icon: Icon(
-                    Icons.arrow_forward_ios,
-                    color: Colors.black,
-                  ),
-                ),
-              ],
+    return BlocProvider(
+      create: (context) => _chatCubit,
+      child: Scaffold(
+        appBar: CustomAppBar(
+          context,
+          titleText: widget.args.reciverName,
+          centerTitle: false,
+          leadingWidth: 70,
+          actions: [
+            IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: RotatedBox(
+                    quarterTurns: 90,
+                    child: Icon(
+                      Icons.arrow_back_ios_new,
+                    ))),
+          ],
+          leading: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: CustomNetworkImage(
+              imageUrl: widget.args.reciverImage,
+              height: 40,
+              width: 40,
+              radius: 30,
+              fit: BoxFit.cover,
             ),
           ),
         ),
-      ),
-      body: Stack(
-        children: <Widget>[
-          ListView.builder(
-            itemCount: messages.length,
-            shrinkWrap: true,
-            padding: EdgeInsets.only(top: 10, bottom: 10),
-            physics: NeverScrollableScrollPhysics(),
-            itemBuilder: (context, index) {
-              return Container(
-                padding:
-                    EdgeInsets.only(left: 14, right: 14, top: 10, bottom: 10),
-                child: Align(
-                  alignment: (messages[index].messageType == "receiver"
-                      ? Alignment.topLeft
-                      : Alignment.topRight),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: (messages[index].messageType == "receiver"
-                          ? Colors.grey.shade200
-                          : Colors.blue[200]),
-                    ),
-                    padding: EdgeInsets.all(16),
-                    child: Text(
-                      messages[index].messageContent,
-                      style: TextStyle(fontSize: 15),
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-          Align(
-            alignment: Alignment.bottomLeft,
-            child: Container(
-              padding:
-                  EdgeInsets.only(left: 10, bottom: 10, top: 10, right: 10),
-              height: 60,
-              width: double.infinity,
-              color: Colors.white,
-              child: Row(
-                children: <Widget>[
-                  GestureDetector(
-                    onTap: () {},
-                    child: Icon(
-                      Icons.add,
-                      color: Color(0xffADB5BD),
-                      size: 30,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  Expanded(
-                    child: TextField(
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                              40.0), // Apply border radius
-                          borderSide: BorderSide
-                              .none, // Remove border side for regular border
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                              40.0), // Apply border radius
-                          borderSide: BorderSide
-                              .none, // Remove border side for enabled state
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                              40.0), // Apply border radius
-                          borderSide: BorderSide
-                              .none, // Remove border side for focused state
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 10),
-                        hintText: "اكتب رسالة...",
-                        hintStyle: TextStyle(
-                            color: Color(0xff979797),
-                            fontSize: 15.sp,
-                            fontWeight: FontWeight.w400),
-                        filled: true, // Set background color
-                        fillColor: Color(0xFFF9F9F9),
+        body: Column(
+          children: [
+            Expanded(
+              child: BlocBuilder<ChatCubit, ChatState>(
+                builder: (context, state) {
+                  if (state is ChatLoading) {
+                    return const Center(child: CustomLoading());
+                  } else if (state is ChatError) {
+                    return Center(child: Text(state.message));
+                  } else if (state is ChatLoaded) {
+                    return GroupedListView<ChatMessageModel, DateTime>(
+                      elements: state.messages,
+                      groupBy: (element) => DateTime(
+                        element.timeStamp!.year,
+                        element.timeStamp!.month,
+                        element.timeStamp!.day,
                       ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 15,
-                  ),
-                  GestureDetector(
-                    onTap: () {},
-                    child: Image.asset(
-                        "assets/icons/send_message_chat_icon.png",
-                        height: 20.h,
-                        width: 20.w),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 20,
+                      ),
+                      itemComparator: (item1, item2) =>
+                          item1.timeStamp!.compareTo(item2.timeStamp!),
+                      groupItemBuilder: (
+                        context,
+                        element,
+                        groupStart,
+                        groupEnd,
+                      ) {
+                        return MessageWidget(message: element);
+                      },
+                      groupSeparatorBuilder: (date) => Center(
+                        child: Text(
+                          date.day == DateTime.now().day
+                              ? AppLocaleKey.today.tr()
+                              : DateMethods.formatToDate(date),
+                        ),
+                      ),
+                      separator: const SizedBox(height: 15),
+                      reverse: true,
+                      order: GroupedListOrder.DESC,
+                    );
+                  } else {
+                    return const SizedBox();
+                  }
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  Expanded(
+                      child: CustomTextField(
+                          unFocusColor: AppColor.grayBlueColor.withAlpha(100),
+                          fillColor: AppColor.grayBlueColor,
+                          controller: _messageEC)),
+                  IconButton(
+                    onPressed: () {
+                      final txt = _messageEC.text;
+                      if (txt.isNotEmpty) {
+                        _chatCubit.sendMessage(
+                          message: txt,
+                          senderId: widget.args.senderId,
+                          senderType: widget.args.senderType,
+                        );
+                      }
+                      _messageEC.clear();
+                    },
+                    icon: SvgPicture.asset(AppImages.sendIcon),
                   ),
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
-}
-
-class ChatMessage {
-  String messageContent;
-  String messageType;
-  ChatMessage({required this.messageContent, required this.messageType});
 }

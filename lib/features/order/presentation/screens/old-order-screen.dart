@@ -3,10 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hawiah_driver/core/custom_widgets/custom_image/custom_network_image.dart';
 import 'package:hawiah_driver/core/images/app_images.dart';
+import 'package:hawiah_driver/core/networking/urls.dart';
 import 'package:hawiah_driver/core/theme/app_colors.dart';
 import 'package:hawiah_driver/core/theme/app_text_style.dart';
 import 'package:hawiah_driver/core/utils/date_methods.dart';
+import 'package:hawiah_driver/core/utils/navigator_methods.dart';
+import 'package:hawiah_driver/features/chat/presentation/screens/single-chat-screen.dart';
 import 'package:hawiah_driver/features/order/presentation/model/orders_model.dart';
+import 'package:hawiah_driver/features/profile/presentation/cubit/cubit_profile.dart';
 import 'package:hawiah_driver/features/setting/cubit/setting_cubit.dart';
 import 'package:hawiah_driver/features/setting/cubit/setting_state.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -147,23 +151,46 @@ class OldOrderScreen extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: 40.h),
-                  Container(
-                    height: 50.h,
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: Color(0xffEEEEEE),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "إرسال رسالة ....",
-                          style: AppTextStyle.text14_500,
+                  GestureDetector(
+                    onTap: () {
+                      NavigatorMethods.pushNamed(
+                        context,
+                        SingleChatScreen.routeName,
+                        arguments: SingleChatScreenArgs(
+                          reciverName: "محمد",
+                          reciverImage: Urls.testUserImage,
+                          senderId:
+                              context.read<ProfileCubit>().user.id.toString(),
+                          senderType: "user",
+                          orderId: ordersDate.id.toString(),
                         ),
-                        SizedBox(width: 15),
-                        Image.asset(AppImages.send, height: 30.h, width: 30.w),
-                      ],
+                      );
+                    },
+                    child: Container(
+                      height: 50.h,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Color(0xffEEEEEE),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "إرسال رسالة ....",
+                            style: AppTextStyle.text14_500,
+                          ),
+                          SizedBox(width: 15),
+                          Image.asset(
+                            AppImages.send,
+                            height: 30.h,
+                            width: 30.w,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   SizedBox(height: 50.h),

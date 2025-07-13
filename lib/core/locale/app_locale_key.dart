@@ -28,4 +28,5 @@ class AppLocaleKey {
   static const String address = 'address';
   static const String addNewAddress = 'add_new_address';
   static const String currentAddress = 'currentAddress';
+   static const String today = 'today';
 }

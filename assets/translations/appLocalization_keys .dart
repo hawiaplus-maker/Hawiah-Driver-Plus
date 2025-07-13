@@ -127,4 +127,5 @@ class AppLocalizationKeys {
   static const orderDetails = "order_details";
   static const cancelOrder = "cancel_order";
   static const backOrder = "back_order";
+  
 }

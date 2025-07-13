@@ -17,8 +17,9 @@ class AuthCubit extends Cubit<AuthState> {
   AuthCubit() : super(AuthInitial());
 
   // Default phone number details
-  PhoneNumber fullNumber =
-      PhoneNumber(isoCode: 'SA'); // Default country code (SA)
+  PhoneNumber fullNumber = PhoneNumber(
+    isoCode: 'SA',
+  ); // Default country code (SA)
   String phoneNumber = '';
 
   // For managing password
@@ -100,18 +101,14 @@ class AuthCubit extends Cubit<AuthState> {
     timer = Timer.periodic(Duration(seconds: 1), (timer) {
       if (remainingTime > 0) {
         remainingTime--;
-        emit(AuthTimerState(
-          remainingTime: remainingTime,
-          isTimerCompleted: false,
-        ));
+        emit(
+          AuthTimerState(remainingTime: remainingTime, isTimerCompleted: false),
+        );
       } else {
         isTimerCompleted = true;
         showInvalidCodeMessage = true;
         timer.cancel();
-        emit(AuthTimerState(
-          remainingTime: 0,
-          isTimerCompleted: true,
-        ));
+        emit(AuthTimerState(remainingTime: 0, isTimerCompleted: true));
       }
     });
   }
@@ -174,8 +171,9 @@ class AuthCubit extends Cubit<AuthState> {
     emit(AuthChange());
   }
 
-  PhoneNumber fullNumberResetPassword =
-      PhoneNumber(isoCode: 'SA'); // Default country code (SA)
+  PhoneNumber fullNumberResetPassword = PhoneNumber(
+    isoCode: 'SA',
+  ); // Default country code (SA)
   String phoneNumberResetPassword = '';
   bool isResetPassword = false;
 
@@ -189,34 +187,24 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   final List<PasswordCriteria> listPasswordCriteria = [
-    PasswordCriteria(
-      description: "contains8Characters",
-      isValid: true,
-    ),
-    PasswordCriteria(
-      description: "containsAtLeast1Number",
-      isValid: true,
-    ),
-    PasswordCriteria(
-      description: "containsAtLeast1Uppercase",
-      isValid: true,
-    ),
-    PasswordCriteria(
-      description: "containsAtLeast1Symbol",
-      isValid: false,
-    ),
+    PasswordCriteria(description: "contains8Characters", isValid: true),
+    PasswordCriteria(description: "containsAtLeast1Number", isValid: true),
+    PasswordCriteria(description: "containsAtLeast1Uppercase", isValid: true),
+    PasswordCriteria(description: "containsAtLeast1Symbol", isValid: false),
   ];
 
   ///**************************************login*********************** */
   Future<void> login({
     required String? phoneNumber,
     required String? password,
+    required String? fcmToken,
   }) async {
     emit(AuthLoading());
 
     final body = FormData.fromMap({
       'password': password,
       'mobile': phoneNumber,
+      'fcm_token': fcmToken,
     });
 
     final response = await ApiHelper.instance.post(
@@ -233,9 +221,7 @@ class AuthCubit extends Cubit<AuthState> {
       if (data != null) {
         HiveMethods.updateToken(data['api_token']);
 
-        emit(AuthSuccess(
-          message: message,
-        ));
+        emit(AuthSuccess(message: message));
       } else {
         emit(AuthError(message));
       }
@@ -258,10 +244,7 @@ class AuthCubit extends Cubit<AuthState> {
   }) async {
     emit(AuthLoading());
 
-    final body = FormData.fromMap({
-      'type': type,
-      'mobile': phoneNumber,
-    });
+    final body = FormData.fromMap({'type': type, 'mobile': phoneNumber});
 
     final response = await ApiHelper.instance.post(
       Urls.register,
@@ -275,10 +258,12 @@ class AuthCubit extends Cubit<AuthState> {
       final message = response.data['message'] ?? 'Login completed';
 
       if (data != null) {
-        emit(AuthSuccess(
-          message: message,
-          data: response.data['data'] as Map<String, dynamic>,
-        ));
+        emit(
+          AuthSuccess(
+            message: message,
+            data: response.data['data'] as Map<String, dynamic>,
+          ),
+        );
       } else {
         emit(AuthError(message));
       }
@@ -294,16 +279,10 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   ///**************************************otp*********************** */
-  Future<void> otp({
-    required String? phoneNumber,
-    required int? otp,
-  }) async {
+  Future<void> otp({required String? phoneNumber, required int? otp}) async {
     emit(AuthLoading());
 
-    final body = FormData.fromMap({
-      'otp': otp,
-      'mobile': phoneNumber,
-    });
+    final body = FormData.fromMap({'otp': otp, 'mobile': phoneNumber});
 
     final response = await ApiHelper.instance.post(
       Urls.verify,
@@ -334,14 +313,10 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   //*************rend code************************** */
-  Future<void> resendCodeToApi({
-    required String? phoneNumber,
-  }) async {
+  Future<void> resendCodeToApi({required String? phoneNumber}) async {
     emit(AuthCodeResentLoading());
 
-    final body = FormData.fromMap({
-      'mobile': phoneNumber,
-    });
+    final body = FormData.fromMap({'mobile': phoneNumber});
 
     final response = await ApiHelper.instance.post(
       Urls.resend,
@@ -364,11 +339,17 @@ class AuthCubit extends Cubit<AuthState> {
 
       emit(AuthCodeResentSuccess(message: message));
     } else if (response.state == ResponseState.unauthorized) {
-      emit(AuthCodeResentError(
-          message: response.data['message'] ?? "بيانات غير صحيحة"));
+      emit(
+        AuthCodeResentError(
+          message: response.data['message'] ?? "بيانات غير صحيحة",
+        ),
+      );
     } else if (response.state == ResponseState.error) {
-      emit(AuthCodeResentError(
-          message: response.data['message'] ?? "حدث خطأ أثناء العملية"));
+      emit(
+        AuthCodeResentError(
+          message: response.data['message'] ?? "حدث خطأ أثناء العملية",
+        ),
+      );
     } else if (response.state == ResponseState.offline) {
       emit(AuthCodeResentError(message: "لا يوجد اتصال بالإنترنت"));
     } else {
@@ -377,14 +358,10 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   //*************forgot password************************** */
-  Future<void> forgotPassword({
-    required String? phoneNumber,
-  }) async {
+  Future<void> forgotPassword({required String? phoneNumber}) async {
     emit(AuthLoading());
 
-    final body = FormData.fromMap({
-      'mobile': phoneNumber,
-    });
+    final body = FormData.fromMap({'mobile': phoneNumber});
 
     final response = await ApiHelper.instance.post(
       Urls.forgetPassword,
@@ -465,19 +442,15 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> logout() async {
     emit(AuthLoading());
 
-    final response = await ApiHelper.instance.post(
-      Urls.logout,
-      hasToken: true,
-    );
+    final response = await ApiHelper.instance.post(Urls.logout, hasToken: true);
 
     if (response.state == ResponseState.complete) {
       final data = response.data['data'];
       final message = response.data['message'] ?? 'Logout completed';
 
       if (response.state == ResponseState.complete) {
-        emit(AuthSuccess(
-          message: message,
-        ));
+        HiveMethods.deleteToken();
+        emit(AuthSuccess(message: message));
       } else if (response.state == ResponseState.unauthorized) {
         emit(AuthError(response.data['message'] ?? "تم انتهاء الجلسة"));
       } else if (response.state == ResponseState.error) {
@@ -503,7 +476,7 @@ class AuthCubit extends Cubit<AuthState> {
       'name': name,
       'mobile': phoneNumber,
       'password': password,
-      "password_confirmation": password_confirmation
+      "password_confirmation": password_confirmation,
     });
 
     final response = await ApiHelper.instance.post(
@@ -517,10 +490,12 @@ class AuthCubit extends Cubit<AuthState> {
       final message = response.data['message'] ?? 'Login completed';
 
       if (data != null) {
-        emit(AuthSuccess(
-          message: message,
-          data: response.data['data'] as Map<String, dynamic>,
-        ));
+        emit(
+          AuthSuccess(
+            message: message,
+            data: response.data['data'] as Map<String, dynamic>,
+          ),
+        );
       } else {
         emit(AuthError(message));
       }
@@ -541,8 +516,5 @@ class PasswordCriteria {
   final bool isValid;
 
   // Constructor
-  PasswordCriteria({
-    required this.description,
-    required this.isValid,
-  });
+  PasswordCriteria({required this.description, required this.isValid});
 }

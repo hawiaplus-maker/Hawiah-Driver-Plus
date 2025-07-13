@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hawiah_driver/core/custom_widgets/custom_loading/custom_loading.dart';
 import 'package:hawiah_driver/core/hive/hive_methods.dart';
-import 'package:hawiah_driver/core/images/app_images.dart';
 import 'package:hawiah_driver/features/on-boarding/presentation/widgets/on-boarding-appBar-widget.dart';
 import 'package:hawiah_driver/features/on-boarding/presentation/widgets/on-boarding-content-widget.dart';
 import 'package:hawiah_driver/features/on-boarding/presentation/widgets/on-boarding-page-view-widget.dart';
@@ -33,9 +33,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           final cubit = OnBoardingCubit.get(context);
 
           if (state is OnBoardingLoading) {
-            return Center(
-              child: Image.asset(AppImages.onboarding1, fit: BoxFit.fill),
-            );
+            return Center(child: CustomLoading());
           }
 
           if (state is OnBoardingError || cubit.onBoardingList.isEmpty) {

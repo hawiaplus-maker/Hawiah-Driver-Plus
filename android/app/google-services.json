@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "479407077856",
+    "project_id": "hawia-11d8f",
+    "storage_bucket": "hawia-11d8f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:479407077856:android:94ead91acb0441c9225385",
+        "android_client_info": {
+          "package_name": "com.example.hawiah_client"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBiwYixw0E06-2xnV1QfaI8QOoKcXHc348"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:479407077856:android:840e35d0a0d29f0a225385",
+        "android_client_info": {
+          "package_name": "com.future.hawiah_driver"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBiwYixw0E06-2xnV1QfaI8QOoKcXHc348"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

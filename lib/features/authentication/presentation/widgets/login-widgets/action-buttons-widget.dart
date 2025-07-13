@@ -12,57 +12,49 @@ class ActionButtonsWidget extends StatelessWidget {
   final GlobalKey<FormState> formKey;
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthCubit, AuthState>(builder: (context, state) {
-      final isLoading = state is AuthLoading;
-      return Column(
-        children: [
-          Container(
-            alignment: Alignment.topCenter,
-            child: GlobalElevatedButton(
-              isLoading: isLoading,
-              label: "login".tr(),
+    return BlocBuilder<AuthCubit, AuthState>(
+      builder: (context, state) {
+        final isLoading = state is AuthLoading;
+        return Column(
+          children: [
+            Container(
+              alignment: Alignment.topCenter,
+              child: GlobalElevatedButton(
+                isLoading: isLoading,
+                label: "login".tr(),
 
-              onPressed: isLoading
-                  ? null
-                  : () async {
-                      if (formKey.currentState!.validate()) {
-                        final cleanedPhone = AuthCubit.get(context)
-                            .phoneNumber
-                            .replaceFirst('+966', '0');
-                        AuthCubit.get(context).login(
-                            phoneNumber:
-                                AuthCubit.get(context).PhoneController.text,
-                            password: AuthCubit.get(context).passwordLogin);
-                      }
+                onPressed:
+                    isLoading
+                        ? null
+                        : () async {
+                          if (formKey.currentState!.validate()) {
+                            final cleanedPhone = AuthCubit.get(
+                              context,
+                            ).phoneNumber.replaceFirst('+966', '0');
+                            AuthCubit.get(context).login(
+                              phoneNumber:
+                                  AuthCubit.get(context).PhoneController.text,
+                              password: AuthCubit.get(context).passwordLogin,
+                            );
+                          }
 
-                      // Navigator.pushReplacement(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //         builder: (context) =>
-                      //             const PersonalProfileCompletionScreen()));
-                    },
-              backgroundColor: Color(0xffEDEEFF),
-              textColor: AppColor.darkMainAppColor,
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              borderRadius: BorderRadius.circular(10),
-              fixedWidth: 0.80, // 80% of the screen width
+                          // Navigator.pushReplacement(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //         builder: (context) =>
+                          //             const PersonalProfileCompletionScreen()));
+                        },
+                backgroundColor: AppColor.mainAppColor,
+                textColor: AppColor.whiteColor,
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                borderRadius: BorderRadius.circular(10),
+                fixedWidth: 0.80, // 80% of the screen width
+              ),
             ),
-          ),
-          SizedBox(height: 20.h),
-          Container(
-            alignment: Alignment.bottomCenter,
-            child: GlobalElevatedButton(
-              label: "login_as_guest".tr(),
-              onPressed: () {},
-              backgroundColor: AppColor.mainAppColor,
-              textColor: Colors.white,
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              borderRadius: BorderRadius.circular(10),
-              fixedWidth: 0.80, // 80% of the screen width
-            ),
-          ),
-        ],
-      );
-    });
+            SizedBox(height: 20.h),
+          ],
+        );
+      },
+    );
   }
 }

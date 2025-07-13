@@ -16,7 +16,7 @@ import '../controllers/auth-cubit/auth-state.dart';
 
 class VerificationOtpScreen extends StatefulWidget {
   const VerificationOtpScreen({Key? key, this.phoneNumber, this.otp})
-      : super(key: key);
+    : super(key: key);
 
   final String? phoneNumber;
   final int? otp;
@@ -76,7 +76,9 @@ class _VerificationOtpScreenState extends State<VerificationOtpScreen> {
                       Text(
                         "enterVerificationCode".tr(),
                         style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold),
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       SizedBox(height: 10),
                       Text(
@@ -87,9 +89,10 @@ class _VerificationOtpScreenState extends State<VerificationOtpScreen> {
                   ),
                   SizedBox(height: 30),
                   Directionality(
-                    textDirection: context.locale.languageCode == 'ar'
-                        ? TextDirection.ltr
-                        : TextDirection.rtl,
+                    textDirection:
+                        context.locale.languageCode == 'ar'
+                            ? TextDirection.ltr
+                            : TextDirection.rtl,
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -98,44 +101,55 @@ class _VerificationOtpScreenState extends State<VerificationOtpScreen> {
                         Text(
                           '${widget.phoneNumber}' ?? '+966 5 123 45678',
                           style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold),
+                            fontSize: 16,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         SizedBox(width: 10),
-                        Image.asset("assets/images/refresh-cw-03.png",
-                            fit: BoxFit.fill, height: 18.w, width: 18.h),
+                        Image.asset(
+                          "assets/images/refresh-cw-03.png",
+                          fit: BoxFit.fill,
+                          height: 18.w,
+                          width: 18.h,
+                        ),
                       ],
                     ),
                   ),
                   SizedBox(height: 30),
-                  Center(
-                    child: Pinput(
-                      controller: otpController,
-                      length: 5,
-                      onChanged: (value) {
-                        setState(() {
-                          isOtpValid = value.length == 5;
-                        });
-                      },
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                      ],
-                      defaultPinTheme: PinTheme(
-                        width: 56,
-                        height: 56,
-                        textStyle: TextStyle(
-                          fontSize: 20,
-                          color: Colors.black,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(
-                            color: isOtpValid ? Colors.green : Colors.red,
-                            width: 2,
+                  Directionality(
+                    textDirection:
+                        context.locale.languageCode == 'ar'
+                            ? TextDirection.ltr
+                            : TextDirection.ltr,
+                    child: Center(
+                      child: Pinput(
+                        controller: otpController,
+                        length: 5,
+                        onChanged: (value) {
+                          setState(() {
+                            isOtpValid = value.length == 5;
+                          });
+                        },
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        defaultPinTheme: PinTheme(
+                          width: 56,
+                          height: 56,
+                          textStyle: TextStyle(
+                            fontSize: 20,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w600,
                           ),
-                          borderRadius: BorderRadius.circular(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(
+                              color: isOtpValid ? Colors.green : Colors.red,
+                              width: 2,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                         ),
                       ),
                     ),
@@ -143,49 +157,56 @@ class _VerificationOtpScreenState extends State<VerificationOtpScreen> {
                   SizedBox(height: 20),
                   authCubit.showInvalidCodeMessage
                       ? Center(
-                          child: Text(
-                            'كود غير صحيح، الرجاء المحاولة مرة أخرى',
-                            style: TextStyle(fontSize: 16, color: Colors.red),
-                          ),
-                        )
+                        child: Text(
+                          'كود غير صحيح، الرجاء المحاولة مرة أخرى',
+                          style: TextStyle(fontSize: 16, color: Colors.red),
+                        ),
+                      )
                       : Center(
-                          child: Text.rich(
-                            TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: 'لم يصلك الرمز؟ إعادة الإرسال بعد ',
-                                  style: TextStyle(
-                                      fontSize: 16, color: Colors.black),
+                        child: Text.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text: 'لم يصلك الرمز؟ إعادة الإرسال بعد ',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.black,
                                 ),
-                                TextSpan(
-                                  text:
-                                      '${authCubit.remainingTime < 10 ? "00:0${authCubit.remainingTime}" : "00:${authCubit.remainingTime}"}',
-                                  style: TextStyle(
-                                      fontSize: 16, color: Colors.blue),
+                              ),
+                              TextSpan(
+                                text:
+                                    '${authCubit.remainingTime < 10 ? "00:0${authCubit.remainingTime}" : "00:${authCubit.remainingTime}"}',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.blue,
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
+                      ),
                   SizedBox(height: 20),
                   Spacer(),
                   Center(
                     child: GlobalElevatedButton(
                       label: "resend_code".tr(),
-                      onPressed: authCubit.isTimerCompleted
-                          ? () {
-                              authCubit.resetInvalidCodeMessage();
-                              authCubit.startTimer();
-                              otpController.clear();
-                              authCubit.resendCodeToApi(
-                                phoneNumber: widget.phoneNumber ?? "",
-                              );
-                            }
-                          : null,
+                      onPressed:
+                          authCubit.isTimerCompleted
+                              ? () {
+                                authCubit.resetInvalidCodeMessage();
+                                authCubit.startTimer();
+                                otpController.clear();
+                                authCubit.resendCodeToApi(
+                                  phoneNumber: widget.phoneNumber ?? "",
+                                );
+                              }
+                              : null,
                       backgroundColor: AppColor.mainAppColor,
                       textColor: Colors.white,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
                       borderRadius: BorderRadius.circular(20),
                       fixedWidth: 0.80,
                     ),
@@ -205,8 +226,10 @@ class _VerificationOtpScreenState extends State<VerificationOtpScreen> {
                       },
                       backgroundColor: Color(0xffEDEEFF),
                       textColor: AppColor.mainAppColor,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
                       borderRadius: BorderRadius.circular(20),
                       fixedWidth: 0.80, // 80% of the screen width
                     ),
@@ -235,26 +258,34 @@ class _VerificationOtpScreenState extends State<VerificationOtpScreen> {
 
             if (isResetPassword) {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => ResetPasswordScreen(
-                            phone: widget.phoneNumber ?? "",
-                            otp: widget.otp ?? 0,
-                          )));
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (context) => ResetPasswordScreen(
+                        phone: widget.phoneNumber ?? "",
+                        otp: widget.otp ?? 0,
+                      ),
+                ),
+              );
             } else {
               if (context.read<AuthCubit>().selectedAccountType == 0) {
                 Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => PersonalProfileCompletionScreen(
-                              phoneNumber: widget.phoneNumber ?? "",
-                            )));
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) => PersonalProfileCompletionScreen(
+                          phoneNumber: widget.phoneNumber ?? "",
+                        ),
+                  ),
+                );
               } else {
                 Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            const CompanyProfileCompletionScreen()));
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) => const CompanyProfileCompletionScreen(),
+                  ),
+                );
               }
             }
           } else if (state is AuthError) {

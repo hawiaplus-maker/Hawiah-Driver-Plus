@@ -11,7 +11,6 @@ import 'package:hawiah_driver/features/authentication/presentation/screens/forge
 import 'package:hawiah_driver/features/authentication/presentation/widgets/common/appbar-auth-sidget.dart';
 import 'package:hawiah_driver/features/authentication/presentation/widgets/common/phone-input-widget.dart';
 import 'package:hawiah_driver/features/authentication/presentation/widgets/login-widgets/action-buttons-widget.dart';
-import 'package:hawiah_driver/features/authentication/presentation/widgets/login-widgets/footer-text-widget.dart';
 import 'package:hawiah_driver/features/authentication/presentation/widgets/login-widgets/password-input-widget.dart';
 import 'package:hawiah_driver/features/layout/presentation/screens/layout-screen.dart';
 
@@ -40,10 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Text(
-                    "welcome".tr(),
-                    style: AppTextStyle.text20_700,
-                  ),
+                  Text("welcome".tr(), style: AppTextStyle.text20_700),
                   Text(
                     "welcome_back".tr(),
                     style: TextStyle(fontSize: 15.sp, color: Color(0xff979797)),
@@ -58,27 +54,25 @@ class _LoginScreenState extends State<LoginScreen> {
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  const ForgetPasswordScreen()));
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ForgetPasswordScreen(),
+                        ),
+                      );
                     },
                     child: Container(
                       alignment: Alignment.centerLeft,
                       child: Text(
                         "forgot_password".tr(),
                         style: TextStyle(
-                            color: AppColor.mainAppColor, fontSize: 15.sp),
+                          color: AppColor.mainAppColor,
+                          fontSize: 15.sp,
+                        ),
                       ),
                     ),
                   ),
                   SizedBox(height: 20.h),
-                  ActionButtonsWidget(
-                    formKey: formKey,
-                  ),
-                  Spacer(),
-                  FooterTextWidget(),
-                  SizedBox(height: 20.h),
+                  ActionButtonsWidget(formKey: formKey),
                 ],
               ),
             ),

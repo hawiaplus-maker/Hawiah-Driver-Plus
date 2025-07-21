@@ -1,6 +1,9 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hawiah_driver/core/custom_widgets/global-elevated-button-widget.dart';
+import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/core/theme/app_colors.dart';
+
 void showThankYouBottomSheet(BuildContext context) {
   showModalBottomSheet(
     context: context,
@@ -14,31 +17,21 @@ void showThankYouBottomSheet(BuildContext context) {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.favorite,
-              color: Colors.red,
-              size: 50,
-            ),
+            Icon(Icons.favorite, color: Colors.red, size: 50),
             SizedBox(height: 16),
             Text(
-              'شكراً لوقتك الثمين',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              AppLocaleKey.valuableTime.tr(),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 8),
             Text(
-              'نحن نحرص بعناية دائماً تحسين مستوى خدمات تطبيق هاوية. نتمنى لك تجربة سعيدة. هل تود ظهور التقييم مرة أخرى؟',
+              AppLocaleKey.improveOurServices.tr(),
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
             SizedBox(height: 24),
             GlobalElevatedButton(
-              label: 'بالتأكيد !',
+              label: AppLocaleKey.confirm.tr(),
               onPressed: () {},
               backgroundColor: AppColor.mainAppColor,
               textColor: Colors.white,
@@ -48,14 +41,14 @@ void showThankYouBottomSheet(BuildContext context) {
             ),
             SizedBox(height: 16),
             GlobalElevatedButton(
-              label: 'لا تسألني مجدداً',
+              label: AppLocaleKey.askMeAgain.tr(),
               onPressed: () {},
               backgroundColor: Colors.white,
               textColor: Colors.red.shade300,
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               borderRadius: BorderRadius.circular(20),
               fixedWidth: 0.80, // 80% of the screen width
-            )
+            ),
           ],
         ),
       );

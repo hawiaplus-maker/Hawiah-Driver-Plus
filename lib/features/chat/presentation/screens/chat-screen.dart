@@ -1,6 +1,8 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hawiah_driver/core/custom_widgets/custom_app_bar/custom_app_bar.dart';
+import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/core/theme/app_colors.dart';
 
 class AllChatsScreen extends StatelessWidget {
@@ -9,7 +11,10 @@ class AllChatsScreen extends StatelessWidget {
     return Scaffold(
       appBar: CustomAppBar(
         context,
-        title: Text('المحادثات', style: TextStyle(color: Colors.black)),
+        title: Text(
+          AppLocaleKey.chat.tr(),
+          style: TextStyle(color: Colors.black),
+        ),
         centerTitle: true,
       ),
       body: Container(
@@ -22,7 +27,7 @@ class AllChatsScreen extends StatelessWidget {
                   horizontal: 20,
                   vertical: 10,
                 ),
-                hintText: "ابحث عن محادثة",
+                hintText: AppLocaleKey.findAConversation.tr(),
                 hintStyle: TextStyle(
                   color: Color(0xff979797),
                   fontSize: 15.sp,

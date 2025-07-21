@@ -167,7 +167,7 @@ class _VerificationOtpScreenState extends State<VerificationOtpScreen> {
                           TextSpan(
                             children: [
                               TextSpan(
-                                text: 'لم يصلك الرمز؟ إعادة الإرسال بعد ',
+                                text: 'resend_code_message'.tr(),
                                 style: TextStyle(
                                   fontSize: 16,
                                   color: Colors.black,

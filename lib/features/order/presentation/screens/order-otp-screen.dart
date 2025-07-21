@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hawiah_driver/core/custom_widgets/global-elevated-button-widget.dart';
+import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/features/order/presentation/screens/confirmation_screen.dart';
 import 'package:pinput/pinput.dart';
 
@@ -57,7 +58,7 @@ class _OrderOtpScreenState extends State<OrderOtpScreen> {
                   ),
                   SizedBox(height: 10),
                   Text(
-                    "يرجى كتابة كود التحقيق المرفق مع العميل",
+                    AppLocaleKey.investigationCode.tr(),
                     style: TextStyle(fontSize: 14),
                   ),
                 ],
@@ -69,7 +70,7 @@ class _OrderOtpScreenState extends State<OrderOtpScreen> {
                   textDirection: TextDirection.ltr,
                   child: Pinput(
                     controller: otpController,
-                    length: 5,
+                    length: 4,
                     onChanged: (value) {
                       setState(() {
                         isOtpValid = value.length == 4;

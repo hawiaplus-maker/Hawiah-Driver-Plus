@@ -5,22 +5,26 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hawiah_driver/core/custom_widgets/custom-text-field-widget.dart';
 import 'package:hawiah_driver/core/custom_widgets/global-elevated-button-widget.dart';
-import 'package:hawiah_driver/features/authentication/presentation/screens/login-screen.dart';
 import 'package:hawiah_driver/core/theme/app_colors.dart';
+import 'package:hawiah_driver/features/authentication/presentation/screens/login-screen.dart';
+
 import '../controllers/auth-cubit/auth-cubit.dart';
 import '../controllers/auth-cubit/auth-state.dart';
 
 class ResetPasswordScreen extends StatelessWidget {
-  const ResetPasswordScreen(
-      {super.key, required this.phone, required this.otp});
+  const ResetPasswordScreen({
+    super.key,
+    required this.phone,
+    required this.otp,
+  });
   final String phone;
   final int otp;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomInset: false,
-        body: BlocConsumer<AuthCubit, AuthState>(
-            builder: (BuildContext context, AuthState state) {
+      resizeToAvoidBottomInset: false,
+      body: BlocConsumer<AuthCubit, AuthState>(
+        builder: (BuildContext context, AuthState state) {
           final authCubit = AuthCubit.get(context);
           context.read<AuthCubit>().timer.cancel();
           String passwordReset = authCubit.passwordReset;
@@ -45,7 +49,9 @@ class ResetPasswordScreen extends StatelessWidget {
                         Text(
                           "createNewPassword".tr(),
                           style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold),
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         SizedBox(height: 10),
                         Text(
@@ -97,19 +103,20 @@ class ResetPasswordScreen extends StatelessWidget {
                     CustomTextField(
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'كلمة المرور لا يمكن أن تكون فارغة';
+                          return 'password_required'.tr();
                         }
                         if (value.length < 8) {
-                          return 'كلمة المرور يجب ألا تقل عن 8 أحرف';
+                          return 'password_min_length'.tr();
                         }
                         if (!RegExp(r'[0-9]').hasMatch(value)) {
-                          return 'كلمة المرور يجب أن تحتوي على رقم واحد على الأقل';
+                          return 'password_number_required'.tr();
                         }
                         if (!RegExp(r'[!@#\$&*~%^-_=+<>?]').hasMatch(value)) {
-                          return 'كلمة المرور يجب أن تحتوي على رمز مثل @ أو # أو !';
+                          return 'password_symbol_required'.tr();
                         }
                         return null;
                       },
+
                       controller: authCubit.confirmPasswordController,
                       labelText: 'confirm_password'.tr(),
                       hintText: 'enter_your_password'.tr(),
@@ -168,12 +175,16 @@ class ResetPasswordScreen extends StatelessWidget {
                         backgroundColor: Color(0xffEDEEFF),
                         textColor:
                             authCubit.passwordController.text.isNotEmpty &&
-                                    authCubit.confirmPasswordController.text
+                                    authCubit
+                                        .confirmPasswordController
+                                        .text
                                         .isNotEmpty
                                 ? AppColor.mainAppColor
                                 : AppColor.mainAppColor.withOpacity(0.5),
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
                         borderRadius: BorderRadius.circular(20),
                         fixedWidth: 0.80, // 80% of the screen width
                       ),
@@ -184,7 +195,8 @@ class ResetPasswordScreen extends StatelessWidget {
               ),
             ),
           );
-        }, listener: (BuildContext context, AuthState state) {
+        },
+        listener: (BuildContext context, AuthState state) {
           if (state is AuthError) {
             Fluttertoast.showToast(
               msg: state.message,
@@ -213,6 +225,8 @@ class ResetPasswordScreen extends StatelessWidget {
               }
             });
           }
-        }));
+        },
+      ),
+    );
   }
 }

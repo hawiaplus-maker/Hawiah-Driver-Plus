@@ -1,12 +1,14 @@
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hawiah_driver/core/images/app_images.dart';
+import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/features/profile/presentation/cubit/cubit_profile.dart';
 import 'package:hawiah_driver/features/profile/presentation/cubit/state_profile.dart';
-import 'package:image_picker/image_picker.dart'; // إضافة المكتبة
+import 'package:image_picker/image_picker.dart';
 
 class UserProfile extends StatefulWidget {
   @override
@@ -34,15 +36,16 @@ class _UserProfileState extends State<UserProfile> {
   }
 
   Future<void> _pickImage() async {
-    final XFile? pickedFile =
-        await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile = await _picker.pickImage(
+      source: ImageSource.gallery,
+    );
 
     if (pickedFile != null) {
       setState(() {
         _pickedImage = File(pickedFile.path);
       });
 
-      Fluttertoast.showToast(msg: "تم اختيار الصورة");
+      Fluttertoast.showToast(msg: AppLocaleKey.imageSelected.tr());
     }
   }
 
@@ -80,21 +83,22 @@ class _UserProfileState extends State<UserProfile> {
             imageUrl = state.user.image;
             return SafeArea(
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 20,
+                ),
                 child: Column(
                   children: [
                     GestureDetector(
                       onTap: _pickImage,
                       child: CircleAvatar(
                         radius: 50,
-                        backgroundImage: _pickedImage != null
-                            ? FileImage(_pickedImage!)
-                            : (imageUrl.isNotEmpty
-                                ? NetworkImage(imageUrl) as ImageProvider
-                                : AssetImage(
-                                    AppImages.profileEmptyImage,
-                                  )),
+                        backgroundImage:
+                            _pickedImage != null
+                                ? FileImage(_pickedImage!)
+                                : (imageUrl.isNotEmpty
+                                    ? NetworkImage(imageUrl) as ImageProvider
+                                    : AssetImage(AppImages.profileEmptyImage)),
                         child: Align(
                           alignment: Alignment.bottomRight,
                           child: CircleAvatar(
@@ -106,8 +110,10 @@ class _UserProfileState extends State<UserProfile> {
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: Color(0xff2204AE),
-                                border:
-                                    Border.all(color: Colors.black, width: .5),
+                                border: Border.all(
+                                  color: Colors.black,
+                                  width: .5,
+                                ),
                               ),
                               child: Icon(
                                 Icons.camera_alt_outlined,
@@ -155,7 +161,7 @@ class _UserProfileState extends State<UserProfile> {
                         );
                       },
                       child: Text(
-                        'المتابعة',
+                        AppLocaleKey.tracking.tr(),
                         style: TextStyle(color: Colors.white, fontSize: 16),
                       ),
                     ),
@@ -167,9 +173,7 @@ class _UserProfileState extends State<UserProfile> {
           } else if (state is ProfileLoading) {
             return Center(child: CircularProgressIndicator());
           } else
-            return Container(
-              color: Colors.red,
-            );
+            return Container(color: Colors.red);
         },
       ),
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hawiah_driver/core/custom_widgets/custom_loading/custom_loading.dart';
 import 'package:hawiah_driver/core/hive/hive_methods.dart';
+import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/features/on-boarding/presentation/widgets/on-boarding-appBar-widget.dart';
 import 'package:hawiah_driver/features/on-boarding/presentation/widgets/on-boarding-content-widget.dart';
 import 'package:hawiah_driver/features/on-boarding/presentation/widgets/on-boarding-page-view-widget.dart';
@@ -37,7 +38,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           }
 
           if (state is OnBoardingError || cubit.onBoardingList.isEmpty) {
-            return const Center(child: Text("حدث خطأ أثناء تحميل البيانات."));
+            return const Center(child: Text(AppLocaleKey.loadingRequests));
           }
 
           final currentIndex = cubit.currentIndex;

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hawiah_driver/core/custom_widgets/custom_image/custom_network_image.dart';
+import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/core/theme/app_colors.dart';
 import 'package:hawiah_driver/core/theme/app_text_style.dart';
 import 'package:hawiah_driver/core/utils/date_methods.dart';
@@ -56,7 +57,7 @@ class _OrdersScreenState extends State<OrdersScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("الطلبات".tr(), style: AppTextStyle.text20_700),
+        title: Text(AppLocaleKey.orders.tr(), style: AppTextStyle.text20_700),
         centerTitle: true,
       ),
       body: Column(
@@ -82,8 +83,8 @@ class _OrdersScreenState extends State<OrdersScreen>
                 dividerHeight: 0,
                 indicatorSize: TabBarIndicatorSize.tab,
                 tabs: [
-                  Tab(text: "حالية".tr()),
-                  Tab(text: "إنتهت".tr()),
+                  Tab(text: AppLocaleKey.current.tr()),
+                  Tab(text: AppLocaleKey.end.tr()),
                 ],
               ),
             ),
@@ -97,8 +98,7 @@ class _OrdersScreenState extends State<OrdersScreen>
                 }
 
                 if (state is OrderError) {
-                  return const Center(
-                      child: Text("حدث خطأ أثناء تحميل الطلبات"));
+                  return Center(child: Text(AppLocaleKey.loadingRequests.tr()));
                 }
 
                 final orders = orderCubit.orders?.data ?? [];
@@ -139,9 +139,11 @@ class _OrdersScreenState extends State<OrdersScreen>
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => isCurrent
-                    ? CurrentOrderScreen(ordersDate: order)
-                    : OldOrderScreen(ordersDate: order),
+                builder:
+                    (_) =>
+                        isCurrent
+                            ? CurrentOrderScreen(ordersDate: order)
+                            : OldOrderScreen(ordersDate: order),
               ),
             );
           },
@@ -196,7 +198,7 @@ class _OrdersScreenState extends State<OrdersScreen>
                             text: TextSpan(
                               children: [
                                 TextSpan(
-                                  text: 'حالة:',
+                                  text: AppLocaleKey.states.tr() + ': ',
                                   style: AppTextStyle.text16_600,
                                 ),
                                 TextSpan(
@@ -215,13 +217,17 @@ class _OrdersScreenState extends State<OrdersScreen>
                   Row(
                     children: [
                       Text(
-                        "تفاصيل الطلب",
-                        style: AppTextStyle.text16_600
-                            .copyWith(color: AppColor.mainAppColor),
+                        AppLocaleKey.orderDetails.tr(),
+                        style: AppTextStyle.text16_600.copyWith(
+                          color: AppColor.mainAppColor,
+                        ),
                       ),
                       const SizedBox(width: 5),
-                      Icon(Icons.arrow_forward_ios,
-                          color: AppColor.mainAppColor, size: 20),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        color: AppColor.mainAppColor,
+                        size: 20,
+                      ),
                     ],
                   ),
                 ],

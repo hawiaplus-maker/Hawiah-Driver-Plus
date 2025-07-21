@@ -1,8 +1,10 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hawiah_driver/core/custom_widgets/custom_image/custom_network_image.dart';
 import 'package:hawiah_driver/core/images/app_images.dart';
+import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/core/networking/urls.dart';
 import 'package:hawiah_driver/core/theme/app_colors.dart';
 import 'package:hawiah_driver/core/theme/app_text_style.dart';
@@ -26,7 +28,7 @@ class OldOrderScreen extends StatelessWidget {
     final double netTotal = totalPrice + vat;
     return Scaffold(
       appBar: AppBar(
-        title: Text('تفاصيل الطلب', style: AppTextStyle.text20_700),
+        title: Text(AppLocaleKey.orderDetails, style: AppTextStyle.text20_700),
         centerTitle: true,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_sharp, color: Colors.black),
@@ -73,7 +75,7 @@ class OldOrderScreen extends StatelessWidget {
                                     text: TextSpan(
                                       children: [
                                         TextSpan(
-                                          text: ' طلب رقم:',
+                                          text: AppLocaleKey.orderNumber.tr(),
                                           style: AppTextStyle.text16_600
                                               .copyWith(
                                                 color: AppColor.blackColor
@@ -137,7 +139,7 @@ class OldOrderScreen extends StatelessWidget {
                             SizedBox(height: 10.h),
 
                             Text(
-                              "بيانات العميل",
+                              AppLocaleKey.customerData.tr(),
                               style: AppTextStyle.text16_700,
                             ),
                             Text(
@@ -180,7 +182,7 @@ class OldOrderScreen extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            "إرسال رسالة ....",
+                            AppLocaleKey.sendMessage.tr(),
                             style: AppTextStyle.text14_500,
                           ),
                           SizedBox(width: 15),
@@ -237,7 +239,13 @@ class OldOrderScreen extends StatelessWidget {
                                                         height: 50.h,
                                                       ),
                                                     ),
-                                                    Text('واتساب'),
+                                                    Text(
+                                                      AppLocaleKey.whatsApp
+                                                          .tr(),
+                                                      style:
+                                                          AppTextStyle
+                                                              .text16_500,
+                                                    ),
                                                   ],
                                                 ),
                                                 Column(
@@ -256,7 +264,13 @@ class OldOrderScreen extends StatelessWidget {
                                                       ),
                                                     ),
                                                     SizedBox(height: 10.h),
-                                                    Text('اتصال الهاتف'),
+                                                    Text(
+                                                      AppLocaleKey.phoneCall
+                                                          .tr(),
+                                                      style:
+                                                          AppTextStyle
+                                                              .text16_500,
+                                                    ),
                                                   ],
                                                 ),
                                               ],
@@ -284,7 +298,7 @@ class OldOrderScreen extends StatelessWidget {
                                 ),
                                 SizedBox(height: 5),
                                 Text(
-                                  "تواصل مع العميل",
+                                  AppLocaleKey.contactCustomer.tr(),
                                   style: TextStyle(fontSize: 12.sp),
                                 ),
                               ],
@@ -308,7 +322,7 @@ class OldOrderScreen extends StatelessWidget {
                               ),
                               SizedBox(height: 5),
                               Text(
-                                "تواصل مع الدعم",
+                                AppLocaleKey.contactCustomer.tr(),
                                 style: TextStyle(fontSize: 12.sp),
                               ),
                             ],
@@ -328,7 +342,7 @@ class OldOrderScreen extends StatelessWidget {
                                   height: 45.h,
                                 ),
                               ),
-                              Text('عرض الموقع'),
+                              Text(AppLocaleKey.viewWebsite.tr()),
                             ],
                           ),
                         ],

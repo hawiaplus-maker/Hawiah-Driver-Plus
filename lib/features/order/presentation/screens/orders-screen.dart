@@ -142,113 +142,116 @@ class _OrdersScreenState extends State<OrdersScreen>
       return const Center(child: Text("لا توجد طلبات في هذا القسم"));
     }
 
-    return ListView.builder(
-      itemCount: orders.length,
-      padding: const EdgeInsets.all(16),
-      itemBuilder: (context, index) {
-        final order = orders[index];
-        return GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder:
-                    (_) =>
-                        isCurrent
-                            ? CurrentOrderScreen(ordersDate: order)
-                            : OldOrderScreen(ordersDate: order),
-              ),
-            );
-          },
-          child: Card(
-            margin: EdgeInsets.symmetric(vertical: 10),
-            elevation: 5,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: Container(
-              padding: EdgeInsets.all(10),
-              margin: EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 80),
+      child: ListView.builder(
+        itemCount: orders.length,
+        padding: const EdgeInsets.all(16),
+        itemBuilder: (context, index) {
+          final order = orders[index];
+          return GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (_) =>
+                          isCurrent
+                              ? CurrentOrderScreen(ordersDate: order)
+                              : OldOrderScreen(ordersDate: order),
+                ),
+              );
+            },
+            child: Card(
+              margin: EdgeInsets.symmetric(vertical: 10),
+              elevation: 5,
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      CustomNetworkImage(
-                        imageUrl: order.image ?? "",
-                        height: 70.h,
-                        width: 70.h,
-                      ),
-                      const SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            order.product ?? '---',
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          Text(
-                            DateMethods.formatToFullData(
-                              DateTime.tryParse(order.createdAt ?? "") ??
-                                  DateTime.now(),
-                            ),
-                            style: const TextStyle(
-                              color: Colors.black54,
-                              fontSize: 14,
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          RichText(
-                            text: TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: AppLocaleKey.states.tr() + ': ',
-                                  style: AppTextStyle.text16_600,
-                                ),
-                                TextSpan(
-                                  text: order.status['ar'] ?? '',
-                                  style: AppTextStyle.text16_500.copyWith(
-                                    color: AppColor.mainAppColor,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        AppLocaleKey.orderDetails.tr(),
-                        style: AppTextStyle.text16_600.copyWith(
-                          color: AppColor.mainAppColor,
+              child: Container(
+                padding: EdgeInsets.all(10),
+                margin: EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        CustomNetworkImage(
+                          imageUrl: order.image ?? "",
+                          height: 70.h,
+                          width: 70.h,
                         ),
-                      ),
-                      const SizedBox(width: 5),
-                      Icon(
-                        Icons.arrow_forward_ios,
-                        color: AppColor.mainAppColor,
-                        size: 20,
-                      ),
-                    ],
-                  ),
-                ],
+                        const SizedBox(width: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              order.product ?? '---',
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            Text(
+                              DateMethods.formatToFullData(
+                                DateTime.tryParse(order.createdAt ?? "") ??
+                                    DateTime.now(),
+                              ),
+                              style: const TextStyle(
+                                color: Colors.black54,
+                                fontSize: 14,
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: AppLocaleKey.states.tr() + ': ',
+                                    style: AppTextStyle.text16_600,
+                                  ),
+                                  TextSpan(
+                                    text: order.status['ar'] ?? '',
+                                    style: AppTextStyle.text16_500.copyWith(
+                                      color: AppColor.mainAppColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          AppLocaleKey.orderDetails.tr(),
+                          style: AppTextStyle.text16_600.copyWith(
+                            color: AppColor.mainAppColor,
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          color: AppColor.mainAppColor,
+                          size: 20,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

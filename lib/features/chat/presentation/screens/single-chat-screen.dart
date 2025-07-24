@@ -17,10 +17,13 @@ import 'package:hawiah_driver/features/chat/presentation/widget/message_widget.d
 
 class SingleChatScreenArgs {
   final String senderId;
+  final String reciverId;
   final String reciverImage;
   final String reciverName;
   final String senderType;
+  final String reciverType;
   final String orderId;
+  final VoidCallback onMessageSent;
 
   SingleChatScreenArgs({
     required this.senderId,
@@ -28,6 +31,9 @@ class SingleChatScreenArgs {
     required this.orderId,
     required this.reciverImage,
     required this.reciverName,
+    required this.reciverId,
+    required this.reciverType,
+    required this.onMessageSent,
   });
 }
 
@@ -60,114 +66,126 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => _chatCubit,
-      child: Scaffold(
-        appBar: CustomAppBar(
-          context,
-          titleText: widget.args.reciverName,
-          centerTitle: false,
-          leadingWidth: 70,
-          actions: [
-            IconButton(
-              onPressed: () => Navigator.pop(context),
-              icon: RotatedBox(
-                quarterTurns: 90,
-                child: Icon(Icons.arrow_back_ios_new),
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          widget.args.onMessageSent.call();
+        }
+      },
+      child: BlocProvider(
+        create: (context) => _chatCubit,
+        child: Scaffold(
+          appBar: CustomAppBar(
+            context,
+            titleText: widget.args.reciverName,
+            centerTitle: false,
+            leadingWidth: 70,
+            actions: [
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: RotatedBox(
+                  quarterTurns: 90,
+                  child: Icon(Icons.arrow_back_ios_new),
+                ),
               ),
-            ),
-          ],
-          leading: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: CustomNetworkImage(
-              imageUrl: widget.args.reciverImage,
-              height: 40,
-              width: 40,
-              radius: 30,
-              fit: BoxFit.cover,
+            ],
+            leading: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: CustomNetworkImage(
+                imageUrl: widget.args.reciverImage,
+                height: 40,
+                width: 40,
+                radius: 30,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
-        ),
-        body: Column(
-          children: [
-            Expanded(
-              child: BlocBuilder<ChatCubit, ChatState>(
-                builder: (context, state) {
-                  if (state is ChatLoading) {
-                    return const Center(child: CustomLoading());
-                  } else if (state is ChatError) {
-                    return Center(child: Text(state.message));
-                  } else if (state is ChatLoaded) {
-                    return GroupedListView<ChatMessageModel, DateTime>(
-                      elements: state.messages,
-                      groupBy:
-                          (element) => DateTime(
-                            element.timeStamp!.year,
-                            element.timeStamp!.month,
-                            element.timeStamp!.day,
-                          ),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 10,
-                        horizontal: 20,
-                      ),
-                      itemComparator:
-                          (item1, item2) =>
-                              item1.timeStamp!.compareTo(item2.timeStamp!),
-                      groupItemBuilder: (
-                        context,
-                        element,
-                        groupStart,
-                        groupEnd,
-                      ) {
-                        return MessageWidget(message: element);
-                      },
-                      groupSeparatorBuilder:
-                          (date) => Center(
-                            child: Text(
-                              date.day == DateTime.now().day
-                                  ? AppLocaleKey.today.tr()
-                                  : DateMethods.formatToDate(date),
+          body: Column(
+            children: [
+              Expanded(
+                child: BlocBuilder<ChatCubit, ChatState>(
+                  builder: (context, state) {
+                    if (state is ChatLoading) {
+                      return const Center(child: CustomLoading());
+                    } else if (state is ChatError) {
+                      return Center(child: Text(state.message));
+                    } else if (state is ChatLoaded) {
+                      return GroupedListView<ChatMessageModel, DateTime>(
+                        elements: state.messages,
+                        groupBy:
+                            (element) => DateTime(
+                              element.timeStamp!.year,
+                              element.timeStamp!.month,
+                              element.timeStamp!.day,
                             ),
-                          ),
-                      separator: const SizedBox(height: 15),
-                      reverse: true,
-                      order: GroupedListOrder.DESC,
-                    );
-                  } else {
-                    return const SizedBox();
-                  }
-                },
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 10,
+                          horizontal: 20,
+                        ),
+                        itemComparator:
+                            (item1, item2) =>
+                                item1.timeStamp!.compareTo(item2.timeStamp!),
+                        groupItemBuilder: (
+                          context,
+                          element,
+                          groupStart,
+                          groupEnd,
+                        ) {
+                          return MessageWidget(message: element);
+                        },
+                        groupSeparatorBuilder:
+                            (date) => Center(
+                              child: Text(
+                                date.day == DateTime.now().day
+                                    ? AppLocaleKey.today.tr()
+                                    : DateMethods.formatToDate(date),
+                              ),
+                            ),
+                        separator: const SizedBox(height: 15),
+                        reverse: true,
+                        order: GroupedListOrder.DESC,
+                      );
+                    } else {
+                      return const SizedBox();
+                    }
+                  },
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: CustomTextField(
-                      unFocusColor: AppColor.grayBlueColor.withAlpha(100),
-                      fillColor: AppColor.grayBlueColor,
-                      controller: _messageEC,
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: CustomTextField(
+                        unFocusColor: AppColor.grayBlueColor.withAlpha(100),
+                        fillColor: AppColor.grayBlueColor,
+                        controller: _messageEC,
+                      ),
                     ),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      final txt = _messageEC.text;
-                      if (txt.isNotEmpty) {
-                        _chatCubit.sendMessage(
-                          message: txt,
-                          senderId: widget.args.senderId,
-                          senderType: widget.args.senderType,
-                        );
-                      }
-                      _messageEC.clear();
-                    },
-                    icon: SvgPicture.asset(AppImages.sendIcon),
-                  ),
-                ],
+                    IconButton(
+                      onPressed: () {
+                        final txt = _messageEC.text;
+                        if (txt.isNotEmpty) {
+                          _chatCubit.sendMessage(
+                            message: txt,
+                            senderId: widget.args.senderId,
+                            senderType: widget.args.senderType,
+                            receiverId: widget.args.reciverId,
+                            receiverType: widget.args.reciverType,
+                            receiverName: widget.args.reciverName,
+                            receiverImage: widget.args.reciverImage,
+                          );
+                        }
+                        _messageEC.clear();
+                      },
+                      icon: SvgPicture.asset(AppImages.sendIcon),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

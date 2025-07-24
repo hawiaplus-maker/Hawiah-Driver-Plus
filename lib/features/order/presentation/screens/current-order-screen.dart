@@ -159,12 +159,15 @@ class CurrentOrderScreen extends StatelessWidget {
                         context,
                         SingleChatScreen.routeName,
                         arguments: SingleChatScreenArgs(
+                          reciverId: ordersDate.userId.toString(),
+                          reciverType: "user",
                           reciverName: ordersDate.user ?? "",
                           reciverImage: ordersDate.userImage ?? "",
                           senderId:
                               context.read<ProfileCubit>().user.id.toString(),
                           senderType: "driver",
                           orderId: ordersDate.id.toString(),
+                          onMessageSent: () {},
                         ),
                       );
                     },
@@ -269,8 +272,8 @@ class CurrentOrderScreen extends StatelessWidget {
                               GestureDetector(
                                 onTap: () {
                                   openMap(
-                                    ordersDate.latitude ?? "",
-                                    ordersDate.longitude ?? "",
+                                    ordersDate.latitude.toString(),
+                                    ordersDate.longitude.toString(),
                                   );
                                 },
                                 child: Container(

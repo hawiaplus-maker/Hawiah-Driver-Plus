@@ -48,18 +48,22 @@ enum ChatMessageTypeEnum {
   }
 }
 
-class RecentChat {
+class RecentChatModel {
   final String orderId;
-  final String name;
-  final String image;
   final String lastMessage;
   final DateTime? lastMessageTime;
+  final String receiverId;
+  final String receiverName;
+  final String receiverImage;
 
-  RecentChat({
+  RecentChatModel({
     required this.orderId,
-    required this.name,
-    required this.image,
     required this.lastMessage,
-    required this.lastMessageTime,
+    this.lastMessageTime,
+    required this.receiverId,
+    required this.receiverName,
+    required this.receiverImage,
   });
 }
+
+

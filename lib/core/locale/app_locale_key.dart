@@ -87,4 +87,5 @@ class AppLocaleKey {
   static const String confirmOrder = "confirmOrder";
   static const String name = "name";
   static const String notifications = "Notifications";
+  static const String noNotifications = "noNotifications";
 }

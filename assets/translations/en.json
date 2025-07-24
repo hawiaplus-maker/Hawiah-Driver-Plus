@@ -188,5 +188,6 @@
   "orderdetails": "Order Details",
   "confirmOrder": "Confirm Order",
   "name": "Name:",
-  "Notifications": "Notifications"
+  "Notifications": "Notifications",
+  "noNotifications":"NoNotifications"
 }

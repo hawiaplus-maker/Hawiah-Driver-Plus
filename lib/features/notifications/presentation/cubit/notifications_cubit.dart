@@ -30,20 +30,22 @@ class NotificationsCubit extends Cubit<NotificationsState> {
   NotificationsModel? get setting => _notifications;
 
   Future<void> getnotifications() async {
+    emit(NotificationsLoading());
     _notificationsResponse = ApiResponse(
       state: ResponseState.loading,
       data: null,
     );
     _notifications = null;
-    emit(NotificationsUpdate());
+    emit(NotificationsLoading());
+
     _notificationsResponse = await ApiHelper.instance.get(
       "${Urls.notifications}",
     );
+
     emit(NotificationsLoading());
+
     if (_notificationsResponse.state == ResponseState.complete) {
-      _notifications = NotificationsModel.fromJson(
-        _notificationsResponse.data['data'],
-      );
+      _notifications = NotificationsModel.fromJson(_notificationsResponse.data);
       emit(NotificationsUpdate());
     } else if (_notificationsResponse.state == ResponseState.unauthorized) {
       emit(NotificationsUpdate());

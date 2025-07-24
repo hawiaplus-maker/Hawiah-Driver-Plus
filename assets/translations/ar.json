@@ -188,5 +188,6 @@
   "orderdetails":"تفاصيل الطلب",
   "confirmOrder":"تاكيد الطلب",
   "name":"الاسم :",
-  "Notifications":"الاشعارات"
+  "Notifications":"الاشعارات",
+  "noNotifications":"لاتوجد اشعارات"
 }

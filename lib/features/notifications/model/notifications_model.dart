@@ -184,18 +184,8 @@ class Message {
 
   Message({required this.en, required this.ar});
 
-  factory Message.fromJson(Map<String, dynamic> json) {
-    return Message(
-      en:
-          enValues.map.containsKey(json["en"])
-              ? enValues.map[json["en"]]!
-              : En.ORDER_ASSIGNED,
-      ar:
-          arValues.map.containsKey(json["ar"])
-              ? arValues.map[json["ar"]]!
-              : Ar.AR,
-    );
-  }
+  factory Message.fromJson(Map<String, dynamic> json) =>
+      Message(en: enValues.map[json["en"]]!, ar: arValues.map[json["ar"]]!);
 
   Map<String, dynamic> toJson() => {
     "en": enValues.reverse[en],
@@ -206,15 +196,18 @@ class Message {
 enum Ar { AR, EMPTY }
 
 final arValues = EnumValues({
-  "": Ar.AR,
-  "": Ar.EMPTY,
+  "تم إسناد طلب": Ar.AR,
+  "تم إسناد طلب جديد إليك.": Ar.EMPTY,
 });
+
 enum En { ORDER_ASSIGNED, YOU_HAVE_BEEN_ASSIGNED_TO_A_NEW_ORDER }
+
 final enValues = EnumValues({
   "Order assigned": En.ORDER_ASSIGNED,
   "You have been assigned to a new order.":
       En.YOU_HAVE_BEEN_ASSIGNED_TO_A_NEW_ORDER,
 });
+
 class Link {
   String? url;
   String label;

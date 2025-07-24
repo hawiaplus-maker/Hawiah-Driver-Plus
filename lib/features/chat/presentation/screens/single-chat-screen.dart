@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:grouped_list/grouped_list.dart';
 import 'package:hawiah_driver/core/custom_widgets/custom-text-field-widget.dart';
 import 'package:hawiah_driver/core/custom_widgets/custom_app_bar/custom_app_bar.dart';
 import 'package:hawiah_driver/core/custom_widgets/custom_image/custom_network_image.dart';
@@ -13,7 +14,6 @@ import 'package:hawiah_driver/core/utils/date_methods.dart';
 import 'package:hawiah_driver/features/chat/cubit/chat_cubit.dart';
 import 'package:hawiah_driver/features/chat/model/chat_model.dart';
 import 'package:hawiah_driver/features/chat/presentation/widget/message_widget.dart';
-import 'package:grouped_list/grouped_list.dart';
 
 class SingleChatScreenArgs {
   final String senderId;
@@ -70,12 +70,12 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
           leadingWidth: 70,
           actions: [
             IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: RotatedBox(
-                    quarterTurns: 90,
-                    child: Icon(
-                      Icons.arrow_back_ios_new,
-                    ))),
+              onPressed: () => Navigator.pop(context),
+              icon: RotatedBox(
+                quarterTurns: 90,
+                child: Icon(Icons.arrow_back_ios_new),
+              ),
+            ),
           ],
           leading: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -100,17 +100,19 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
                   } else if (state is ChatLoaded) {
                     return GroupedListView<ChatMessageModel, DateTime>(
                       elements: state.messages,
-                      groupBy: (element) => DateTime(
-                        element.timeStamp!.year,
-                        element.timeStamp!.month,
-                        element.timeStamp!.day,
-                      ),
+                      groupBy:
+                          (element) => DateTime(
+                            element.timeStamp!.year,
+                            element.timeStamp!.month,
+                            element.timeStamp!.day,
+                          ),
                       padding: const EdgeInsets.symmetric(
                         vertical: 10,
                         horizontal: 20,
                       ),
-                      itemComparator: (item1, item2) =>
-                          item1.timeStamp!.compareTo(item2.timeStamp!),
+                      itemComparator:
+                          (item1, item2) =>
+                              item1.timeStamp!.compareTo(item2.timeStamp!),
                       groupItemBuilder: (
                         context,
                         element,
@@ -119,13 +121,14 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
                       ) {
                         return MessageWidget(message: element);
                       },
-                      groupSeparatorBuilder: (date) => Center(
-                        child: Text(
-                          date.day == DateTime.now().day
-                              ? AppLocaleKey.today.tr()
-                              : DateMethods.formatToDate(date),
-                        ),
-                      ),
+                      groupSeparatorBuilder:
+                          (date) => Center(
+                            child: Text(
+                              date.day == DateTime.now().day
+                                  ? AppLocaleKey.today.tr()
+                                  : DateMethods.formatToDate(date),
+                            ),
+                          ),
                       separator: const SizedBox(height: 15),
                       reverse: true,
                       order: GroupedListOrder.DESC,
@@ -141,10 +144,12 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
               child: Row(
                 children: [
                   Expanded(
-                      child: CustomTextField(
-                          unFocusColor: AppColor.grayBlueColor.withAlpha(100),
-                          fillColor: AppColor.grayBlueColor,
-                          controller: _messageEC)),
+                    child: CustomTextField(
+                      unFocusColor: AppColor.grayBlueColor.withAlpha(100),
+                      fillColor: AppColor.grayBlueColor,
+                      controller: _messageEC,
+                    ),
+                  ),
                   IconButton(
                     onPressed: () {
                       final txt = _messageEC.text;

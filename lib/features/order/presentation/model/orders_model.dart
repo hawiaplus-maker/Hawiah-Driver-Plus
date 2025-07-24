@@ -48,29 +48,31 @@ class Data {
   String? otp;
   String? user;
   String? userMobile;
+  String? userImage;
 
-  Data(
-      {this.id,
-      this.referenceNumber,
-      this.address,
-      this.latitude,
-      this.longitude,
-      this.orderStatus,
-      this.status,
-      this.priceId,
-      this.duration,
-      this.totalPrice,
-      this.discount,
-      this.discountValue,
-      this.createdAt,
-      this.product,
-      this.image,
-      this.driver,
-      this.driverMobile,
-      this.otp,
-      this.user,
-      this.userMobile
-      });
+  Data({
+    this.id,
+    this.referenceNumber,
+    this.address,
+    this.latitude,
+    this.longitude,
+    this.orderStatus,
+    this.status,
+    this.priceId,
+    this.duration,
+    this.totalPrice,
+    this.discount,
+    this.discountValue,
+    this.createdAt,
+    this.product,
+    this.image,
+    this.driver,
+    this.driverMobile,
+    this.otp,
+    this.user,
+    this.userMobile,
+    this.userImage,
+  });
 
   Data.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -93,6 +95,7 @@ class Data {
     otp = json['otp'];
     user = json['user'];
     userMobile = json['user_mobile'];
+    userImage = json['user_image'];
   }
 
   Map<String, dynamic> toJson() {
@@ -117,6 +120,7 @@ class Data {
     data['otp'] = this.otp;
     data['user'] = this.user;
     data['user_mobile'] = this.userMobile;
+    data['user_image'] = this.userImage;
     return data;
   }
 }

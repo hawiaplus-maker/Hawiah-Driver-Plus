@@ -79,4 +79,12 @@ class AppLocaleKey {
   static const String improveOurServices = "improveourservices";
   static const String chat = "chat";
   static const String findAConversation = "Findaconversation";
+  static const String passwordRequired = "password_required";
+  static const String passwordMinLength = "password_min_length";
+  static const String passwordNumberRequired = "password_number_required";
+  static const String passwordSymbolRequired = "password_symbol_required";
+  static const String resendCodeMessage = "resend_code_message";
+  static const String confirmOrder = "confirmOrder";
+  static const String name = "name";
+  static const String notifications = "Notifications";
 }

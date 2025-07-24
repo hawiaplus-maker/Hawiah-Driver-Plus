@@ -24,15 +24,19 @@ class ProfileCubit extends Cubit<ProfileState> {
 
       if (response.state == ResponseState.complete) {
         user = UserProfileModel.fromJson(
-            response.data); // Access 'message' from response
+          response.data,
+        ); // Access 'message' from response
         log("Profile fetched successfully");
         emit(ProfileLoaded(user)); // Only emit once
         onSuccess?.call(); // Call success callback after state emission
       } else if (response.state == ResponseState.error ||
           response.state == ResponseState.unauthorized) {
         log("Profile fetch failed: ${response.data}");
-        emit(ProfileError(
-            response.data['message'] ?? "Failed to fetch profile"));
+
+        emit(
+          ProfileError(response.data['message'] ?? "Failed to fetch profile"),
+        );
+        emit(ProfileUnAuthorized());
         onError?.call(); // Call error callback after state emission
       }
     } catch (e) {
@@ -44,9 +48,7 @@ class ProfileCubit extends Cubit<ProfileState> {
 
   Future<void> updateProfile({
     required String name,
-    required String username,
     String? mobile,
-    required String email,
     File? imageFile,
     String? password,
     String? password_confirmation,
@@ -56,11 +58,10 @@ class ProfileCubit extends Cubit<ProfileState> {
     try {
       final data = <String, dynamic>{
         'name': name,
-        'username': username,
         'mobile': mobile,
-        'email': email,
+
         'password': password,
-        'password_confirmation': password_confirmation
+        'password_confirmation': password_confirmation,
       };
 
       // لو فيه صورة، أضفها كـ MultipartFile

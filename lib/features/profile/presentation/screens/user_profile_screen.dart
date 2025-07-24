@@ -4,11 +4,14 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:hawiah_driver/core/custom_widgets/custom-text-field-widget.dart';
+import 'package:hawiah_driver/core/custom_widgets/custom_loading/custom_loading.dart';
 import 'package:hawiah_driver/core/images/app_images.dart';
 import 'package:hawiah_driver/core/locale/app_locale_key.dart';
+import 'package:hawiah_driver/core/theme/app_colors.dart';
 import 'package:hawiah_driver/features/profile/presentation/cubit/cubit_profile.dart';
 import 'package:hawiah_driver/features/profile/presentation/cubit/state_profile.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:image_picker/image_picker.dart'; // إضافة المكتبة
 
 class UserProfile extends StatefulWidget {
   @override
@@ -18,9 +21,7 @@ class UserProfile extends StatefulWidget {
 class _UserProfileState extends State<UserProfile> {
   final Map<String, TextEditingController> controllers = {
     "name": TextEditingController(),
-    "username": TextEditingController(),
     "mobile": TextEditingController(),
-    "email": TextEditingController(),
   };
 
   File? _pickedImage;
@@ -58,9 +59,7 @@ class _UserProfileState extends State<UserProfile> {
           if (state is ProfileLoaded) {
             final user = state.user;
             controllers['name']!.text = user.name;
-            controllers['username']!.text = user.username;
             controllers['mobile']!.text = user.mobile;
-            controllers['email']!.text = user.email;
           }
 
           if (state is ProfileUpdateSuccess) {
@@ -89,36 +88,48 @@ class _UserProfileState extends State<UserProfile> {
                 ),
                 child: Column(
                   children: [
+                    SizedBox(height: 50),
                     GestureDetector(
                       onTap: _pickImage,
-                      child: CircleAvatar(
-                        radius: 50,
-                        backgroundImage:
-                            _pickedImage != null
-                                ? FileImage(_pickedImage!)
-                                : (imageUrl.isNotEmpty
-                                    ? NetworkImage(imageUrl) as ImageProvider
-                                    : AssetImage(AppImages.profileEmptyImage)),
-                        child: Align(
-                          alignment: Alignment.bottomRight,
-                          child: CircleAvatar(
-                            backgroundColor: Colors.white,
-                            radius: 15,
-                            child: Container(
-                              height: 50,
-                              width: 70,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Color(0xff2204AE),
-                                border: Border.all(
-                                  color: Colors.black,
-                                  width: .5,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: AppColor.mainAppColor,
+                            width: 1,
+                          ),
+                        ),
+                        child: CircleAvatar(
+                          radius: 60,
+                          backgroundImage:
+                              _pickedImage != null
+                                  ? FileImage(_pickedImage!)
+                                  : (imageUrl.isNotEmpty
+                                      ? NetworkImage(imageUrl) as ImageProvider
+                                      : AssetImage(
+                                        AppImages.profileEmptyImage,
+                                      )),
+                          child: Align(
+                            alignment: Alignment.bottomRight,
+                            child: CircleAvatar(
+                              backgroundColor: Colors.white,
+                              radius: 15,
+                              child: Container(
+                                height: 50,
+                                width: 70,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Color(0xff2204AE),
+                                  border: Border.all(
+                                    color: Colors.black,
+                                    width: .5,
+                                  ),
                                 ),
-                              ),
-                              child: Icon(
-                                Icons.camera_alt_outlined,
-                                size: 18,
-                                color: Colors.white,
+                                child: Icon(
+                                  Icons.camera_alt_outlined,
+                                  size: 18,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),
@@ -130,13 +141,10 @@ class _UserProfileState extends State<UserProfile> {
                       final key = entry.key;
                       final controller = entry.value;
                       return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: TextFormField(
+                        padding: const EdgeInsets.symmetric(vertical: 15.0),
+                        child: CustomTextField(
                           controller: controller,
-                          decoration: InputDecoration(
-                            labelText: key.capitalize(),
-                            border: OutlineInputBorder(),
-                          ),
+                          labelText: key.capitalize(),
                         ),
                       );
                     }).toList(),
@@ -154,9 +162,8 @@ class _UserProfileState extends State<UserProfile> {
 
                         await cubit.updateProfile(
                           name: controllers['name']!.text,
-                          username: controllers['username']!.text,
                           mobile: controllers['mobile']!.text,
-                          email: controllers['email']!.text,
+
                           imageFile: _pickedImage,
                         );
                       },
@@ -171,7 +178,7 @@ class _UserProfileState extends State<UserProfile> {
               ),
             );
           } else if (state is ProfileLoading) {
-            return Center(child: CircularProgressIndicator());
+            return Center(child: CustomLoading());
           } else
             return Container(color: Colors.red);
         },

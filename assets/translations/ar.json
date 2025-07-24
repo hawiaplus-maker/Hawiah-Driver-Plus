@@ -184,5 +184,9 @@
   "password_min_length": "كلمة المرور يجب ألا تقل عن 8 أحرف",
   "password_number_required": "كلمة المرور يجب أن تحتوي على رقم واحد على الأقل",
   "password_symbol_required": "كلمة المرور يجب أن تحتوي على رمز مثل @ أو # أو !",
-  "resend_code_message": "لم يصلك الرمز؟ إعادة الإرسال بعد"
+  "resend_code_message": "لم يصلك الرمز؟ إعادة الإرسال بعد",
+  "orderdetails":"تفاصيل الطلب",
+  "confirmOrder":"تاكيد الطلب",
+  "name":"الاسم :",
+  "Notifications":"الاشعارات"
 }

@@ -8,8 +8,9 @@ import 'package:hawiah_driver/features/order/presentation/screens/confirmation_s
 import 'package:pinput/pinput.dart';
 
 class OrderOtpScreen extends StatefulWidget {
-  const OrderOtpScreen({Key? key, required this.id}) : super(key: key);
-
+  const OrderOtpScreen({Key? key, required this.id, required this.otp})
+    : super(key: key);
+  final String otp;
   final int? id;
   @override
   _OrderOtpScreenState createState() => _OrderOtpScreenState();
@@ -115,7 +116,7 @@ class _OrderOtpScreenState extends State<OrderOtpScreen> {
                           MaterialPageRoute(
                             builder:
                                 (context) => ConfirmationScreen(
-                                  otp: otpController.text,
+                                  otp: widget.otp,
                                   id: widget.id,
                                 ),
                           ),

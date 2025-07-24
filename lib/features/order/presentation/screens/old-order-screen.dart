@@ -5,7 +5,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hawiah_driver/core/custom_widgets/custom_image/custom_network_image.dart';
 import 'package:hawiah_driver/core/images/app_images.dart';
 import 'package:hawiah_driver/core/locale/app_locale_key.dart';
-import 'package:hawiah_driver/core/networking/urls.dart';
 import 'package:hawiah_driver/core/theme/app_colors.dart';
 import 'package:hawiah_driver/core/theme/app_text_style.dart';
 import 'package:hawiah_driver/core/utils/date_methods.dart';
@@ -159,11 +158,11 @@ class OldOrderScreen extends StatelessWidget {
                         context,
                         SingleChatScreen.routeName,
                         arguments: SingleChatScreenArgs(
-                          reciverName: "محمد",
-                          reciverImage: Urls.testUserImage,
+                          reciverName: ordersDate.user ?? "",
+                          reciverImage: ordersDate.image ?? "",
                           senderId:
                               context.read<ProfileCubit>().user.id.toString(),
-                          senderType: "user",
+                          senderType: "driver",
                           orderId: ordersDate.id.toString(),
                         ),
                       );
@@ -202,88 +201,16 @@ class OldOrderScreen extends StatelessWidget {
                       return Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          InkWell(
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder:
-                                    (context) => BlocBuilder<
-                                      SettingCubit,
-                                      SettingState
-                                    >(
-                                      builder: (context, state) {
-                                        final setting =
-                                            context
-                                                .read<SettingCubit>()
-                                                .setting;
-                                        return AlertDialog(
-                                          content: Container(
-                                            height: 100.h,
-                                            width: 200.h,
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceEvenly,
-                                              children: [
-                                                Column(
-                                                  children: [
-                                                    IconButton(
-                                                      onPressed: () {
-                                                        _launchURL(
-                                                          setting?.whatsApp ??
-                                                              "",
-                                                          isWhatsapp: true,
-                                                        );
-                                                      },
-                                                      icon: Image.asset(
-                                                        AppImages.whats,
-                                                        height: 50.h,
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      AppLocaleKey.whatsApp
-                                                          .tr(),
-                                                      style:
-                                                          AppTextStyle
-                                                              .text16_500,
-                                                    ),
-                                                  ],
-                                                ),
-                                                Column(
-                                                  children: [
-                                                    SizedBox(height: 5.h),
-                                                    IconButton(
-                                                      onPressed: () {
-                                                        _launchURL(
-                                                          setting?.phone ?? "",
-                                                          isPhoneCall: true,
-                                                        );
-                                                      },
-                                                      icon: Image.asset(
-                                                        AppImages.phone,
-                                                        height: 35.h,
-                                                      ),
-                                                    ),
-                                                    SizedBox(height: 10.h),
-                                                    Text(
-                                                      AppLocaleKey.phoneCall
-                                                          .tr(),
-                                                      style:
-                                                          AppTextStyle
-                                                              .text16_500,
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                              );
-                            },
-                            child: Column(
-                              children: [
-                                Container(
+                          Column(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  _launchURL(
+                                    ordersDate.userMobile ?? "",
+                                    isPhoneCall: true,
+                                  );
+                                },
+                                child: Container(
                                   margin: EdgeInsets.symmetric(horizontal: 10),
                                   padding: EdgeInsets.all(10),
                                   decoration: BoxDecoration(
@@ -296,53 +223,74 @@ class OldOrderScreen extends StatelessWidget {
                                     width: 30.w,
                                   ),
                                 ),
-                                SizedBox(height: 5),
-                                Text(
-                                  AppLocaleKey.contactCustomer.tr(),
-                                  style: TextStyle(fontSize: 12.sp),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          Column(
-                            children: [
-                              Container(
-                                margin: EdgeInsets.symmetric(horizontal: 10),
-                                padding: EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: Color(0xffD9D9D9),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Image.asset(
-                                  AppImages.support,
-                                  height: 30.h,
-                                  width: 30.w,
-                                ),
                               ),
                               SizedBox(height: 5),
                               Text(
                                 AppLocaleKey.contactCustomer.tr(),
-                                style: TextStyle(fontSize: 12.sp),
+                                style: AppTextStyle.text16_500,
                               ),
                             ],
                           ),
 
                           Column(
                             children: [
-                              IconButton(
-                                onPressed: () {
+                              GestureDetector(
+                                onTap: () {
                                   _launchURL(
-                                    setting?.email ?? "",
-                                    isEmail: true,
+                                    setting?.phone ?? "",
+                                    isPhoneCall: true,
                                   );
                                 },
-                                icon: Image.asset(
-                                  AppImages.locationMapIcon,
-                                  height: 45.h,
+                                child: Container(
+                                  margin: EdgeInsets.symmetric(horizontal: 10),
+                                  padding: EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: Color(0xffD9D9D9),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Image.asset(
+                                    AppImages.support,
+                                    height: 30.h,
+                                    width: 30.w,
+                                  ),
                                 ),
                               ),
-                              Text(AppLocaleKey.viewWebsite.tr()),
+                              SizedBox(height: 5),
+                              Text(
+                                AppLocaleKey.support.tr(),
+                                style: AppTextStyle.text16_500,
+                              ),
+                            ],
+                          ),
+
+                          Column(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  openMap(
+                                    ordersDate.latitude ?? "",
+                                    ordersDate.longitude ?? "",
+                                  );
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.symmetric(horizontal: 10),
+                                  padding: EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: Color(0xffD9D9D9),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Image.asset(
+                                    'assets/images/pin.png',
+                                    height: 30.h,
+                                    width: 30.w,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 5),
+                              Text(
+                                AppLocaleKey.viewWebsite.tr(),
+                                style: AppTextStyle.text16_500,
+                              ),
                             ],
                           ),
                         ],
@@ -353,11 +301,6 @@ class OldOrderScreen extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 20.h),
-
-            SizedBox(height: 60.0),
-            Container(child: Column(children: [SizedBox(height: 50.0)])),
-            SizedBox(height: 10.0),
           ],
         ),
       ),
@@ -388,6 +331,16 @@ class OldOrderScreen extends StatelessWidget {
 
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       throw 'Could not launch $uri';
+    }
+  }
+
+  void openMap(String lat, String lng) async {
+    final Uri googleMapUrl = Uri.parse(
+      "https://www.google.com/maps/search/?api=1&query=$lat,$lng",
+    );
+
+    if (!await launchUrl(googleMapUrl, mode: LaunchMode.externalApplication)) {
+      throw 'Could not launch map';
     }
   }
 }

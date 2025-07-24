@@ -21,9 +21,10 @@ class ChatMessageModel {
     message = json['message'];
     senderId = json['sender_id'];
     senderType = json['sender_type'];
-    timeStamp = json['timestamp'] is Timestamp
-        ? (json['timestamp'] as Timestamp).toDate()
-        : null;
+    timeStamp =
+        json['timestamp'] is Timestamp
+            ? (json['timestamp'] as Timestamp).toDate()
+            : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -36,6 +37,7 @@ class ChatMessageModel {
     return data;
   }
 }
+
 enum ChatMessageTypeEnum {
   text(0);
 
@@ -44,4 +46,20 @@ enum ChatMessageTypeEnum {
   static ChatMessageTypeEnum? getByValue(int? i) {
     return ChatMessageTypeEnum.values.firstWhereOrNull((x) => x.value == i);
   }
+}
+
+class RecentChat {
+  final String orderId;
+  final String name;
+  final String image;
+  final String lastMessage;
+  final DateTime? lastMessageTime;
+
+  RecentChat({
+    required this.orderId,
+    required this.name,
+    required this.image,
+    required this.lastMessage,
+    required this.lastMessageTime,
+  });
 }

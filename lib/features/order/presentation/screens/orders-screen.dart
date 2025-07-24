@@ -7,6 +7,7 @@ import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/core/theme/app_colors.dart';
 import 'package:hawiah_driver/core/theme/app_text_style.dart';
 import 'package:hawiah_driver/core/utils/date_methods.dart';
+import 'package:hawiah_driver/features/notifications/presentation/screen/notifications_screen.dart';
 import 'package:hawiah_driver/features/order/presentation/screens/current-order-screen.dart';
 import 'package:hawiah_driver/features/order/presentation/screens/old-order-screen.dart';
 
@@ -59,6 +60,18 @@ class _OrdersScreenState extends State<OrdersScreen>
       appBar: AppBar(
         title: Text(AppLocaleKey.orders.tr(), style: AppTextStyle.text20_700),
         centerTitle: true,
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+              );
+            },
+            icon: Image.asset("assets/icons/notfication_icon.png"),
+            constraints: BoxConstraints(maxWidth: 40.w, maxHeight: 40.h),
+          ),
+        ],
       ),
       body: Column(
         children: [

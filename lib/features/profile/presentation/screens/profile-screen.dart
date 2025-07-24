@@ -9,6 +9,7 @@ import 'package:hawiah_driver/core/theme/app_colors.dart';
 import 'package:hawiah_driver/features/authentication/presentation/controllers/auth-cubit/auth-cubit.dart';
 import 'package:hawiah_driver/features/authentication/presentation/controllers/auth-cubit/auth-state.dart';
 import 'package:hawiah_driver/features/authentication/presentation/screens/login-screen.dart';
+import 'package:hawiah_driver/features/notifications/presentation/screen/notifications_screen.dart';
 import 'package:hawiah_driver/features/profile/presentation/cubit/cubit_profile.dart';
 import 'package:hawiah_driver/features/profile/presentation/screens/contact_us_screen.dart';
 import 'package:hawiah_driver/features/profile/presentation/screens/faq-screen.dart';
@@ -37,7 +38,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         centerTitle: true,
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+              );
+            },
             icon: Image.asset("assets/icons/notfication_icon.png"),
             constraints: BoxConstraints(maxWidth: 40.w, maxHeight: 40.h),
           ),
@@ -178,10 +184,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 logo: "assets/icons/language_icon.png",
                 trailing: Row(
                   children: [
-                    Text(AppLocaleKey.arabic.tr()),
+                    Text(
+                      getLanguageName(context.locale),
+                      style: TextStyle(fontSize: 14.sp, color: Colors.black),
+                    ),
                     SizedBox(width: 5.w),
                     Image.asset(
-                      "assets/icons/flag_saudi_arabia_icon.png",
+                      getLanguageFlag(context.locale),
                       height: 25.h,
                       width: 25.w,
                     ),
@@ -397,5 +406,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
       ),
     );
+  }
+
+  String getLanguageName(Locale locale) {
+    switch (locale.languageCode) {
+      case 'ar':
+        return 'العربية';
+      case 'en':
+        return 'English';
+      default:
+        return 'Unknown';
+    }
+  }
+
+  String getLanguageFlag(Locale locale) {
+    switch (locale.languageCode) {
+      case 'ar':
+        return "assets/icons/flag_saudi_arabia_icon.png";
+      case 'en':
+        return "assets/icons/flag_united_kingdom_icon.png";
+
+      default:
+        return "assets/icons/default_flag.png";
+    }
   }
 }

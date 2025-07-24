@@ -18,7 +18,7 @@ class Urls {
   static const String baseUrl = 'https://hawia-sa.com/api/';
   static const String login = '${baseUrl}service-providers/login';
   static const String settings = '${baseUrl}settings';
-
+  static const String notifications = '${baseUrl}notifications';
   static const String logout = '${baseUrl}logout';
   static const String register = '${baseUrl}register';
   static const String verify = '${baseUrl}verify-otp';
@@ -28,15 +28,14 @@ class Urls {
   static String showServices(int id) => '${baseUrl}services/$id';
   static const String services = '${baseUrl}services';
   static const String profile = '${baseUrl}users/profile';
-  static const String updateProfile = '${baseUrl}users/update-profile';
+  static const String updateProfile = '${baseUrl}drivers/update-profile';
   static const String categories = '${baseUrl}categories';
   static String showCategory(int id) => '${baseUrl}categories/$id';
   static const String completeRegister = '${baseUrl}complete-register';
   static const String getNearbyProviders = '${baseUrl}get-nearby-providers';
   static const String createOrder = '${baseUrl}users/orders';
   static const String onBoarding = '${baseUrl}on-boarding';
-  static String orders(int id) =>
-      '${baseUrl}drivers/orders?order_status=$id';
+  static String orders(int id) => '${baseUrl}drivers/orders?order_status=$id';
   static String confirmOrders(int id) =>
       '${baseUrl}drivers/orders/confirm-order/$id';
   static const String cities = '${baseUrl}cities';

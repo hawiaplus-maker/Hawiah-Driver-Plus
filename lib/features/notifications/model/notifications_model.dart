@@ -1,7 +1,3 @@
-// To parse this JSON data, do
-//
-//     final notificationsModel = notificationsModelFromJson(jsonString);
-
 import 'dart:convert';
 
 NotificationsModel notificationsModelFromJson(String str) =>
@@ -179,34 +175,16 @@ class Data {
 }
 
 class Message {
-  En en;
-  Ar ar;
+  String en;
+  String ar;
 
   Message({required this.en, required this.ar});
 
   factory Message.fromJson(Map<String, dynamic> json) =>
-      Message(en: enValues.map[json["en"]]!, ar: arValues.map[json["ar"]]!);
+      Message(en: json["en"] ?? "", ar: json["ar"] ?? "");
 
-  Map<String, dynamic> toJson() => {
-    "en": enValues.reverse[en],
-    "ar": arValues.reverse[ar],
-  };
+  Map<String, dynamic> toJson() => {"en": en, "ar": ar};
 }
-
-enum Ar { AR, EMPTY }
-
-final arValues = EnumValues({
-  "تم إسناد طلب": Ar.AR,
-  "تم إسناد طلب جديد إليك.": Ar.EMPTY,
-});
-
-enum En { ORDER_ASSIGNED, YOU_HAVE_BEEN_ASSIGNED_TO_A_NEW_ORDER }
-
-final enValues = EnumValues({
-  "Order assigned": En.ORDER_ASSIGNED,
-  "You have been assigned to a new order.":
-      En.YOU_HAVE_BEEN_ASSIGNED_TO_A_NEW_ORDER,
-});
 
 class Link {
   String? url;
@@ -223,16 +201,4 @@ class Link {
     "label": label,
     "active": active,
   };
-}
-
-class EnumValues<T> {
-  Map<String, T> map;
-  late Map<T, String> reverseMap;
-
-  EnumValues(this.map);
-
-  Map<T, String> get reverse {
-    reverseMap = map.map((k, v) => MapEntry(v, k));
-    return reverseMap;
-  }
 }

@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/features/app-language/presentation/controllers/app-language-cubit/app-language-cubit.dart';
 import 'package:hawiah_driver/main.dart';
 
@@ -15,7 +16,7 @@ class LanguageScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'لغة التطبيق',
+          AppLocaleKey.langApp.tr(),
           style: TextStyle(color: Colors.black),
         ),
         centerTitle: true,
@@ -23,7 +24,7 @@ class LanguageScreen extends StatelessWidget {
       body: Column(
         children: [
           languageItem(
-            title: 'العربية',
+            title: AppLocaleKey.arabic.tr(),
             logo: 'assets/icons/flag_saudi_arabia_icon.png',
             onTap: () async {
               appLanguageCubit.changeLanguage(language: "arabic");
@@ -33,7 +34,7 @@ class LanguageScreen extends StatelessWidget {
             },
           ),
           languageItem(
-            title: 'English',
+            title: AppLocaleKey.english.tr(),
             logo: 'assets/icons/flag_united_kingdom_icon.png',
             onTap: () async {
               appLanguageCubit.changeLanguage(language: "english");
@@ -63,16 +64,9 @@ class LanguageScreen extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
             child: Row(
               children: [
-                Image.asset(
-                  logo,
-                  height: 40.h,
-                  width: 40.w,
-                ),
+                Image.asset(logo, height: 40.h, width: 40.w),
                 SizedBox(width: 10.w),
-                Text(
-                  title,
-                  style: TextStyle(fontSize: 14.sp, color: color),
-                ),
+                Text(title, style: TextStyle(fontSize: 14.sp, color: color)),
                 Spacer(),
                 Icon(
                   Icons.arrow_forward_ios,
@@ -83,10 +77,7 @@ class LanguageScreen extends StatelessWidget {
             ),
           ),
           if (isHaveLine)
-            Divider(
-              color: Colors.grey,
-              thickness: 0.5,
-            )
+            Divider(color: Colors.grey, thickness: 0.5)
           else
             SizedBox.shrink(),
         ],

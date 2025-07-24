@@ -1,18 +1,22 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hawiah_driver/core/custom_widgets/custom_image/custom_network_image.dart';
+import 'package:hawiah_driver/core/custom_widgets/global-elevated-button-widget.dart';
 import 'package:hawiah_driver/core/images/app_images.dart';
+import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/core/theme/app_colors.dart';
 import 'package:hawiah_driver/core/theme/app_text_style.dart';
 import 'package:hawiah_driver/core/utils/date_methods.dart';
+import 'package:hawiah_driver/core/utils/navigator_methods.dart';
+import 'package:hawiah_driver/features/chat/presentation/screens/single-chat-screen.dart';
 import 'package:hawiah_driver/features/order/presentation/model/orders_model.dart';
+import 'package:hawiah_driver/features/order/presentation/screens/order-otp-screen.dart';
+import 'package:hawiah_driver/features/profile/presentation/cubit/cubit_profile.dart';
 import 'package:hawiah_driver/features/setting/cubit/setting_cubit.dart';
 import 'package:hawiah_driver/features/setting/cubit/setting_state.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import '../../../../core/custom_widgets/global-elevated-button-widget.dart';
-import 'order-otp-screen.dart';
 
 class CurrentOrderScreen extends StatelessWidget {
   const CurrentOrderScreen({Key? key, required this.ordersDate})
@@ -24,9 +28,16 @@ class CurrentOrderScreen extends StatelessWidget {
     final double totalPrice =
         double.tryParse(ordersDate.totalPrice ?? "0") ?? 0;
     final double vat = totalPrice * 0.15;
+    final isDelivered =
+        ordersDate.status != null &&
+        ordersDate.status is Map &&
+        (ordersDate.status!['ar'] == "تم الاستلام");
     return Scaffold(
       appBar: AppBar(
-        title: Text('تفاصيل الطلب', style: AppTextStyle.text20_700),
+        title: Text(
+          AppLocaleKey.orderDetails.tr(),
+          style: AppTextStyle.text20_700,
+        ),
         centerTitle: true,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_sharp, color: Colors.black),
@@ -35,7 +46,7 @@ class CurrentOrderScreen extends StatelessWidget {
           },
         ),
       ),
-      body: SingleChildScrollView(
+      body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,7 +84,7 @@ class CurrentOrderScreen extends StatelessWidget {
                                     text: TextSpan(
                                       children: [
                                         TextSpan(
-                                          text: ' طلب رقم:',
+                                          text: AppLocaleKey.orderNumber.tr(),
                                           style: AppTextStyle.text16_600
                                               .copyWith(
                                                 color: AppColor.blackColor
@@ -117,7 +128,7 @@ class CurrentOrderScreen extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 16.0),
+            SizedBox(height: 50.0),
             Container(
               padding: const EdgeInsets.all(12.0),
               decoration: BoxDecoration(
@@ -126,127 +137,81 @@ class CurrentOrderScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
+                  Text(
+                    AppLocaleKey.customerData.tr(),
+                    style: AppTextStyle.text16_700,
+                  ),
+                  SizedBox(height: 20.h),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(height: 10.h),
-
-                            Text(
-                              "بيانات العميل",
-                              style: AppTextStyle.text16_700,
-                            ),
-                            Text(
-                              ordersDate.user ?? "",
-                              style: AppTextStyle.text16_700,
-                            ),
-                            SizedBox(height: 10.h),
-                          ],
-                        ),
+                      Text(
+                        '${AppLocaleKey.name.tr()} ${ordersDate.user ?? ""}',
+                        style: AppTextStyle.text16_700,
                       ),
+                      SizedBox(height: 20.h),
                     ],
                   ),
-                  SizedBox(height: 40.h),
-                  Container(
-                    height: 50.h,
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: Color(0xffEEEEEE),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "إرسال رسالة ....",
-                          style: AppTextStyle.text14_500,
+
+                  GestureDetector(
+                    onTap: () {
+                      NavigatorMethods.pushNamed(
+                        context,
+                        SingleChatScreen.routeName,
+                        arguments: SingleChatScreenArgs(
+                          reciverName: ordersDate.user ?? "",
+                          reciverImage: ordersDate.userImage ?? "",
+                          senderId:
+                              context.read<ProfileCubit>().user.id.toString(),
+                          senderType: "driver",
+                          orderId: ordersDate.id.toString(),
                         ),
-                        SizedBox(width: 15),
-                        Image.asset(AppImages.send, height: 30.h, width: 30.w),
-                      ],
+                      );
+                    },
+                    child: Container(
+                      height: 40.h,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Color(0xffEEEEEE),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            AppLocaleKey.sendMessage.tr(),
+                            style: AppTextStyle.text14_500,
+                          ),
+                          SizedBox(width: 15),
+                          Image.asset(
+                            AppImages.send,
+                            height: 30.h,
+                            width: 30.w,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  SizedBox(height: 50.h),
+                  SizedBox(height: 30.h),
                   BlocBuilder<SettingCubit, SettingState>(
                     builder: (context, state) {
                       final setting = context.read<SettingCubit>().setting;
                       return Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          InkWell(
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder:
-                                    (context) => BlocBuilder<
-                                      SettingCubit,
-                                      SettingState
-                                    >(
-                                      builder: (context, state) {
-                                        final setting =
-                                            context
-                                                .read<SettingCubit>()
-                                                .setting;
-                                        return AlertDialog(
-                                          content: Container(
-                                            height: 100.h,
-                                            width: 200.h,
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceEvenly,
-                                              children: [
-                                                Column(
-                                                  children: [
-                                                    IconButton(
-                                                      onPressed: () {
-                                                        _launchURL(
-                                                          setting?.whatsApp ??
-                                                              "",
-                                                          isWhatsapp: true,
-                                                        );
-                                                      },
-                                                      icon: Image.asset(
-                                                        AppImages.whats,
-                                                        height: 50.h,
-                                                      ),
-                                                    ),
-                                                    Text('واتساب'),
-                                                  ],
-                                                ),
-                                                Column(
-                                                  children: [
-                                                    SizedBox(height: 5.h),
-                                                    IconButton(
-                                                      onPressed: () {
-                                                        _launchURL(
-                                                          setting?.phone ?? "",
-                                                          isPhoneCall: true,
-                                                        );
-                                                      },
-                                                      icon: Image.asset(
-                                                        AppImages.phone,
-                                                        height: 35.h,
-                                                      ),
-                                                    ),
-                                                    SizedBox(height: 10.h),
-                                                    Text('اتصال الهاتف'),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                              );
-                            },
-                            child: Column(
-                              children: [
-                                Container(
+                          Column(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  _launchURL(
+                                    ordersDate.userMobile ?? "",
+                                    isPhoneCall: true,
+                                  );
+                                },
+                                child: Container(
                                   margin: EdgeInsets.symmetric(horizontal: 10),
                                   padding: EdgeInsets.all(10),
                                   decoration: BoxDecoration(
@@ -259,100 +224,115 @@ class CurrentOrderScreen extends StatelessWidget {
                                     width: 30.w,
                                   ),
                                 ),
-                                SizedBox(height: 5),
-                                Text(
-                                  "تواصل مع العميل",
-                                  style: TextStyle(fontSize: 12.sp),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          Column(
-                            children: [
-                              Container(
-                                margin: EdgeInsets.symmetric(horizontal: 10),
-                                padding: EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: Color(0xffD9D9D9),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Image.asset(
-                                  AppImages.support,
-                                  height: 30.h,
-                                  width: 30.w,
-                                ),
                               ),
                               SizedBox(height: 5),
                               Text(
-                                "تواصل مع الدعم",
-                                style: TextStyle(fontSize: 12.sp),
+                                AppLocaleKey.contactCustomer.tr(),
+                                style: AppTextStyle.text16_500,
                               ),
                             ],
                           ),
 
                           Column(
                             children: [
-                              IconButton(
-                                onPressed: () {
+                              GestureDetector(
+                                onTap: () {
                                   _launchURL(
-                                    setting?.email ?? "",
-                                    isEmail: true,
+                                    setting?.phone ?? "",
+                                    isPhoneCall: true,
                                   );
                                 },
-                                icon: Image.asset(
-                                  AppImages.locationMapIcon,
-                                  height: 45.h,
+                                child: Container(
+                                  margin: EdgeInsets.symmetric(horizontal: 10),
+                                  padding: EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: Color(0xffD9D9D9),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Image.asset(
+                                    AppImages.support,
+                                    height: 30.h,
+                                    width: 30.w,
+                                  ),
                                 ),
                               ),
-                              Text('عرض الموقع'),
+                              SizedBox(height: 5),
+                              Text(
+                                AppLocaleKey.support.tr(),
+                                style: AppTextStyle.text16_500,
+                              ),
+                            ],
+                          ),
+
+                          Column(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  openMap(
+                                    ordersDate.latitude ?? "",
+                                    ordersDate.longitude ?? "",
+                                  );
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.symmetric(horizontal: 10),
+                                  padding: EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: Color(0xffD9D9D9),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Image.asset(
+                                    'assets/images/pin.png',
+                                    height: 30.h,
+                                    width: 30.w,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 5),
+                              Text(
+                                AppLocaleKey.viewWebsite.tr(),
+                                style: AppTextStyle.text16_500,
+                              ),
                             ],
                           ),
                         ],
                       );
                     },
                   ),
-                  SizedBox(height: 10.h),
-                ],
-              ),
-            ),
-            SizedBox(height: 20.h),
-
-            SizedBox(height: 60.0),
-            Container(
-              child: Column(
-                children: [
-                  SizedBox(height: 50.0),
-                  Container(
-                    alignment: Alignment.bottomCenter,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: GlobalElevatedButton(
-                      label: "تاكيد الطلب",
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) => OrderOtpScreen(id: ordersDate.id),
+                  SizedBox(height: 250.h),
+                  isDelivered
+                      ? SizedBox()
+                      : Container(
+                        alignment: Alignment.bottomCenter,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: GlobalElevatedButton(
+                          label: AppLocaleKey.confirmOrder.tr(),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => OrderOtpScreen(
+                                      otp: ordersDate.otp ?? "",
+                                      id: ordersDate.id,
+                                    ),
+                              ),
+                            );
+                          },
+                          backgroundColor: Color(0xff1A3C98),
+                          textColor: Colors.white,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
                           ),
-                        );
-                      },
-                      backgroundColor: Color(0xff1A3C98),
-                      textColor: Colors.white,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 12,
+                          borderRadius: BorderRadius.circular(10),
+                          fixedWidth: 0.80,
+                        ),
                       ),
-                      borderRadius: BorderRadius.circular(10),
-                      fixedWidth: 0.80, // 80% of the screen width
-                    ),
-                  ),
                 ],
               ),
             ),
-            SizedBox(height: 10.0),
           ],
         ),
       ),
@@ -383,6 +363,16 @@ class CurrentOrderScreen extends StatelessWidget {
 
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       throw 'Could not launch $uri';
+    }
+  }
+
+  void openMap(String lat, String lng) async {
+    final Uri googleMapUrl = Uri.parse(
+      "https://www.google.com/maps/search/?api=1&query=$lat,$lng",
+    );
+
+    if (!await launchUrl(googleMapUrl, mode: LaunchMode.externalApplication)) {
+      throw 'Could not launch map';
     }
   }
 }

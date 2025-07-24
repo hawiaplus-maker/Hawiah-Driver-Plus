@@ -2,7 +2,7 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
+import 'package:hawiah_driver/features/chat/presentation/screens/chat-screen.dart';
 import 'package:hawiah_driver/features/order/presentation/order-cubit/order-cubit.dart';
 import 'package:hawiah_driver/features/order/presentation/screens/orders-screen.dart';
 import 'package:hawiah_driver/features/profile/presentation/cubit/cubit_profile.dart';
@@ -23,8 +23,7 @@ class _LayoutScreenState extends State<LayoutScreen> {
     Future.wait([
       context.read<ProfileCubit>().fetchProfile(),
       context.read<SettingCubit>().getsetting(),
-      context.read<OrderCubit>().getOrders(0)
-
+      context.read<OrderCubit>().getOrders(0),
     ]);
 
     super.initState();
@@ -34,6 +33,7 @@ class _LayoutScreenState extends State<LayoutScreen> {
 
   final List<Widget> _screens = [
     OrdersScreen(),
+    AllChatsScreen(),
     ProfileScreen(),
   ];
   @override
@@ -68,18 +68,30 @@ class _LayoutScreenState extends State<LayoutScreen> {
             fit: BoxFit.fill,
             height: 25.h,
             width: 25.w,
-            color: selectedIndex == 2
-                ? Colors.white
-                : Color(0xff929292), // Dynamically set the color
+            color:
+                selectedIndex == 2
+                    ? Colors.white
+                    : Color(0xff929292), // Dynamically set the color
+          ),
+          Image.asset(
+            "assets/images/message.png",
+            fit: BoxFit.fill,
+            height: 25.h,
+            width: 25.w,
+            color:
+                selectedIndex == 3
+                    ? Colors.white
+                    : Color(0xff929292), // Dynamically set the color
           ),
           Image.asset(
             "assets/icons/person_profile_icon.png",
             fit: BoxFit.fill,
             height: 25.h,
             width: 25.w,
-            color: selectedIndex == 3
-                ? Colors.white
-                : Color(0xff929292), // Dynamically set the color
+            color:
+                selectedIndex == 4
+                    ? Colors.white
+                    : Color(0xff929292), // Dynamically set the color
           ),
         ],
 
@@ -89,9 +101,10 @@ class _LayoutScreenState extends State<LayoutScreen> {
         // indexSelected: selectedIndex,
         backgroundColor: Colors.white,
 
-        onTap: (int index) => setState(() {
-          selectedIndex = index;
-        }),
+        onTap:
+            (int index) => setState(() {
+              selectedIndex = index;
+            }),
         // top: -25,
         // animated: true,
         // itemStyle: ItemStyle.circle,

@@ -7,18 +7,12 @@ class AppRouters {
     if (settings.arguments != null) args = settings.arguments;
     switch (settings.name) {
       case ZoomImageScreen.routeName:
-        return MaterialPageRoute(
-          builder: (_) => ZoomImageScreen(
-            args: args,
-          ),
-        );
-
-
+        return MaterialPageRoute(builder: (_) => ZoomImageScreen(args: args));
+      case SingleChatScreen.routeName:
+        return MaterialPageRoute(builder: (_) => SingleChatScreen(args: args));
 
       default:
-        return MaterialPageRoute(
-          builder: (_) => const LayoutScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const LayoutScreen());
     }
   }
 }

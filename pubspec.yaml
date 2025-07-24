@@ -85,6 +85,8 @@ dependencies:
   firebase_messaging: ^15.2.4
   firebase_auth: ^5.5.1
   cloud_firestore: ^5.6.5
+  grouped_list:
+  flutter_local_notifications: ^19.1.0
 
 
 dev_dependencies:
@@ -135,7 +137,7 @@ flutter:
           weight: 900
 
 flutter_native_splash:
-  image: assets/gifs/splash_animation.gif
+  image: assets/images/play_store.png
   color: "#2b2b2b"
   android: true
   ios: true

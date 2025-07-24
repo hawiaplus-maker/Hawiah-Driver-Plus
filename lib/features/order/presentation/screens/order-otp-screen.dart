@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hawiah_driver/core/custom_widgets/global-elevated-button-widget.dart';
+import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/features/order/presentation/screens/confirmation_screen.dart';
 import 'package:pinput/pinput.dart';
 
 class OrderOtpScreen extends StatefulWidget {
-  const OrderOtpScreen({Key? key, required this.id}) : super(key: key);
-
+  const OrderOtpScreen({Key? key, required this.id, required this.otp})
+    : super(key: key);
+  final String otp;
   final int? id;
   @override
   _OrderOtpScreenState createState() => _OrderOtpScreenState();
@@ -57,7 +59,7 @@ class _OrderOtpScreenState extends State<OrderOtpScreen> {
                   ),
                   SizedBox(height: 10),
                   Text(
-                    "يرجى كتابة كود التحقيق المرفق مع العميل",
+                    AppLocaleKey.investigationCode.tr(),
                     style: TextStyle(fontSize: 14),
                   ),
                 ],
@@ -69,7 +71,7 @@ class _OrderOtpScreenState extends State<OrderOtpScreen> {
                   textDirection: TextDirection.ltr,
                   child: Pinput(
                     controller: otpController,
-                    length: 5,
+                    length: 4,
                     onChanged: (value) {
                       setState(() {
                         isOtpValid = value.length == 4;
@@ -114,7 +116,7 @@ class _OrderOtpScreenState extends State<OrderOtpScreen> {
                           MaterialPageRoute(
                             builder:
                                 (context) => ConfirmationScreen(
-                                  otp: otpController.text,
+                                  otp: widget.otp,
                                   id: widget.id,
                                 ),
                           ),

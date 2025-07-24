@@ -1,6 +1,8 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/core/theme/cubit/app_theme_cubit.dart';
 import 'package:hawiah_driver/core/theme/theme_enum.dart';
 
@@ -19,7 +21,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('الإعدادات'),
+        title: Text(
+          AppLocaleKey.settings.tr(),
+          style: TextStyle(color: Colors.black, fontSize: 20),
+        ),
         centerTitle: true,
       ),
       body: Padding(
@@ -35,7 +40,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 fit: BoxFit.fill,
               ),
               title: Text(
-                'التنبيهات',
+                AppLocaleKey.alerts.tr(),
                 style: TextStyle(fontSize: 18),
               ),
               trailing: Switch(
@@ -54,9 +59,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Divider(),
             ListTile(
               onTap: () {
-                appThemeCubit.theme = isLightMode
-                    ? ThemeEnum.dark
-                    : ThemeEnum.light; 
+                appThemeCubit.theme =
+                    isLightMode ? ThemeEnum.dark : ThemeEnum.light;
               },
               contentPadding: EdgeInsets.zero,
               leading: Image.asset(
@@ -66,7 +70,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 fit: BoxFit.fill,
               ),
               title: Text(
-                isLightMode ? 'الوضع النهاري' : 'الوضع الليلي',
+                isLightMode
+                    ? AppLocaleKey.dayMode.tr()
+                    : AppLocaleKey.nightMode.tr(),
                 style: TextStyle(fontSize: 18),
               ),
               trailing: SizedBox(
@@ -75,7 +81,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
-                      'الليلي',
+                      AppLocaleKey.nightMode.tr(),
                       style: TextStyle(fontSize: 14),
                     ),
                     SizedBox(width: 8),

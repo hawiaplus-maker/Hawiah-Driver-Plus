@@ -16,18 +16,18 @@ class DateMethods {
   static String formatToFullData(DateTime? dateTime) {
     return dateTime != null
         ? DateFormat(
-            'dd MMMM yyyy ',
-            AppRouters.navigatorKey.currentContext?.locale.languageCode,
-          ).format(dateTime)
+          'dd MMMM yyyy ',
+          AppRouters.navigatorKey.currentContext?.locale.languageCode,
+        ).format(dateTime)
         : "";
   }
 
   static String formatToTime(DateTime? dateTime) {
     return dateTime != null
         ? DateFormat(
-            "hh:mm a",
-            AppRouters.navigatorKey.currentContext?.locale.languageCode,
-          ).format(dateTime)
+          "hh:mm a",
+          AppRouters.navigatorKey.currentContext?.locale.languageCode,
+        ).format(dateTime)
         : "";
   }
 
@@ -41,9 +41,9 @@ class DateMethods {
         s != null ? DateTime(0000, 00, 00, hours, minutes) : null;
     return dateTime != null
         ? DateFormat(
-            "hh:mm a",
-            AppRouters.navigatorKey.currentContext?.locale.languageCode,
-          ).format(dateTime)
+          "hh:mm a",
+          AppRouters.navigatorKey.currentContext?.locale.languageCode,
+        ).format(dateTime)
         : "";
   }
 
@@ -126,9 +126,9 @@ class DateMethods {
     };
     return weekday != null
         ? context.apiTr(
-            ar: weekdayNameAr[weekday] ?? "",
-            en: weekdayNameEn[weekday] ?? "",
-          )
+          ar: weekdayNameAr[weekday] ?? "",
+          en: weekdayNameEn[weekday] ?? "",
+        )
         : null;
   }
 

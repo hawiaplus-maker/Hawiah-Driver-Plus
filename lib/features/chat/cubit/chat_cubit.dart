@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
 import 'package:hawiah_driver/features/chat/model/chat_model.dart';
 import 'package:uuid/uuid.dart';
 
@@ -36,37 +35,6 @@ class ChatCubit extends Cubit<ChatState> {
         );
   }
 
-  /// لعرض جميع المحادثات السابقة الخاصة بالسائق
-  Future<void> fetchRecentChatsForDriver(String driverId) async {
-    emit(ChatLoading());
-
-    try {
-      final querySnapshot =
-          await _firestore
-              .collection('orders')
-              .where('participants', arrayContains: driverId) // ← هنا
-              .orderBy('last_message_time', descending: true)
-              .get();
-
-      final chats =
-          querySnapshot.docs.map((doc) {
-            final data = doc.data();
-            return RecentChat(
-              orderId: doc.id,
-              name: data['user'] ?? '',
-              image: data['userImage'] ?? '',
-              lastMessage: data['last_message'] ?? '',
-              lastMessageTime:
-                  (data['last_message_time'] as Timestamp?)?.toDate(),
-            );
-          }).toList();
-
-      emit(RecentChatsLoaded(chats));
-    } catch (e) {
-      emit(ChatError('فشل تحميل المحادثات: $e'));
-    }
-  }
-
   /// تحديث الرسائل عند الاستماع
   void _handleMessages(QuerySnapshot snapshot) {
     try {
@@ -93,6 +61,10 @@ class ChatCubit extends Cubit<ChatState> {
     required String message,
     required String senderId,
     required String senderType,
+    required String receiverId,
+    required String receiverType,
+    required String receiverName,
+    required String receiverImage,
   }) async {
     if (_orderId == null) {
       emit(ChatError('Order ID not initialized'));
@@ -103,7 +75,6 @@ class ChatCubit extends Cubit<ChatState> {
     final messagesRef = orderRef.collection('messages');
 
     try {
-      // 1) أرسل الرسالة في الـ subcollection
       final messageId = const Uuid().v4();
       await messagesRef.doc(messageId).set({
         'sender_id': senderId,
@@ -112,28 +83,58 @@ class ChatCubit extends Cubit<ChatState> {
         'sender_type': senderType,
       });
 
-      // 2) حدّث أو أنشئ وثيقة الـ order مع بيانات آخر رسالة
       await orderRef.set({
         'last_message': message,
         'last_message_time': FieldValue.serverTimestamp(),
-        'last_sender_id': senderId,
-        'last_sender_type': senderType,
+        'driver_id': senderType == 'driver' ? senderId : receiverId,
+        'user_id': senderType == 'user' ? senderId : receiverId,
+        'driver_name': senderType == 'driver' ? 'اسم السواق' : receiverName,
+        'driver_image': senderType == 'driver' ? 'صورة السواق' : receiverImage,
+        'user_name': senderType == 'user' ? 'اسم العميل' : receiverName,
+        'user_image': senderType == 'user' ? 'صورة العميل' : receiverImage,
       }, SetOptions(merge: true));
-
-      // 3) إذا كنت تستخدم participants مثلاً:
-      // await orderRef.set({
-      //   'participants': FieldValue.arrayUnion([senderId]),
-      // }, SetOptions(merge: true));
     } catch (e) {
-      debugPrint('Error sending message: $e');
-      emit(ChatError('Failed to send message: $e'));
+      emit(ChatError('فشل إرسال الرسالة: $e'));
       rethrow;
     }
   }
+  StreamSubscription<QuerySnapshot>? _recentChatsSubscription;
+
+void fetchRecentChats(String driverId) {
+  emit(ChatLoading());
+
+  _recentChatsSubscription?.cancel();
+  _recentChatsSubscription = _firestore
+      .collection('orders')
+      .where('driver_id', isEqualTo: driverId)
+      .where('last_message', isGreaterThan: '')
+      .orderBy('last_message_time', descending: true)
+      .snapshots()
+      .listen((snapshot) {
+    final chats = snapshot.docs.map((doc) {
+      final data = doc.data();
+      return RecentChatModel(
+        orderId: doc.id,
+        lastMessage: data['last_message'] ?? '',
+        lastMessageTime:
+            (data['last_message_time'] as Timestamp?)?.toDate(),
+        receiverId: data['user_id'] ?? '',
+        receiverName: data['user_name'] ?? 'عميل',
+        receiverImage: data['user_image'] ?? '',
+      );
+    }).toList();
+
+    emit(RecentChatsLoaded(chats));
+  }, onError: (error) {
+    emit(ChatError('فشل تحميل المحادثات: $error'));
+  });
+}
+
 
   @override
   Future<void> close() {
     _messageSubscription?.cancel();
+     _recentChatsSubscription?.cancel();
     return super.close();
   }
 }

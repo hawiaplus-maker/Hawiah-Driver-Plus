@@ -18,7 +18,6 @@ class BlocProviders {
       ),
       BlocProvider<OnBoardingCubit>(create: (context) => sl<OnBoardingCubit>()),
       BlocProvider<AuthCubit>(create: (context) => sl<AuthCubit>()),
-
       BlocProvider<OrderCubit>(create: (context) => sl<OrderCubit>()),
       BlocProvider<OrderCubit>(create: (context) => sl<OrderCubit>()),
       BlocProvider<SettingCubit>(create: (context) => sl<SettingCubit>()),

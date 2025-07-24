@@ -69,7 +69,7 @@ class _LayoutScreenState extends State<LayoutScreen> {
             height: 25.h,
             width: 25.w,
             color:
-                selectedIndex == 2
+                selectedIndex == 0
                     ? Colors.white
                     : Color(0xff929292), // Dynamically set the color
           ),
@@ -79,7 +79,7 @@ class _LayoutScreenState extends State<LayoutScreen> {
             height: 25.h,
             width: 25.w,
             color:
-                selectedIndex == 3
+                selectedIndex == 1
                     ? Colors.white
                     : Color(0xff929292), // Dynamically set the color
           ),
@@ -89,7 +89,7 @@ class _LayoutScreenState extends State<LayoutScreen> {
             height: 25.h,
             width: 25.w,
             color:
-                selectedIndex == 4
+                selectedIndex == 2
                     ? Colors.white
                     : Color(0xff929292), // Dynamically set the color
           ),

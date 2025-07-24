@@ -3,20 +3,43 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hawiah_driver/core/custom_widgets/custom_app_bar/custom_app_bar.dart';
+import 'package:hawiah_driver/core/custom_widgets/custom_image/custom_network_image.dart';
 import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/core/theme/app_colors.dart';
+import 'package:hawiah_driver/core/theme/app_text_style.dart';
+import 'package:hawiah_driver/core/utils/date_methods.dart';
 import 'package:hawiah_driver/core/utils/navigator_methods.dart';
 import 'package:hawiah_driver/features/chat/cubit/chat_cubit.dart';
 import 'package:hawiah_driver/features/chat/presentation/screens/single-chat-screen.dart';
 import 'package:hawiah_driver/features/profile/presentation/cubit/cubit_profile.dart';
 
-class AllChatsScreen extends StatelessWidget {
+class AllChatsScreen extends StatefulWidget {
+  @override
+  State<AllChatsScreen> createState() => _AllChatsScreenState();
+}
+
+class _AllChatsScreenState extends State<AllChatsScreen> {
+  late ChatCubit chatCubit;
+  late String driverId;
+
+  @override
+  void initState() {
+    super.initState();
+    driverId = context.read<ProfileCubit>().user.id.toString();
+    chatCubit = ChatCubit();
+    chatCubit.fetchRecentChats(driverId);
+  }
+
+  @override
+  void dispose() {
+    chatCubit.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final driverId = context.read<ProfileCubit>().user.id.toString();
-
-    return BlocProvider(
-      create: (_) => ChatCubit()..fetchRecentChatsForDriver(driverId),
+    return BlocProvider.value(
+      value: chatCubit,
       child: Scaffold(
         appBar: CustomAppBar(
           context,
@@ -41,40 +64,62 @@ class AllChatsScreen extends StatelessWidget {
                         itemCount: state.chats.length,
                         itemBuilder: (context, index) {
                           final chat = state.chats[index];
-                          return Container(
-                            color: AppColor.mainAppColor,
-                            child: ListTile(
-                              leading: CircleAvatar(
-                                backgroundImage: NetworkImage(chat.image),
-                              ),
-                              title: Text(chat.name),
-                              subtitle: Text(chat.lastMessage),
-                              trailing: Text(
-                                chat.lastMessageTime != null
-                                    ? DateFormat.Hm().format(
-                                      chat.lastMessageTime!,
-                                    )
-                                    : '',
-                              ),
-                              onTap: () {
-                                // افتح شاشة الشات مع orderId
-                                NavigatorMethods.pushNamed(
-                                  context,
-                                  SingleChatScreen.routeName,
-                                  arguments: SingleChatScreenArgs(
-                                    reciverName: 'kkk',
-                                    reciverImage: '',
-                                    senderId:
-                                        context
-                                            .read<ProfileCubit>()
-                                            .user
-                                            .id
-                                            .toString(),
-                                    senderType: "driver",
-                                    orderId: chat.orderId,
+
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: Card(
+                              elevation: 2,
+                              color: AppColor.whiteColor,
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                  child: CustomNetworkImage(
+                                    imageUrl: chat.receiverImage,
+                                    fit: BoxFit.fill,
                                   ),
-                                );
-                              },
+                                ),
+                                title: Text(
+                                  chat.receiverName,
+                                  style: AppTextStyle.text18_700,
+                                ),
+                                subtitle: Text(
+                                  chat.lastMessage,
+                                  style: AppTextStyle.text16_500,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                trailing: Text(
+                                  chat.lastMessageTime != null
+                                      ? DateMethods.formatToTime(
+                                        chat.lastMessageTime,
+                                      )
+                                      : '',
+                                ),
+                                onTap: () async {
+                                  NavigatorMethods.pushNamed(
+                                    context,
+                                    SingleChatScreen.routeName,
+                                    arguments: SingleChatScreenArgs(
+                                      reciverId: chat.receiverId,
+                                      reciverType: "user",
+                                      reciverName: chat.receiverName,
+                                      reciverImage: chat.receiverImage,
+                                      senderId:
+                                          context
+                                              .read<ProfileCubit>()
+                                              .user
+                                              .id
+                                              .toString(),
+                                      senderType: "driver",
+                                      orderId: chat.orderId,
+                                      onMessageSent: () {
+                                        context
+                                            .read<ChatCubit>()
+                                            .fetchRecentChats(driverId);
+                                      },
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
                           );
                         },
@@ -112,52 +157,5 @@ class AllChatsScreen extends StatelessWidget {
         suffixIcon: Icon(Icons.search, color: AppColor.mainAppColor, size: 25),
       ),
     );
-  }
-
-  Widget _chatItem(
-    BuildContext context, {
-    required String name,
-    required String message,
-    required String time,
-    required String imageUrl,
-    required VoidCallback onTap,
-  }) {
-    return Column(
-      children: [
-        ListTile(
-          leading: CircleAvatar(
-            backgroundImage: NetworkImage(imageUrl),
-            radius: 25,
-          ),
-          title: Text(name, style: TextStyle(fontWeight: FontWeight.bold)),
-          subtitle: Text(
-            message,
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-            style: TextStyle(color: Color(0xffADB5BD), fontSize: 12.sp),
-          ),
-          trailing: Text(
-            time,
-            style: TextStyle(color: Color(0xff000912), fontSize: 12.sp),
-          ),
-          onTap: onTap,
-        ),
-        Divider(color: Colors.grey, thickness: 0.5),
-      ],
-    );
-  }
-
-  String _formatTime(DateTime? dateTime) {
-    if (dateTime == null) return '';
-    final now = DateTime.now();
-    final diff = now.difference(dateTime);
-
-    if (diff.inMinutes < 60) {
-      return '${diff.inMinutes} دقيقة';
-    } else if (diff.inHours < 24) {
-      return '${diff.inHours} ساعة';
-    } else {
-      return DateFormat('dd/MM/yyyy').format(dateTime);
-    }
   }
 }

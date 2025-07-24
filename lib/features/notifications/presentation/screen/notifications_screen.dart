@@ -6,7 +6,6 @@ import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/core/theme/app_colors.dart';
 import 'package:hawiah_driver/core/theme/app_text_style.dart';
 import 'package:hawiah_driver/core/utils/date_methods.dart';
-import 'package:hawiah_driver/features/notifications/model/notifications_model.dart';
 import 'package:hawiah_driver/features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:hawiah_driver/features/notifications/presentation/cubit/notifications_state.dart';
 
@@ -68,15 +67,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               itemBuilder: (context, index) {
                 final item = notifications[index];
                 final locale = context.locale.languageCode;
-                final title =
-                    locale == 'ar'
-                        ? arValues.reverse[item.title.ar]
-                        : enValues.reverse[item.title.en];
 
+                final title = locale == 'ar' ? item.title.ar : item.title.en;
                 final message =
-                    locale == 'ar'
-                        ? arValues.reverse[item.message.ar]
-                        : enValues.reverse[item.message.en];
+                    locale == 'ar' ? item.message.ar : item.message.en;
 
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -92,11 +86,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         height: 25.h,
                         width: 25.w,
                       ),
-                      title: Text(title ?? '', style: AppTextStyle.text16_700),
-                      subtitle: Text(
-                        message ?? '',
-                        style: AppTextStyle.text14_400,
-                      ),
+                      title: Text(title, style: AppTextStyle.text16_700),
+                      subtitle: Text(message, style: AppTextStyle.text14_400),
                       trailing: Text(
                         DateMethods.formatToDate(item.createdAt),
                         style: AppTextStyle.text12_400,

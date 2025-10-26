@@ -11,28 +11,19 @@ class SettingCubit extends Cubit<SettingState> {
   SettingCubit() : super(SettingInitial());
 
   void initialSetting() {
-    _settingResponse = ApiResponse(
-      state: ResponseState.sleep,
-      data: null,
-    );
+    _settingResponse = ApiResponse(state: ResponseState.sleep, data: null);
     _setting = null;
     emit(SettingUpdate());
   }
 
-  ApiResponse _settingResponse = ApiResponse(
-    state: ResponseState.sleep,
-    data: null,
-  );
+  ApiResponse _settingResponse = ApiResponse(state: ResponseState.sleep, data: null);
   ApiResponse get settingResponse => _settingResponse;
 
   SettingModel? _setting;
   SettingModel? get setting => _setting;
 
   Future<void> getsetting() async {
-    _settingResponse = ApiResponse(
-      state: ResponseState.loading,
-      data: null,
-    );
+    _settingResponse = ApiResponse(state: ResponseState.loading, data: null);
     _setting = null;
     emit(SettingUpdate());
     _settingResponse = await ApiHelper.instance.get("${Urls.settings}");
@@ -44,5 +35,4 @@ class SettingCubit extends Cubit<SettingState> {
       emit(SettingUpdate());
     }
   }
-  
 }

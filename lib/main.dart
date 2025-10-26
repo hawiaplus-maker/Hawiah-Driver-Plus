@@ -1,4 +1,5 @@
 import 'dart:developer';
+
 import 'package:bot_toast/bot_toast.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -35,9 +36,7 @@ void main() async {
       supportedLocales: const [Locale('ar'), Locale('en')],
       path: 'assets/translations',
       startLocale: Locale('ar'),
-      fallbackLocale: const Locale(
-        'en',
-      ), // Add a fallback locale if you haven't
+      fallbackLocale: const Locale('en'), 
       child: BlocProvider(
         create: (context) => AppThemeCubit()..initial(),
         child: MyApp(initialMessage: initialMessage),
@@ -148,7 +147,7 @@ class _MyAppState extends State<MyApp> {
   ThemeData appTHeme() {
     return ThemeData(
       fontFamily: 'Cairo',
-      appBarTheme: const AppBarTheme(color: Colors.white),
+      appBarTheme: const AppBarTheme(backgroundColor: Colors.white),
       scaffoldBackgroundColor: Colors.white,
       canvasColor: Colors.white,
       primarySwatch: Colors.blue,
@@ -169,25 +168,17 @@ class _MyAppState extends State<MyApp> {
         ),
         border: OutlineInputBorder(
           borderSide: BorderSide(
-            color: Colors.black.withOpacity(
-              0.6,
-            ), // Slightly greyish black for border
+            color: Colors.black.withOpacity(0.6), // Slightly greyish black for border
             width: 1.5, // Slightly thicker border for better visibility
           ),
-          borderRadius: BorderRadius.circular(
-            12.0,
-          ), // Rounded corners for modern look
+          borderRadius: BorderRadius.circular(12.0), // Rounded corners for modern look
         ),
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(
-            color: Colors.grey.withOpacity(
-              0.6,
-            ), // Slightly greyish black for disabled state
+            color: Colors.grey.withOpacity(0.6), // Slightly greyish black for disabled state
             width: 1.5, // Slightly thicker border for better visibility
           ),
-          borderRadius: BorderRadius.circular(
-            12.0,
-          ), // Rounded corners for modern look
+          borderRadius: BorderRadius.circular(12.0), // Rounded corners for modern look
         ),
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(

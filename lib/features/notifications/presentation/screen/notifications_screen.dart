@@ -26,6 +26,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+        ),
         title: Text(
           AppLocaleKey.notifications.tr(),
           style: AppTextStyle.text20_700,
@@ -75,7 +79,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Card(
-                    color: AppColor.whiteColor,
                     elevation: 5,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
@@ -85,6 +88,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         'assets/images/notification.png',
                         height: 25.h,
                         width: 25.w,
+                        color: AppColor.mainAppColor,
                       ),
                       title: Text(title, style: AppTextStyle.text16_700),
                       subtitle: Text(message, style: AppTextStyle.text14_400),

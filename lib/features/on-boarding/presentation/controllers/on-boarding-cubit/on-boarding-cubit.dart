@@ -15,16 +15,14 @@ class OnBoardingCubit extends Cubit<OnBoardingState> {
   PageController pageController = PageController(initialPage: 0);
 
   OnBoardingModel? onboarding;
-  ApiResponse _onboardingResponse =
-      ApiResponse(state: ResponseState.sleep, data: null);
+  ApiResponse _onboardingResponse = ApiResponse(state: ResponseState.sleep, data: null);
   ApiResponse get onboardingResponse => _onboardingResponse;
 
   List<Data> get onBoardingList => onboarding?.data ?? [];
 
   void changePageController(int index) {
     currentIndex = index;
-    progressValue =
-        (index + 1) / (onBoardingList.isEmpty ? 1 : onBoardingList.length);
+    progressValue = (index + 1) / (onBoardingList.isEmpty ? 1 : onBoardingList.length);
     pageController.animateToPage(
       currentIndex,
       duration: Duration(milliseconds: 300),

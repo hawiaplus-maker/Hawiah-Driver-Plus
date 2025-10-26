@@ -23,7 +23,7 @@
     </queries>
 
     <application
-        android:label="hawiah_driver"
+        android:label="Hawiah Driver Plus"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <meta-data

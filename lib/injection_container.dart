@@ -22,6 +22,5 @@ class AppInjector {
     SettingInjection.init();
     ProfileInjection.init();
     NotificationsInjection.init();
-    
   }
 }

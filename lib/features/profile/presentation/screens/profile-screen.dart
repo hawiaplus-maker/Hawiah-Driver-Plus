@@ -30,6 +30,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     // final profile = context.read<ProfileCubit>().user;
     return Scaffold(
+      extendBody: true,
       appBar: AppBar(
         title: Text(
           AppLocaleKey.profileFile.tr(),

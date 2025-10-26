@@ -98,43 +98,52 @@ class ChatCubit extends Cubit<ChatState> {
       rethrow;
     }
   }
+
   StreamSubscription<QuerySnapshot>? _recentChatsSubscription;
 
-void fetchRecentChats(String driverId) {
-  emit(ChatLoading());
+  void fetchRecentChats({
+    required String currentId,
+    required String currentType, // "user" or "driver"
+  }) {
+    emit(ChatLoading());
+    _recentChatsSubscription?.cancel();
 
-  _recentChatsSubscription?.cancel();
-  _recentChatsSubscription = _firestore
-      .collection('orders')
-      .where('driver_id', isEqualTo: driverId)
-      .where('last_message', isGreaterThan: '')
-      .orderBy('last_message_time', descending: true)
-      .snapshots()
-      .listen((snapshot) {
-    final chats = snapshot.docs.map((doc) {
-      final data = doc.data();
-      return RecentChatModel(
-        orderId: doc.id,
-        lastMessage: data['last_message'] ?? '',
-        lastMessageTime:
-            (data['last_message_time'] as Timestamp?)?.toDate(),
-        receiverId: data['user_id'] ?? '',
-        receiverName: data['user_name'] ?? 'عميل',
-        receiverImage: data['user_image'] ?? '',
-      );
-    }).toList();
+    final query =
+        _firestore
+            .collection('orders')
+            .where('${currentType}_id', isEqualTo: currentId)
+            .where('last_message', isGreaterThan: '')
+            .orderBy('last_message_time', descending: true)
+            .snapshots();
 
-    emit(RecentChatsLoaded(chats));
-  }, onError: (error) {
-    emit(ChatError('فشل تحميل المحادثات: $error'));
-  });
-}
+    _recentChatsSubscription = query.listen(
+      (snapshot) {
+        final chats =
+            snapshot.docs.map((doc) {
+              final data = doc.data();
+              final isUser = currentType == 'user';
+              return RecentChatModel(
+                orderId: doc.id,
+                lastMessage: data['last_message'] ?? '',
+                lastMessageTime: (data['last_message_time'] as Timestamp?)?.toDate(),
+                receiverId: isUser ? data['driver_id'] : data['user_id'],
+                receiverName: isUser ? data['driver_name'] : data['user_name'],
+                receiverImage: isUser ? data['driver_image'] : data['user_image'],
+              );
+            }).toList();
 
+        emit(RecentChatsLoaded(chats));
+      },
+      onError: (error) {
+        emit(ChatError('فشل تحميل المحادثات: $error'));
+      },
+    );
+  }
 
   @override
   Future<void> close() {
     _messageSubscription?.cancel();
-     _recentChatsSubscription?.cancel();
+    _recentChatsSubscription?.cancel();
     return super.close();
   }
 }

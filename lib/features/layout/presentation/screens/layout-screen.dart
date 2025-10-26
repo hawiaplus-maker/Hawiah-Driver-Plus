@@ -29,11 +29,11 @@ class _LayoutScreenState extends State<LayoutScreen> {
     super.initState();
   }
 
-  int selectedIndex = 0;
+  int selectedIndex = 1;
 
   final List<Widget> _screens = [
-    OrdersScreen(),
     AllChatsScreen(),
+    OrdersScreen(),
     ProfileScreen(),
   ];
   @override
@@ -43,28 +43,12 @@ class _LayoutScreenState extends State<LayoutScreen> {
       body: _screens[selectedIndex],
       bottomNavigationBar: CurvedNavigationBar(
         color: Color(0xffE5E7FE),
+        
         buttonBackgroundColor: const Color(0xff2B03F0),
+        index: selectedIndex,
         items: [
-          // Image.asset(
-          //   "assets/icons/home_icon.png",
-          //   fit: BoxFit.fill,
-          //   height: 25.h,
-          //   width: 25.w,
-          //   color: selectedIndex == 0
-          //       ? Colors.white
-          //       : Color(0xff929292), // Dynamically set the color
-          // ),
-          // Image.asset(
-          //   "assets/icons/location_icon.png",
-          //   fit: BoxFit.fill,
-          //   height: 25.h,
-          //   width: 25.w,
-          //   color: selectedIndex == 1
-          //       ? Colors.white
-          //       : Color(0xff929292), // Dynamically set the color
-          // ),
           Image.asset(
-            "assets/icons/orders_icon.png",
+            "assets/images/message.png",
             fit: BoxFit.fill,
             height: 25.h,
             width: 25.w,
@@ -74,7 +58,7 @@ class _LayoutScreenState extends State<LayoutScreen> {
                     : Color(0xff929292), // Dynamically set the color
           ),
           Image.asset(
-            "assets/images/message.png",
+            "assets/icons/orders_icon.png",
             fit: BoxFit.fill,
             height: 25.h,
             width: 25.w,
@@ -94,23 +78,11 @@ class _LayoutScreenState extends State<LayoutScreen> {
                     : Color(0xff929292), // Dynamically set the color
           ),
         ],
-
-        // backgroundColor: Color(0xffE5E6FF),
-        // color: Color(0xff929292),
-        // colorSelected: Colors.white,
-        // indexSelected: selectedIndex,
-        backgroundColor: Colors.white,
-
+        backgroundColor: Colors.transparent,
         onTap:
             (int index) => setState(() {
               selectedIndex = index;
             }),
-        // top: -25,
-        // animated: true,
-        // itemStyle: ItemStyle.circle,
-        // chipStyle: const ChipStyle(
-        //   notchSmoothness: NotchSmoothness.sharpEdge,
-        // ),
       ),
     );
   }

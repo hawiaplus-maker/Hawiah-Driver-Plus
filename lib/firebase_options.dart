@@ -17,7 +17,10 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      return web;
+      throw UnsupportedError(
+        'DefaultFirebaseOptions have not been configured for web - '
+        'you can reconfigure this by running the FlutterFire CLI again.',
+      );
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -25,9 +28,15 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        return macos;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for macos - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.windows:
-        return windows;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for windows - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -40,49 +49,20 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDVxUOEiOC5WvlRZiGJ7Qarm_pfFSJpOZ0',
-    appId: '1:479407077856:web:405a36d107ec1e7e225385',
-    messagingSenderId: '479407077856',
-    projectId: 'hawia-11d8f',
-    authDomain: 'hawia-11d8f.firebaseapp.com',
-    storageBucket: 'hawia-11d8f.firebasestorage.app',
-    measurementId: 'G-HR3JNW5MRQ',
-  );
-
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBiwYixw0E06-2xnV1QfaI8QOoKcXHc348',
-    appId: '1:479407077856:android:840e35d0a0d29f0a225385',
-    messagingSenderId: '479407077856',
-    projectId: 'hawia-11d8f',
-    storageBucket: 'hawia-11d8f.firebasestorage.app',
+    apiKey: 'AIzaSyBhThn8ypL-dBtdgcdM_2qraV75X1M714s',
+    appId: '1:561693097751:android:c13d9c0787366a3f48c152',
+    messagingSenderId: '561693097751',
+    projectId: 'hawiah-plus',
+    storageBucket: 'hawiah-plus.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyB05P0nu5ukRxjgXFhqt8W1ZWZpGxqeJqM',
-    appId: '1:479407077856:ios:35c2470d24dcdccd225385',
-    messagingSenderId: '479407077856',
-    projectId: 'hawia-11d8f',
-    storageBucket: 'hawia-11d8f.firebasestorage.app',
-    iosBundleId: 'com.future.hawyaDriver',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyB05P0nu5ukRxjgXFhqt8W1ZWZpGxqeJqM',
-    appId: '1:479407077856:ios:35c2470d24dcdccd225385',
-    messagingSenderId: '479407077856',
-    projectId: 'hawia-11d8f',
-    storageBucket: 'hawia-11d8f.firebasestorage.app',
-    iosBundleId: 'com.future.hawyaDriver',
-  );
-
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyDVxUOEiOC5WvlRZiGJ7Qarm_pfFSJpOZ0',
-    appId: '1:479407077856:web:645dcbfd01410656225385',
-    messagingSenderId: '479407077856',
-    projectId: 'hawia-11d8f',
-    authDomain: 'hawia-11d8f.firebaseapp.com',
-    storageBucket: 'hawia-11d8f.firebasestorage.app',
-    measurementId: 'G-SQT1VG2CYS',
+    apiKey: 'AIzaSyCb3cuEfFsTIdQe1mMcPzYTIm-c5MsIYe4',
+    appId: '1:561693097751:ios:a291de5d54cb6cc048c152',
+    messagingSenderId: '561693097751',
+    projectId: 'hawiah-plus',
+    storageBucket: 'hawiah-plus.firebasestorage.app',
+    iosBundleId: 'com.future.hawiah.driver.plus',
   );
 }

@@ -57,6 +57,7 @@ class _OrdersScreenState extends State<OrdersScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       appBar: AppBar(
         title: Text(AppLocaleKey.orders.tr(), style: AppTextStyle.text20_700),
         centerTitle: true,
@@ -217,7 +218,10 @@ class _OrdersScreenState extends State<OrdersScreen>
                                     style: AppTextStyle.text16_600,
                                   ),
                                   TextSpan(
-                                    text: order.status['ar'] ?? '',
+                                    text:
+                                        context.locale.languageCode == 'en'
+                                            ? order.status['en'] ?? ''
+                                            : order.status['ar'] ?? '',
                                     style: AppTextStyle.text16_500.copyWith(
                                       color: AppColor.mainAppColor,
                                     ),

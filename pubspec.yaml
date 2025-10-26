@@ -51,7 +51,7 @@ dependencies:
   bottom_picker: ^3.2.1
   table_calendar: ^3.1.2
   google_maps_flutter: ^2.10.0
-  intl: ^0.19.0
+  intl: ^0.20.2
   photo_view:
   flutter_chat_ui: ^2.6.1
   file_picker: ^10.2.0
@@ -87,6 +87,7 @@ dependencies:
   cloud_firestore: ^5.6.5
   grouped_list:
   flutter_local_notifications: ^19.1.0
+  rename: ^3.1.0
 
 
 dev_dependencies:
@@ -99,7 +100,7 @@ dev_dependencies:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/images/app_store.png"
+  image_path: "assets/images/appLogoImage.png"
   min_sdk_android: 21  
 
 # For information on the generic Dart part of this file, see the
@@ -137,7 +138,7 @@ flutter:
           weight: 900
 
 flutter_native_splash:
-  image: assets/images/play_store.png
+  image: assets/images/hawiahPlus.png
   color: "#2b2b2b"
   android: true
   ios: true

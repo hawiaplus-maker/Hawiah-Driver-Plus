@@ -28,10 +28,7 @@ class _SplashScreenState extends State<SplashScreen> {
     cubit.fetchProfile(
       onSuccess: () {
         log("Navigation to LayoutScreen");
-        NavigatorMethods.pushReplacementNamed(
-          context,
-          LayoutScreen.routeName,
-        );
+        NavigatorMethods.pushReplacementNamed(context, LayoutScreen.routeName);
       },
       onError: () {
         log("Navigation to AppLanguageScreen");
@@ -51,12 +48,7 @@ class _SplashScreenState extends State<SplashScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Center(
-            child: Image.asset(
-              'assets/images/logo.png',
-                height: 500,
-              width: 500,
-              fit: BoxFit.fill,
-            ),
+            child: Image.asset('assets/images/logo.png', height: 500, width: 500, fit: BoxFit.fill),
           ),
         ],
       ),

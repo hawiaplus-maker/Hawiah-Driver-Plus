@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hawiah_driver/core/locale/app_locale_key.dart';
+import 'package:hawiah_driver/core/theme/app_colors.dart';
 import 'package:hawiah_driver/features/layout/presentation/screens/layout-screen.dart';
 import 'package:hawiah_driver/features/location/service/location_service.dart';
 import 'package:hawiah_driver/features/order/presentation/order-cubit/order-cubit.dart';
@@ -140,6 +141,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                 context: context,
                 builder:
                     (context) => AlertDialog(
+                      backgroundColor: AppColor.whiteColor,
                       content: Container(
                         height: 150.h,
                         width: 200.h,
@@ -178,6 +180,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                 context: context,
                 builder:
                     (context) => AlertDialog(
+                      backgroundColor: AppColor.whiteColor,
                       content: Container(
                         height: 150.h,
                         width: 200.h,

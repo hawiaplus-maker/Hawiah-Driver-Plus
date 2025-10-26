@@ -2,8 +2,8 @@
 // import 'package:flutter/material.dart';
 // import 'package:flutter_bloc/flutter_bloc.dart';
 // import 'package:flutter_screenutil/flutter_screenutil.dart';
-// import 'package:hawiah_driver/core/custom_widgets/global-elevated-button-widget.dart';
-// import 'package:hawiah_driver/features/authentication/presentation/screens/verification-otp-screen.dart';
+// import 'package:hawiah_driver_plus/core/custom_widgets/global-elevated-button-widget.dart';
+// import 'package:hawiah_driver_plus/features/authentication/presentation/screens/verification-otp-screen.dart';
 
 // import '../controllers/auth-cubit/auth-cubit.dart';
 // import '../controllers/auth-cubit/auth-state.dart';

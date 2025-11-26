@@ -1,9 +1,12 @@
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:hawiah_driver/core/images/app_images.dart';
+import 'package:hawiah_driver/core/locale/app_locale_key.dart';
+import 'package:hawiah_driver/core/theme/app_colors.dart';
 import 'package:hawiah_driver/features/chat/presentation/screens/chat-screen.dart';
-import 'package:hawiah_driver/features/order/presentation/order-cubit/order-cubit.dart';
 import 'package:hawiah_driver/features/order/presentation/screens/orders-screen.dart';
 import 'package:hawiah_driver/features/profile/presentation/cubit/cubit_profile.dart';
 import 'package:hawiah_driver/features/profile/presentation/screens/profile-screen.dart';
@@ -23,7 +26,6 @@ class _LayoutScreenState extends State<LayoutScreen> {
     Future.wait([
       context.read<ProfileCubit>().fetchProfile(),
       context.read<SettingCubit>().getsetting(),
-      context.read<OrderCubit>().getOrders(0),
     ]);
 
     super.initState();
@@ -41,48 +43,46 @@ class _LayoutScreenState extends State<LayoutScreen> {
     return Scaffold(
       extendBody: true,
       body: _screens[selectedIndex],
-      bottomNavigationBar: CurvedNavigationBar(
-        color: Color(0xffE5E7FE),
-        
-        buttonBackgroundColor: const Color(0xff2B03F0),
-        index: selectedIndex,
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: selectedIndex,
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: AppColor.mainAppColor,
+        unselectedItemColor: AppColor.greyColor,
+        showUnselectedLabels: true,
+        onTap: (index) {
+          setState(() {
+            selectedIndex = index;
+          });
+        },
         items: [
-          Image.asset(
-            "assets/images/message.png",
-            fit: BoxFit.fill,
-            height: 25.h,
-            width: 25.w,
-            color:
-                selectedIndex == 0
-                    ? Colors.white
-                    : Color(0xff929292), // Dynamically set the color
+          BottomNavigationBarItem(
+            icon: SvgPicture.asset(
+              AppImages.message,
+              height: 24.h,
+              width: 24.w,
+              color: selectedIndex == 0 ? AppColor.mainAppColor : AppColor.greyColor,
+            ),
+            label: AppLocaleKey.messages.tr(),
           ),
-          Image.asset(
-            "assets/icons/orders_icon.png",
-            fit: BoxFit.fill,
-            height: 25.h,
-            width: 25.w,
-            color:
-                selectedIndex == 1
-                    ? Colors.white
-                    : Color(0xff929292), // Dynamically set the color
+          BottomNavigationBarItem(
+            icon: SvgPicture.asset(
+              AppImages.logs,
+              height: 24.h,
+              width: 24.w,
+              color: selectedIndex == 1 ? AppColor.mainAppColor : AppColor.greyColor,
+            ),
+            label: AppLocaleKey.ordersPage.tr(),
           ),
-          Image.asset(
-            "assets/icons/person_profile_icon.png",
-            fit: BoxFit.fill,
-            height: 25.h,
-            width: 25.w,
-            color:
-                selectedIndex == 2
-                    ? Colors.white
-                    : Color(0xff929292), // Dynamically set the color
+          BottomNavigationBarItem(
+            icon: SvgPicture.asset(
+              AppImages.userSvg,
+              height: 24.h,
+              width: 24.w,
+              color: selectedIndex == 2 ? AppColor.mainAppColor : AppColor.greyColor,
+            ),
+            label: AppLocaleKey.profileFile.tr(),
           ),
         ],
-        backgroundColor: Colors.transparent,
-        onTap:
-            (int index) => setState(() {
-              selectedIndex = index;
-            }),
       ),
     );
   }

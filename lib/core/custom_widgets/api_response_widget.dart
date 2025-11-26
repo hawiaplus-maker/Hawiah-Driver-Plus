@@ -5,8 +5,6 @@ import 'package:hawiah_driver/core/custom_widgets/no_data_widget.dart';
 import 'package:hawiah_driver/core/custom_widgets/offline_widget.dart';
 import 'package:hawiah_driver/core/networking/api_helper.dart';
 
-
-
 class ApiResponseWidget extends StatelessWidget {
   final ApiResponse apiResponse;
   final Widget child;
@@ -73,7 +71,6 @@ class ApiResponseWidget extends StatelessWidget {
           return child;
         }
       case ResponseState.error:
-     
         return errorWidget ??
             Center(
               child: ExceptionWidget(
@@ -99,6 +96,8 @@ class ApiResponseWidget extends StatelessWidget {
                 onReload: onReload,
               ),
             );
+      case ResponseState.badRequest:
+        throw UnimplementedError();
     }
   }
 }

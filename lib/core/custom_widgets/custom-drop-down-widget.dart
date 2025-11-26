@@ -37,7 +37,7 @@ class CustomDropdownWidget extends StatelessWidget {
                 )
               : null,
         ),
-        value: selectedValue,
+        initialValue: selectedValue,
         items: items.map((item) {
           return DropdownMenuItem<String>(
             value: item,

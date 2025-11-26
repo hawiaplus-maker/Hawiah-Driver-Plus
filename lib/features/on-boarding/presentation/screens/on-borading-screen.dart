@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hawiah_driver/core/custom_widgets/custom_loading/custom_loading.dart';
 import 'package:hawiah_driver/core/hive/hive_methods.dart';
-import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/features/on-boarding/presentation/widgets/on-boarding-appBar-widget.dart';
 import 'package:hawiah_driver/features/on-boarding/presentation/widgets/on-boarding-content-widget.dart';
 import 'package:hawiah_driver/features/on-boarding/presentation/widgets/on-boarding-page-view-widget.dart';
@@ -21,15 +20,13 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
   @override
   void initState() {
     HiveMethods.updateFirstTime();
-    OnBoardingCubit.get(context).getOnboarding();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocConsumer<OnBoardingCubit, OnBoardingState>(
-        listener: (context, state) {},
+      body: BlocBuilder<OnBoardingCubit, OnBoardingState>(
         builder: (context, state) {
           final cubit = OnBoardingCubit.get(context);
 
@@ -38,32 +35,35 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           }
 
           if (state is OnBoardingError || cubit.onBoardingList.isEmpty) {
-            return const Center(child: Text(AppLocaleKey.loadingRequests));
+            return const Center(child: Text('لا يوجد بيانات'));
           }
 
           final currentIndex = cubit.currentIndex;
           final progressValue = cubit.progressValue;
           final pageController = cubit.pageController;
 
-          final onBoardingImages =
-              cubit.onBoardingList.map((e) => e.image ?? "").toList();
+          final onBoardingImages = cubit.onBoardingList.map((e) => e.image ?? "").toList();
           final onboardingTitles =
-              cubit.onBoardingList.map((e) => e.title ?? "").toList();
+              cubit.onBoardingList.map((e) => e.title?.text(context) ?? "").toList();
+
           final onboardingContents =
-              cubit.onBoardingList.map((e) => e.about ?? "").toList();
+              cubit.onBoardingList.map((e) => e.about?.text(context) ?? "").toList();
+
           final onboardingIcons = List.generate(
             cubit.onBoardingList.length,
             (index) => "",
           );
 
-          return Stack(
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              OnBoardingAppBar(),
               OnBoardingPageView(
                 onBoardingImages: onBoardingImages,
                 pageController: pageController,
                 onPageChanged: (index) => cubit.changePageController(index),
               ),
-              OnBoardingAppBar(),
               OnBoardingContent(
                 currentIndex: currentIndex,
                 onboardingIcons: onboardingIcons,

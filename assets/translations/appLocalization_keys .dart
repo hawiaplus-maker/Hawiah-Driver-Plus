@@ -89,8 +89,7 @@ class AppLocalizationKeys {
   static const setPasswordMessage = "setPasswordMessage";
   static const setPassword = "setPassword";
   static const chooseVerificationMethodAlt = "chooseVerificationMethod";
-  static const verificationCodeSentResetPassword =
-      "verificationCodeSentResetPassword";
+  static const verificationCodeSentResetPassword = "verificationCodeSentResetPassword";
   static const createNewPassword = "createNewPassword";
   static const enterSecurePassword = "enterSecurePassword";
   static const contains8Characters = "contains8Characters";

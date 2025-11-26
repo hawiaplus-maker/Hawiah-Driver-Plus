@@ -1,7 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:hawiah_driver/features/app-language/app-language-injection.dart';
 import 'package:hawiah_driver/features/authentication/authentication-injection.dart';
-import 'package:hawiah_driver/features/chat/chat_injection.dart';
 import 'package:hawiah_driver/features/layout/layout-injection.dart';
 import 'package:hawiah_driver/features/notifications/notifications_injection.dart';
 import 'package:hawiah_driver/features/on-boarding/on-boarding-injection.dart';

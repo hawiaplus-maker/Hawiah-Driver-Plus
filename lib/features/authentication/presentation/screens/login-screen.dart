@@ -16,7 +16,7 @@ import 'package:hawiah_driver/features/layout/presentation/screens/layout-screen
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
-
+  static const routeName = '/login-screen';
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
@@ -28,7 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: AppBarAuthWidget(),
+      appBar: CustomAuthAppBar(),
       body: BlocConsumer<AuthCubit, AuthState>(
         builder: (BuildContext context, AuthState state) {
           return Form(

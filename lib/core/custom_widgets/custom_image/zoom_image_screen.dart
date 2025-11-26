@@ -1,10 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hawiah_driver/core/images/app_images.dart';
 import 'package:photo_view/photo_view.dart';
-
 
 import '../custom_loading/custom_loading.dart';
 

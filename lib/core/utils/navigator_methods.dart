@@ -35,16 +35,19 @@ class NavigatorMethods {
     );
   }
 
-  static void showAppDialog(
+  static Future<T?> showAppDialog<T>(
     BuildContext context,
     Widget dialog, {
     bool willPop = true,
   }) {
-    showDialog(
+    return showDialog<T>(
       context: context,
       barrierDismissible: willPop,
       builder: (context) {
-        return PopScope(canPop: willPop, child: dialog);
+        return PopScope(
+          canPop: willPop,
+          child: dialog,
+        );
       },
     );
   }
@@ -80,21 +83,20 @@ class NavigatorMethods {
       AppRouters.navigatorKey.currentContext!,
     ).requestFocus(FocusNode());
     BotToast.showCustomLoading(
-      toastBuilder:
-          (cancelFunc) => Container(
-            width: size,
-            height: size,
-            decoration: BoxDecoration(
-              color: backgroundColor ?? AppColor.scaffoldColor,
-              borderRadius: BorderRadius.circular(radius),
-            ),
-            child: Center(
-              child: CustomLoading(
-                color: loadingColor ?? AppColor.mainAppColor,
-                size: loadingSize,
-              ),
-            ),
+      toastBuilder: (cancelFunc) => Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: backgroundColor ?? AppColor.scaffoldColor,
+          borderRadius: BorderRadius.circular(radius),
+        ),
+        child: Center(
+          child: CustomLoading(
+            color: loadingColor ?? AppColor.mainAppColor,
+            size: loadingSize,
           ),
+        ),
+      ),
     );
   }
 

@@ -11,6 +11,8 @@ class ChatInitial extends ChatState {}
 
 class ChatLoading extends ChatState {}
 
+class ChatEmpty extends ChatState {}
+
 class ChatLoaded extends ChatState {
   final List<ChatMessageModel> messages;
 
@@ -33,4 +35,13 @@ class RecentChatsLoaded extends ChatState {
   final List<RecentChatModel> chats;
 
   RecentChatsLoaded(this.chats);
+}
+
+class OrdersStatusLoaded extends ChatState {
+  final List<Map<String, dynamic>> statuses;
+
+  OrdersStatusLoaded(this.statuses);
+
+  @override
+  List<Object> get props => [statuses];
 }

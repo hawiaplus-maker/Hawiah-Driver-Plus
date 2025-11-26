@@ -19,10 +19,9 @@ import 'package:url_launcher/url_launcher.dart';
 class OldOrderScreen extends StatelessWidget {
   const OldOrderScreen({Key? key, required this.ordersDate}) : super(key: key);
   @override
-  final Data ordersDate;
+  final SingleOrderData ordersDate;
   Widget build(BuildContext context) {
-    final double totalPrice =
-        double.tryParse(ordersDate.totalPrice ?? "0") ?? 0;
+    final double totalPrice = double.tryParse(ordersDate.totalPrice ?? "0") ?? 0;
     final double vat = totalPrice * 0.15;
     final double netTotal = totalPrice + vat;
     return Scaffold(
@@ -75,20 +74,15 @@ class OldOrderScreen extends StatelessWidget {
                                       children: [
                                         TextSpan(
                                           text: AppLocaleKey.orderNumber.tr(),
-                                          style: AppTextStyle.text16_600
-                                              .copyWith(
-                                                color: AppColor.blackColor
-                                                    .withValues(alpha: 0.7),
-                                              ),
+                                          style: AppTextStyle.text16_600.copyWith(
+                                            color: AppColor.blackColor.withValues(alpha: 0.7),
+                                          ),
                                         ),
                                         TextSpan(
-                                          text:
-                                              ordersDate.referenceNumber ?? '',
-                                          style: AppTextStyle.text16_500
-                                              .copyWith(
-                                                color: AppColor.blackColor
-                                                    .withValues(alpha: 0.7),
-                                              ),
+                                          text: ordersDate.referenceNumber ?? '',
+                                          style: AppTextStyle.text16_500.copyWith(
+                                            color: AppColor.blackColor.withValues(alpha: 0.7),
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -136,7 +130,6 @@ class OldOrderScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             SizedBox(height: 10.h),
-
                             Text(
                               AppLocaleKey.customerData.tr(),
                               style: AppTextStyle.text16_700,
@@ -158,12 +151,11 @@ class OldOrderScreen extends StatelessWidget {
                         context,
                         SingleChatScreen.routeName,
                         arguments: SingleChatScreenArgs(
-                          reciverId: ordersDate.userId.toString(),
-                          reciverType: "user",
-                          reciverName: ordersDate.user ?? "",
-                          reciverImage: ordersDate.image ?? "",
-                          senderId:
-                              context.read<ProfileCubit>().user.id.toString(),
+                          receiverId: ordersDate.userId.toString(),
+                          receiverType: "user",
+                          receiverName: ordersDate.user ?? "",
+                          receiverImage: ordersDate.userImage ?? "",
+                          senderId: context.read<ProfileCubit>().user.id.toString(),
                           senderType: "driver",
                           orderId: ordersDate.id.toString(),
                           onMessageSent: () {},
@@ -234,7 +226,6 @@ class OldOrderScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-
                           Column(
                             children: [
                               GestureDetector(
@@ -265,7 +256,6 @@ class OldOrderScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-
                           Column(
                             children: [
                               GestureDetector(

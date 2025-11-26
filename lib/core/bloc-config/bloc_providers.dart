@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hawiah_driver/features/app-language/presentation/controllers/app-language-cubit/app-language-cubit.dart';
 import 'package:hawiah_driver/features/authentication/presentation/controllers/auth-cubit/auth-cubit.dart';
-import 'package:hawiah_driver/features/chat/cubit/chat_cubit.dart';
 import 'package:hawiah_driver/features/location/presentation/cubit/address_cubit.dart';
 import 'package:hawiah_driver/features/notifications/presentation/cubit/notifications_cubit.dart';
 import 'package:hawiah_driver/features/on-boarding/presentation/controllers/on-boarding-cubit/on-boarding-cubit.dart';
@@ -26,7 +25,6 @@ class BlocProviders {
       BlocProvider<NotificationsCubit>(
         create: (context) => sl<NotificationsCubit>(),
       ),
-      
     ];
   }
 }

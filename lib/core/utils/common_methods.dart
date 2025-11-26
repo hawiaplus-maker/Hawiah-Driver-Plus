@@ -3,19 +3,16 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:hawiah_driver/app_hawiah_driver_plus.dart';
 import 'package:hawiah_driver/core/custom_widgets/custom_select/custom_select_item.dart';
 import 'package:hawiah_driver/core/custom_widgets/custom_toast.dart';
 import 'package:hawiah_driver/core/routes/app_routers_import.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 
-
-import '../../main.dart';
-
 import '../extension/context_extension.dart';
 import '../hive/hive_methods.dart';
 import '../locale/app_locale_key.dart';
 import '../networking/api_helper.dart';
-
 import '../theme/app_colors.dart';
 
 class CommonMethods {
@@ -223,9 +220,7 @@ class CommonMethods {
       toastBuilder: (context) => CustomToast(
         title: title,
         message: message,
-        type: apiResponse?.state == ResponseState.offline
-            ? ToastType.offline
-            : ToastType.error,
+        type: apiResponse?.state == ResponseState.offline ? ToastType.offline : ToastType.error,
         backgroundColor: backgroundColor,
         icon: icon,
         textColor: textColor,
@@ -233,10 +228,8 @@ class CommonMethods {
     );
   }
 
- 
-
   static Future<bool> hasConnection() async {
-    var checker=InternetConnectionChecker.instance;
+    var checker = InternetConnectionChecker.instance;
     bool isConnected = await checker.hasConnection;
     if (isConnected) {
       return true;
@@ -288,7 +281,7 @@ class CommonMethods {
               HiveMethods.updateLang(const Locale('ar'));
               context.setLocale(const Locale('ar'));
               onTap.call();
-              MyApp.setMyAppState(context);
+              HawiahPlusDriverApp.setMyAppState(context);
               Navigator.pop(context);
             },
             child: Text(
@@ -307,7 +300,7 @@ class CommonMethods {
               HiveMethods.updateLang(const Locale('en'));
               context.setLocale(const Locale('en'));
               onTap.call();
-              MyApp.setMyAppState(context);
+              HawiahPlusDriverApp.setMyAppState(context);
               Navigator.pop(context);
             },
             child: Text(

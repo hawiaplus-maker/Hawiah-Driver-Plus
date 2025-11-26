@@ -8,10 +8,13 @@ class OrderSuccess extends OrderState {
   final OrdersModel? ordersModel;
   OrderSuccess({this.ordersModel});
 }
+
 class OrderConfirmed extends OrderState {
   final bool? success;
   OrderConfirmed({this.success});
 }
+
+class OrderPaginationLoading extends OrderState {}
 
 class OrderLoading extends OrderState {}
 
@@ -22,3 +25,5 @@ class OrderRebuild extends OrderState {}
 class OrderError extends OrderState {}
 
 class OrderEmpty extends OrderState {}
+
+class Unauthenticated extends OrderState {}

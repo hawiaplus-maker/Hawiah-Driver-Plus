@@ -38,17 +38,16 @@ class ChatCubit extends Cubit<ChatState> {
   /// تحديث الرسائل عند الاستماع
   void _handleMessages(QuerySnapshot snapshot) {
     try {
-      final messages =
-          snapshot.docs.map((doc) {
-            final data = doc.data() as Map<String, dynamic>;
-            return ChatMessageModel(
-              id: doc.id,
-              senderId: data['sender_id'] as String,
-              message: data['message'] as String,
-              timeStamp: (data['timestamp'] as Timestamp).toDate(),
-              senderType: data['sender_type'] as String,
-            );
-          }).toList();
+      final messages = snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return ChatMessageModel(
+          id: doc.id,
+          senderId: data['sender_id'] as String,
+          message: data['message'] as String,
+          timeStamp: (data['timestamp'] as Timestamp).toDate(),
+          senderType: data['sender_type'] as String,
+        );
+      }).toList();
 
       emit(ChatLoaded(messages));
     } catch (e) {
@@ -108,36 +107,74 @@ class ChatCubit extends Cubit<ChatState> {
     emit(ChatLoading());
     _recentChatsSubscription?.cancel();
 
-    final query =
-        _firestore
-            .collection('orders')
-            .where('${currentType}_id', isEqualTo: currentId)
-            .where('last_message', isGreaterThan: '')
-            .orderBy('last_message_time', descending: true)
-            .snapshots();
+    final query = _firestore
+        .collection('orders')
+        .where('${currentType}_id', isEqualTo: currentId)
+        .where('last_message', isGreaterThan: '')
+        .orderBy('last_message_time', descending: true)
+        .snapshots();
 
-    _recentChatsSubscription = query.listen(
-      (snapshot) {
-        final chats =
-            snapshot.docs.map((doc) {
-              final data = doc.data();
-              final isUser = currentType == 'user';
-              return RecentChatModel(
-                orderId: doc.id,
-                lastMessage: data['last_message'] ?? '',
-                lastMessageTime: (data['last_message_time'] as Timestamp?)?.toDate(),
-                receiverId: isUser ? data['driver_id'] : data['user_id'],
-                receiverName: isUser ? data['driver_name'] : data['user_name'],
-                receiverImage: isUser ? data['driver_image'] : data['user_image'],
-              );
-            }).toList();
+    _recentChatsSubscription = query.listen((snapshot) {
+      final chats = snapshot.docs.map((doc) {
+        final data = doc.data();
+        final isUser = currentType == 'user';
+        return RecentChatModel(
+          orderId: doc.id,
+          lastMessage: data['last_message'] ?? '',
+          lastMessageTime: (data['last_message_time'] as Timestamp?)?.toDate(),
+          receiverId: isUser ? data['driver_id'] : data['user_id'],
+          receiverName: isUser ? data['driver_name'] : data['user_name'],
+          receiverImage: isUser ? data['driver_image'] : data['user_image'],
+        );
+      }).toList();
 
-        emit(RecentChatsLoaded(chats));
-      },
-      onError: (error) {
-        emit(ChatError('فشل تحميل المحادثات: $error'));
-      },
-    );
+      emit(RecentChatsLoaded(chats));
+      if (chats.isEmpty) emit(ChatEmpty());
+    }, onError: (error) {
+      emit(ChatError('فشل تحميل المحادثات: $error'));
+    });
+  }
+
+  Future<void> updateUserStatus({
+    required String orderId,
+    required String userType,
+    required bool isOnline,
+  }) async {
+    final orderRef = _firestore.collection('orders').doc(orderId);
+    try {
+      await orderRef.set({
+        '${userType}_isOnline': isOnline,
+        '${userType}_lastSeen': isOnline ? FieldValue.serverTimestamp() : DateTime.now(),
+      }, SetOptions(merge: true));
+    } catch (e) {}
+  }
+
+  Future<void> updateTypingStatus({
+    required String orderId,
+    required String userType,
+    required bool isTyping,
+  }) async {
+    final orderRef = _firestore.collection('orders').doc(orderId);
+    await orderRef.set({
+      '${userType}_isTyping': isTyping,
+    }, SetOptions(merge: true));
+  }
+
+  Timer? _typingTimer;
+
+  void setTyping({
+    required String orderId,
+    required String userType,
+    required bool isTyping,
+  }) {
+    updateTypingStatus(orderId: orderId, userType: userType, isTyping: isTyping);
+
+    _typingTimer?.cancel();
+    if (isTyping) {
+      _typingTimer = Timer(const Duration(seconds: 2), () {
+        updateTypingStatus(orderId: orderId, userType: userType, isTyping: false);
+      });
+    }
   }
 
   @override

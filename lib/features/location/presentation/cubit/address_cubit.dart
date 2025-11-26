@@ -8,9 +8,6 @@ import 'package:hawiah_driver/core/networking/urls.dart';
 import 'package:hawiah_driver/core/utils/common_methods.dart';
 import 'package:hawiah_driver/core/utils/navigator_methods.dart';
 import 'package:hawiah_driver/features/location/presentation/cubit/address_state.dart';
-import 'package:hawiah_driver/features/location/presentation/model/address_model.dart';
-import 'package:hawiah_driver/features/location/presentation/model/city_model.dart';
-import 'package:hawiah_driver/features/location/presentation/model/neighborhood_model.dart';
 
 class AddressCubit extends Cubit<AddressState> {
   static AddressCubit get(BuildContext context) => BlocProvider.of(context);
@@ -20,8 +17,6 @@ class AddressCubit extends Cubit<AddressState> {
   changeRebuild() {
     emit(AddressUpdate());
   }
-
-
 
 //====================== neighborhoods
 
@@ -38,7 +33,6 @@ class AddressCubit extends Cubit<AddressState> {
     data: null,
   );
   ApiResponse get neighborhoodsResponse => _neighborhoodsResponse;
-
 
   Future<void> getneighborhoods(int id) async {
     _neighborhoodsResponse = ApiResponse(

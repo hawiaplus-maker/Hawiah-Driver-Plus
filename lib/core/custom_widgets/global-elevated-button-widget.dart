@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hawiah_driver/core/custom_widgets/custom_loading/custom_loading.dart';
 
 class GlobalElevatedButton extends StatelessWidget {
   final String label;
@@ -15,7 +16,7 @@ class GlobalElevatedButton extends StatelessWidget {
     Key? key,
     required this.label,
     required this.onPressed,
-    this.backgroundColor = const Color(0xff2204AE),
+    this.backgroundColor = const Color(0xFF2AD352),
     this.textColor = Colors.white,
     this.icon,
     this.padding = const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -30,7 +31,7 @@ class GlobalElevatedButton extends StatelessWidget {
       onPressed: onPressed, // Disable if not enabled
       icon: icon != null ? icon : SizedBox.shrink(),
       label: isLoading
-          ? CircularProgressIndicator()
+          ? CustomLoading()
           : Text(
               label,
               style: TextStyle(
@@ -43,8 +44,7 @@ class GlobalElevatedButton extends StatelessWidget {
         backgroundColor: backgroundColor,
         padding: padding,
         shape: RoundedRectangleBorder(borderRadius: borderRadius),
-        fixedSize:
-            Size.fromWidth(fixedWidth! * MediaQuery.of(context).size.width),
+        fixedSize: Size.fromWidth(fixedWidth! * MediaQuery.of(context).size.width),
       ),
     );
   }

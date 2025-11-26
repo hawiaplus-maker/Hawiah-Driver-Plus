@@ -54,8 +54,7 @@ class CompanyStepOne extends StatelessWidget {
         SizedBox(height: 20),
         DropdownButtonFormField<String>(
           decoration: InputDecoration(labelText: "company".tr()),
-          value: selectedAccountTypeCompleteProfile ??
-              accountTypesCompleteProfile[0],
+          initialValue: selectedAccountTypeCompleteProfile ?? accountTypesCompleteProfile[0],
           items: accountTypesCompleteProfile.map((type) {
             return DropdownMenuItem<String>(
               value: type,
@@ -69,7 +68,6 @@ class CompanyStepOne extends StatelessWidget {
           labelText: 'password'.tr(),
           hintText: 'enter_your_password'.tr(),
           initialValue: passwordCompleteProfile,
-         
           suffixIcon: IconButton(
             icon: Image.asset(
               passwordVisibleCompleteProfile
@@ -90,7 +88,6 @@ class CompanyStepOne extends StatelessWidget {
           labelText: 'confirm_password'.tr(),
           hintText: 'enter_your_password'.tr(),
           initialValue: confirmPasswordCompleteProfile,
-         
           suffixIcon: IconButton(
             icon: Image.asset(
               passwordVisibleCompleteProfile

@@ -19,15 +19,16 @@ import 'package:hawiah_driver/features/setting/cubit/setting_state.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CurrentOrderScreen extends StatelessWidget {
-  const CurrentOrderScreen({Key? key, required this.ordersDate}) : super(key: key);
-  final Data ordersDate;
+  const CurrentOrderScreen(
+      {Key? key, required this.ordersDate, required SingleOrderData ordersData})
+      : super(key: key);
+  final SingleOrderData ordersDate;
 
   @override
   Widget build(BuildContext context) {
     final double totalPrice = double.tryParse(ordersDate.totalPrice ?? "0") ?? 0;
     final double vat = totalPrice * 0.15;
-    final isDelivered =
-        ordersDate.status != null &&
+    final isDelivered = ordersDate.status != null &&
         ordersDate.status is Map &&
         (ordersDate.status!['en'] == "Delivered");
     return Scaffold(
@@ -137,10 +138,10 @@ class CurrentOrderScreen extends StatelessWidget {
                         context,
                         SingleChatScreen.routeName,
                         arguments: SingleChatScreenArgs(
-                          reciverId: ordersDate.userId.toString(),
-                          reciverType: "user",
-                          reciverName: ordersDate.user ?? "",
-                          reciverImage: ordersDate.userImage ?? "",
+                          receiverId: ordersDate.userId.toString(),
+                          receiverType: "user",
+                          receiverName: ordersDate.user ?? "",
+                          receiverImage: ordersDate.userImage ?? "",
                           senderId: context.read<ProfileCubit>().user.id.toString(),
                           senderType: "driver",
                           orderId: ordersDate.id.toString(),
@@ -195,7 +196,6 @@ class CurrentOrderScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-
                           Column(
                             children: [
                               GestureDetector(
@@ -216,7 +216,6 @@ class CurrentOrderScreen extends StatelessWidget {
                               Text(AppLocaleKey.support.tr(), style: AppTextStyle.text16_500),
                             ],
                           ),
-
                           Column(
                             children: [
                               GestureDetector(
@@ -253,29 +252,28 @@ class CurrentOrderScreen extends StatelessWidget {
                   isDelivered
                       ? SizedBox()
                       : Container(
-                        alignment: Alignment.bottomCenter,
-                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
-                        child: GlobalElevatedButton(
-                          label: AppLocaleKey.confirmOrder.tr(),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) => OrderOtpScreen(
-                                      otp: ordersDate.otp ?? "",
-                                      id: ordersDate.id,
-                                    ),
-                              ),
-                            );
-                          },
-                          backgroundColor: Color(0xff1A3C98),
-                          textColor: Colors.white,
-                          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                          borderRadius: BorderRadius.circular(10),
-                          fixedWidth: 0.80,
+                          alignment: Alignment.bottomCenter,
+                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
+                          child: GlobalElevatedButton(
+                            label: AppLocaleKey.confirmOrder.tr(),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => OrderOtpScreen(
+                                    otp: ordersDate.otp ?? "",
+                                    id: ordersDate.id,
+                                  ),
+                                ),
+                              );
+                            },
+                            backgroundColor: Color(0xff1A3C98),
+                            textColor: Colors.white,
+                            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                            borderRadius: BorderRadius.circular(10),
+                            fixedWidth: 0.80,
+                          ),
                         ),
-                      ),
                 ],
               ),
             ),

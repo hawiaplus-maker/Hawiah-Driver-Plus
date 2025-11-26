@@ -1,13 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
-import 'package:hawiah_driver/core/custom_widgets/global-elevated-button-widget.dart';
+import 'package:gap/gap.dart';
+import 'package:hawiah_driver/core/custom_widgets/custom_button.dart';
 import 'package:hawiah_driver/core/theme/app_colors.dart';
 import 'package:hawiah_driver/core/theme/app_text_style.dart';
 import 'package:hawiah_driver/features/authentication/presentation/screens/login-screen.dart';
-import 'package:hawiah_driver/features/on-boarding/presentation/widgets/circular-progress-stack-widget.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class OnBoardingContent extends StatelessWidget {
   final int currentIndex;
@@ -30,49 +28,39 @@ class OnBoardingContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String removeHtmlTags(String htmlText) {
-      final regex = RegExp(r'<[^>]*>', multiLine: true, caseSensitive: true);
-      return htmlText.replaceAll(regex, '');
-    }
-
-    return Positioned(
-      bottom: 20,
-      right: 15,
-      left: 15,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: 0.8.sw),
-              child: HtmlWidget(
-                onboardingTitles[currentIndex].tr(),
-                textStyle:
-                    AppTextStyle.text24_700.copyWith(color: Colors.white),
-              )),
-          SizedBox(height: 15.h),
-          ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: 0.8.sw),
-              child: HtmlWidget(
-                onboardingContents[currentIndex].tr(),
-                textStyle:
-                    AppTextStyle.text16_500.copyWith(color: Colors.white),
-              )),
-          SizedBox(height: 30.h),
-          currentIndex != 2
-              ? Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    CircularProgressStack(progressValue: progressValue),
-                    SmoothPageIndicator(
-                      controller: pageController,
-                      count: totalImagesCount,
-                      effect: WormEffect(),
-                    )
-                  ],
+          Center(
+            child: Text(
+              textAlign: TextAlign.center,
+              onboardingTitles[currentIndex],
+              style: AppTextStyle.text24_700,
+            ),
+          ),
+          Gap(10.h),
+          Center(
+            child: Text(
+              textAlign: TextAlign.center,
+              onboardingContents[currentIndex],
+              style: AppTextStyle.text20_500.copyWith(color: AppColor.textGrayColor),
+            ),
+          ),
+          SizedBox(height: 20.h),
+          currentIndex != totalImagesCount - 1
+              ? CustomButton(
+                  text: "next".tr(),
+                  onPressed: () {
+                    print(totalImagesCount);
+                    pageController.nextPage(
+                      duration: Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
+                  },
                 )
-              : Center(
-                  child: GlobalElevatedButton(
-                  label: "start_now".tr(),
+              : CustomButton(
                   onPressed: () {
                     Navigator.pushAndRemoveUntil<void>(
                       context,
@@ -82,17 +70,9 @@ class OnBoardingContent extends StatelessWidget {
                       (route) => false,
                     );
                   },
-                  backgroundColor: AppColor.blueColor,
-                  textColor: Colors.white,
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  borderRadius: BorderRadius.circular(16), // Rounded corners
-                  fixedWidth: 0.80, // 80% of the screen width
-                  icon: Icon(
-                    Icons.arrow_back, // Icon for the button
-                    color: Colors.white,
-                    size: 15,
-                  ),
-                )),
+                  text: "Letsgetstarted".tr(),
+                ),
+          Gap(50.h)
         ],
       ),
     );

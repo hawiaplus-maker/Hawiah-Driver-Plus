@@ -21,10 +21,7 @@ class ChatMessageModel {
     message = json['message'];
     senderId = json['sender_id'];
     senderType = json['sender_type'];
-    timeStamp =
-        json['timestamp'] is Timestamp
-            ? (json['timestamp'] as Timestamp).toDate()
-            : null;
+    timeStamp = json['timestamp'] is Timestamp ? (json['timestamp'] as Timestamp).toDate() : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -55,15 +52,44 @@ class RecentChatModel {
   final String receiverId;
   final String receiverName;
   final String receiverImage;
+  final bool? isOnline;
+  final DateTime? lastSeen;
 
-  RecentChatModel({
-    required this.orderId,
-    required this.lastMessage,
-    this.lastMessageTime,
-    required this.receiverId,
-    required this.receiverName,
-    required this.receiverImage,
-  });
+  RecentChatModel(
+      {required this.orderId,
+      required this.lastMessage,
+      this.lastMessageTime,
+      required this.receiverId,
+      required this.receiverName,
+      required this.receiverImage,
+      this.isOnline,
+      this.lastSeen});
+
+  factory RecentChatModel.fromJson(Map<String, dynamic> json) {
+    return RecentChatModel(
+      orderId: json['order_id'] ?? '',
+      lastMessage: json['last_message'] ?? '',
+      lastMessageTime: json['last_message_time'] != null
+          ? (json['last_message_time'] as Timestamp).toDate()
+          : null,
+      receiverId: json['receiver_id'] ?? '',
+      receiverName: json['receiver_name'] ?? '',
+      receiverImage: json['receiver_image'] ?? '',
+      isOnline: json['is_online'] ?? false,
+      lastSeen: json['last_seen'] != null ? (json['last_seen'] as Timestamp).toDate() : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'order_id': orderId,
+      'last_message': lastMessage,
+      if (lastMessageTime != null) 'last_message_time': Timestamp.fromDate(lastMessageTime!),
+      'receiver_id': receiverId,
+      'receiver_name': receiverName,
+      'receiver_image': receiverImage,
+      'is_online': isOnline ?? false,
+      'last_seen': lastSeen != null ? Timestamp.fromDate(lastSeen!) : null
+    };
+  }
 }
-
-

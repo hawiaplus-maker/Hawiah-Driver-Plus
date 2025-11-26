@@ -56,6 +56,7 @@ class CustomTextField extends StatefulWidget {
   final bool hasShadow;
   final TextInputAction? textInputAction;
   final void Function(String)? onSubmitted;
+
   const CustomTextField({
     super.key,
     this.initialValue,
@@ -72,7 +73,7 @@ class CustomTextField extends StatefulWidget {
     this.suffixIcon,
     this.radius = 12,
     this.fillColor,
-    this.focusColor,
+    this.focusColor = Colors.transparent,
     this.unFocusColor,
     this.title,
     this.textDirection,
@@ -108,11 +109,34 @@ class CustomTextField extends StatefulWidget {
 
 class _CustomTextFieldState extends State<CustomTextField> {
   bool _obscureText = true;
+  late FocusNode _focusNode;
+  bool _isFocused = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = widget.focusNode ?? FocusNode();
+    _focusNode.addListener(() {
+      setState(() {
+        _isFocused = _focusNode.hasFocus;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    if (widget.focusNode == null) _focusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final fillColor = _isFocused
+        ? (widget.focusColor ?? AppColor.textFormFillColor)
+        : (widget.fillColor ?? AppColor.textFormFillColor);
+
     return Container(
-      width: widget.width ?? MediaQuery.of(context).size.width,
+      width: widget.width ?? double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(widget.radius),
         boxShadow: widget.hasShadow
@@ -127,277 +151,75 @@ class _CustomTextFieldState extends State<CustomTextField> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            children: [
-              if (widget.title != null) ...{
-                Expanded(
-                  child: Text(
-                    widget.title!,
-                    style: widget.titleStyle ?? AppTextStyle.formTitleStyle,
-                  ),
-                ),
-              },
-              if (widget.otherSideTitle != null) ...{
-                Text(
-                  widget.otherSideTitle!,
-                  style: widget.titleStyle ?? AppTextStyle.formTitleStyle,
-                ),
-              },
-            ],
-          ),
-          if (widget.title != null || widget.otherSideTitle != null) ...{
-            const SizedBox(width: 10),
-          },
+          if (widget.title != null || widget.otherSideTitle != null) _buildTitleRow(),
           Directionality(
-            textDirection: widget.textDirection != null
-                ? widget.textDirection!
-                : context.isRTL()
-                    ? ui.TextDirection.rtl
-                    : ui.TextDirection.ltr,
+            textDirection: widget.textDirection ??
+                (context.isRTL() ? ui.TextDirection.rtl : ui.TextDirection.ltr),
             child: TextFormField(
               onFieldSubmitted: widget.onSubmitted,
-              clipBehavior: Clip.antiAlias,
-              focusNode: widget.focusNode,
-              onTapOutside: (event) {
-                FocusManager.instance.primaryFocus?.unfocus();
-              },
               controller: widget.controller,
-              initialValue: widget.initialValue,
+              focusNode: _focusNode,
+              onTap: widget.onTap,
               onChanged: widget.onChanged,
               validator: widget.validator,
-              onTap: widget.onTap,
               readOnly: widget.readOnly,
               keyboardType: widget.keyboardType,
               obscureText: widget.isPassword ? _obscureText : false,
-              style: widget.textStyle ?? AppTextStyle.textFormStyle,
-              autovalidateMode:
-                  widget.autovalidateMode ?? AutovalidateMode.onUserInteraction,
+              autovalidateMode: widget.autovalidateMode ?? AutovalidateMode.onUserInteraction,
               maxLines: widget.maxLines,
-              cursorColor: widget.focusColor ?? AppColor.mainAppColor,
+              style: widget.textStyle ?? AppTextStyle.textFormStyle,
+              cursorColor: AppColor.mainAppColor,
               inputFormatters: widget.inputFormatters,
               maxLength: widget.maxLength,
               textAlign: widget.textAlign,
-              decoration: InputDecoration(
-                label: widget.label,
-                labelText: widget.labelText,
-                labelStyle: AppTextStyle.labelStyle,
-                hintMaxLines: 2,
-                hintText: widget.hintText,
-                hintStyle: widget.hintStyle ?? AppTextStyle.hintStyle,
-                fillColor: widget.fillColor ??
-                    (widget.formFieldBorder == FormFieldBorder.underLine
-                        ? Colors.transparent
-                        : AppColor.textFormFillColor),
-                filled: true,
-                border: _border(
-                  color: widget.unFocusColor ?? AppColor.textFormBorderColor,
-                ),
-                disabledBorder: _border(
-                  color: widget.unFocusColor ?? AppColor.textFormBorderColor,
-                ),
-                focusedBorder: _border(
-                  color: widget.unFocusColor ?? AppColor.mainAppColor,
-                ),
-                enabledBorder: _border(
-                  color: widget.unFocusColor ?? AppColor.textFormBorderColor,
-                ),
-                errorBorder: _border(color: Colors.red.shade700),
-                focusedErrorBorder: _border(color: Colors.red.shade700),
-                contentPadding: const EdgeInsets.symmetric(
-                  vertical: 10,
-                  horizontal: 10,
-                ),
-                prefixIcon: widget.country != null &&
-                        context.locale == const Locale('en')
-                    ? Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          widget.prefixIconSvg != null
-                              ? Container(
-                                  width: 45,
-                                  height: 47,
-                                  margin: const EdgeInsets.all(1),
-                                  clipBehavior: Clip.antiAlias,
-                                  decoration: BoxDecoration(
-                                    borderRadius:
-                                        BorderRadiusDirectional.horizontal(
-                                      start: Radius.circular(widget.radius),
-                                    ),
-                                  ),
-                                  child: Stack(
-                                    children: [
-                                      PositionedDirectional(
-                                        bottom: 0,
-                                        top: 0,
-                                        start: 0,
-                                        end: 2,
-                                        child: SvgPrefixIcon(
-                                          imagePath: widget.prefixIconSvg!,
-                                          color: widget.prefixIconSvgColor,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              : (widget.prefixIcon ?? const SizedBox()),
-                          SizedBox(
-                            width: 100,
-                            child: Center(
-                              child: CustomButton(
-                                width: 80,
-                                height: 32,
-                                radius: 4,
-                                color: AppColor.textFormBorderColor,
-                                onPressed: widget.onCountrySelect != null
-                                    ? _select
-                                    : null,
-                                child: Text(
-                                  '${widget.country?.flagEmoji} +${widget.country?.phoneCode}',
-                                  style: widget.phonePickStyle ??
-                                      AppTextStyle.text14_400.copyWith(
-                                        color: AppColor.textSecondaryColor,
-                                      ),
-                                  textDirection: ui.TextDirection.ltr,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
-                    : widget.prefixIconSvg != null
-                        ? Container(
-                            width: 45,
-                            height: 47,
-                            margin: const EdgeInsets.all(1),
-                            clipBehavior: Clip.antiAlias,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadiusDirectional.horizontal(
-                                start: Radius.circular(widget.radius),
-                              ),
-                            ),
-                            child: Stack(
-                              children: [
-                                PositionedDirectional(
-                                  bottom: 0,
-                                  top: 0,
-                                  start: 0,
-                                  end: 2,
-                                  child: SvgPrefixIcon(
-                                    imagePath: widget.prefixIconSvg!,
-                                    color: widget.prefixIconSvgColor,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        : widget.prefixIcon,
-                suffixIcon: widget.country != null &&
-                        context.locale == const Locale('ar')
-                    ? Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SizedBox(
-                            width: 100,
-                            child: Center(
-                              child: CustomButton(
-                                width: 80,
-                                height: 32,
-                                radius: 4,
-                                color: Colors.transparent,
-                                onPressed: widget.onCountrySelect != null
-                                    ? _select
-                                    : null,
-                                child: Text(
-                                  '${widget.country?.flagEmoji} +${widget.country?.phoneCode}',
-                                  style: widget.phonePickStyle ??
-                                      AppTextStyle.text14_400.copyWith(
-                                        color: AppColor.textSecondaryColor,
-                                      ),
-                                  textDirection: ui.TextDirection.ltr,
-                                ),
-                              ),
-                            ),
-                          ),
-                          widget.suffixIconSvg != null
-                              ? Container(
-                                  width: 45,
-                                  height: 47,
-                                  margin: const EdgeInsets.all(1),
-                                  clipBehavior: Clip.antiAlias,
-                                  decoration: BoxDecoration(
-                                    borderRadius:
-                                        BorderRadiusDirectional.horizontal(
-                                      end: Radius.circular(widget.radius),
-                                    ),
-                                  ),
-                                  child: Stack(
-                                    children: [
-                                      PositionedDirectional(
-                                        bottom: 0,
-                                        top: 0,
-                                        start: 0,
-                                        end: 2,
-                                        child: SvgPrefixIcon(
-                                          imagePath: widget.suffixIconSvg!,
-                                          color: widget.suffixIconSvgColor,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              : (widget.suffixIcon ?? const SizedBox()),
-                        ],
-                      )
-                    : widget.isPassword
-                        ? InkWell(
-                            onTap: () {
-                              setState(() {
-                                _obscureText = !_obscureText;
-                              });
-                            },
-                            child: Icon(
-                              _obscureText
-                                  ? Icons.visibility_off_rounded
-                                  : Icons.visibility_rounded,
-                              size: 20,
-                              color: widget.passwordColor ?? AppColor.hintColor,
-                            ),
-                          )
-                        : widget.suffixIconSvg != null
-                            ? Container(
-                                width: 45,
-                                height: 47,
-                                margin: const EdgeInsets.all(1),
-                                clipBehavior: Clip.antiAlias,
-                                decoration: BoxDecoration(
-                                  borderRadius:
-                                      BorderRadiusDirectional.horizontal(
-                                    end: Radius.circular(widget.radius),
-                                  ),
-                                ),
-                                child: Stack(
-                                  children: [
-                                    PositionedDirectional(
-                                      bottom: 0,
-                                      top: 0,
-                                      start: 0,
-                                      end: 2,
-                                      child: SvgPrefixIcon(
-                                        imagePath: widget.suffixIconSvg!,
-                                        color: widget.suffixIconSvgColor,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : widget.suffixIcon,
-              ),
+              decoration: _buildDecoration(context, fillColor),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildTitleRow() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          if (widget.title != null)
+            Expanded(
+              child: Text(
+                widget.title!,
+                style: widget.titleStyle ?? AppTextStyle.formTitleStyle,
+              ),
+            ),
+          if (widget.otherSideTitle != null)
+            Text(
+              widget.otherSideTitle!,
+              style: widget.titleStyle ?? AppTextStyle.formTitleStyle,
+            ),
+        ],
+      ),
+    );
+  }
+
+  InputDecoration _buildDecoration(BuildContext context, Color fillColor) {
+    return InputDecoration(
+      label: widget.label,
+      labelText: widget.labelText,
+      labelStyle: AppTextStyle.labelStyle,
+      hintText: widget.hintText,
+      hintStyle: widget.hintStyle ?? AppTextStyle.hintStyle,
+      fillColor: fillColor,
+      filled: true,
+      border: _border(color: widget.unFocusColor ?? AppColor.textFormBorderColor),
+      focusedBorder: _border(color: AppColor.mainAppColor),
+      enabledBorder: _border(color: widget.unFocusColor ?? AppColor.textFormBorderColor),
+      errorBorder: _border(color: Colors.red.shade700),
+      focusedErrorBorder: _border(color: Colors.red.shade700),
+      contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+      prefixIcon: _buildPrefix(context),
+      suffixIcon: _buildSuffix(context),
     );
   }
 
@@ -406,11 +228,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
       case FormFieldBorder.outLine:
         return OutlineInputBorder(
           borderRadius: BorderRadius.circular(widget.radius),
-          borderSide: BorderSide(color: color),
+          borderSide: BorderSide(color: color, width: 1.5),
         );
       case FormFieldBorder.underLine:
         return UnderlineInputBorder(
-          borderRadius: BorderRadius.circular(0),
           borderSide: BorderSide(color: color),
         );
       case FormFieldBorder.none:
@@ -418,11 +239,96 @@ class _CustomTextFieldState extends State<CustomTextField> {
     }
   }
 
+  Widget? _buildPrefix(BuildContext context) {
+    if (widget.country != null && context.locale == const Locale('en')) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (widget.prefixIconSvg != null)
+            _buildSvgIcon(widget.prefixIconSvg!, isPrefix: true)
+          else
+            widget.prefixIcon ?? const SizedBox(),
+          _buildCountryButton(),
+        ],
+      );
+    }
+    if (widget.prefixIconSvg != null) {
+      return _buildSvgIcon(widget.prefixIconSvg!, isPrefix: true);
+    }
+    return widget.prefixIcon;
+  }
+
+  Widget? _buildSuffix(BuildContext context) {
+    if (widget.country != null && context.locale == const Locale('ar')) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildCountryButton(),
+          if (widget.suffixIconSvg != null)
+            _buildSvgIcon(widget.suffixIconSvg!, isPrefix: false)
+          else
+            widget.suffixIcon ?? const SizedBox(),
+        ],
+      );
+    }
+    if (widget.isPassword) {
+      return InkWell(
+        onTap: () => setState(() => _obscureText = !_obscureText),
+        child: Icon(
+          _obscureText ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+          size: 20,
+          color: widget.passwordColor ?? AppColor.hintColor,
+        ),
+      );
+    }
+    if (widget.suffixIconSvg != null) {
+      return _buildSvgIcon(widget.suffixIconSvg!, isPrefix: false);
+    }
+    return widget.suffixIcon;
+  }
+
+  Widget _buildSvgIcon(String path, {required bool isPrefix}) {
+    return Container(
+      width: 45,
+      height: 47,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadiusDirectional.horizontal(
+          start: isPrefix ? Radius.circular(widget.radius) : Radius.zero,
+          end: isPrefix ? Radius.zero : Radius.circular(widget.radius),
+        ),
+      ),
+      child: SvgPrefixIcon(
+        imagePath: path,
+        color: isPrefix ? widget.prefixIconSvgColor : widget.suffixIconSvgColor,
+      ),
+    );
+  }
+
+  Widget _buildCountryButton() {
+    return SizedBox(
+      width: 100,
+      child: Center(
+        child: CustomButton(
+          width: 80,
+          height: 32,
+          radius: 4,
+          color: AppColor.textFormBorderColor,
+          onPressed: widget.onCountrySelect != null ? _select : null,
+          child: Text(
+            '${widget.country?.flagEmoji} +${widget.country?.phoneCode}',
+            style: widget.phonePickStyle ??
+                AppTextStyle.text14_400.copyWith(color: AppColor.textSecondaryColor),
+            textDirection: ui.TextDirection.ltr,
+          ),
+        ),
+      ),
+    );
+  }
+
   void _select() {
     CountryCodeMethods.pickCountry(
-      onSelect: (v) {
-        widget.onCountrySelect?.call(v);
-      },
+      onSelect: (v) => widget.onCountrySelect?.call(v),
       context: context,
     );
   }

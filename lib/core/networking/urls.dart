@@ -3,8 +3,7 @@ class Urls {
       'https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg?cs=srgb&amp;dl=pexels-mike-b-170811.jpg&amp;fm=jpg';
   static const String testWhiteCarImage =
       'https://images.pexels.com/photos/116675/pexels-photo-116675.jpeg?cs=srgb&amp;dl=pexels-mike-b-116675.jpg&amp;fm=jpg';
-  static const String testCarLogoImage =
-      'https://cdn.worldvectorlogo.com/logos/bmw-logo.svg';
+  static const String testCarLogoImage = 'https://cdn.worldvectorlogo.com/logos/bmw-logo.svg';
   static const String testUserImage =
       'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLlsHCzHU2GndYsMJQscyixYSlDVggHDzbXtXSuEmLAc309Z-6e1TUhHJFCLCw40Kicw0';
   static const String testAppleLogo =
@@ -15,10 +14,13 @@ class Urls {
       "https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4";
 
   //! ===================> Live Api <=================== !//
-  static const String baseUrl = 'https://hawia-sa.com/api/';
+  static const String baseUrl = 'https://hawiaplus.com/api/';
   static const String login = '${baseUrl}service-providers/login';
+  static const String validateMobile = '${baseUrl}validate-mobile';
+  static const String companyRegister = '${baseUrl}company/register';
+  static const String individualRegister = '${baseUrl}complete-register';
   static const String settings = '${baseUrl}settings';
-  static const String notifications = '${baseUrl}notifications';
+
   static const String logout = '${baseUrl}logout';
   static const String register = '${baseUrl}register';
   static const String verify = '${baseUrl}verify-otp';
@@ -36,11 +38,21 @@ class Urls {
   static const String createOrder = '${baseUrl}users/orders';
   static const String onBoarding = '${baseUrl}on-boarding';
   static String orders(int id) => '${baseUrl}drivers/orders?order_status=$id';
-  static String confirmOrders(int id) =>
-      '${baseUrl}drivers/orders/confirm-order/$id';
+  static String confirmOrders(int id) => '${baseUrl}drivers/orders/confirm-order/$id';
   static const String cities = '${baseUrl}cities';
   static const String addresses = '${baseUrl}user-addresses';
   static const String storeAddress = '${baseUrl}user-addresses';
   static String neighborhoodsByCity(int id) => '${baseUrl}neighborhoods/$id';
   static String updateAddress(int id) => '${baseUrl}user-addresses/$id';
+  static String getNotifications = '${baseUrl}notifications';
+  static String notifications(int? seen, String search) {
+    if (seen == null) {
+      return "${baseUrl}notifications?search=$search";
+    }
+    return "${baseUrl}notifications?search=$search&seen=$seen";
+  }
+
+  static String deleteNotification(int id) => '${baseUrl}notifications/$id';
+  static String applayCoupon = '${baseUrl}coupon/check';
+  static String questions = '${baseUrl}faq';
 }

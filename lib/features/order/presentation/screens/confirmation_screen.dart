@@ -57,41 +57,31 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                           child: Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color: Colors.black,
-                                width: 5.h,
-                              ),
+                              border: Border.all(color: Colors.black, width: 5.h),
                             ),
-                            child: Image.asset(
-                              AppImages.carPickerIcon,
-                              height: 150.h,
-                              width: 200.w,
-                              fit: BoxFit.fill,
-                            ),
+                            // child: Image.asset(
+                            //   AppImages.carPickerIcon,
+                            //   height: 150.h,
+                            //   width: 200.w,
+                            //   fit: BoxFit.fill,
+                            // ),
                           ),
                           onTap: () async {
-                            image = await ImagePicker().pickImage(
-                              source: ImageSource.camera,
-                            );
+                            image = await ImagePicker().pickImage(source: ImageSource.camera);
                             setState(() {});
                           },
                         ),
                         SizedBox(height: 10.h),
                         Text(
                           AppLocaleKey.attachAPicture.tr(),
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 18.sp,
-                          ),
+                          style: TextStyle(color: Colors.black, fontSize: 18.sp),
                         ),
                       ],
                     ),
                 SizedBox(height: 50.h),
                 Container(
                   alignment: Alignment.bottomCenter,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
                   child:
                       (loading != true)
                           ? GlobalElevatedButton(
@@ -122,10 +112,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                             },
                             backgroundColor: Color(0xff1A3C98),
                             textColor: Colors.white,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 12,
-                            ),
+                            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                             borderRadius: BorderRadius.circular(10),
                             fixedWidth: 0.95, // 80% of the screen width
                           )
@@ -148,25 +135,20 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            Image.asset(AppImages.confirmed, height: 40.h),
+                            // Image.asset(AppImages.confirmed, height: 40.h),
                             Text(AppLocaleKey.confirmedSuccessfully.tr()),
                             GlobalElevatedButton(
                               label: AppLocaleKey.ok.tr(),
                               onPressed: () {
                                 Navigator.pushAndRemoveUntil(
                                   context,
-                                  MaterialPageRoute(
-                                    builder: (context) => LayoutScreen(),
-                                  ),
+                                  MaterialPageRoute(builder: (context) => LayoutScreen()),
                                   (route) => false,
                                 );
                               },
                               backgroundColor: Colors.green,
                               textColor: Colors.white,
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 12,
-                              ),
+                              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                               borderRadius: BorderRadius.circular(10),
                               fixedWidth: 0.35, // 80% of the screen width
                             ),
@@ -198,10 +180,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                               },
                               backgroundColor: Colors.red,
                               textColor: Colors.white,
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 12,
-                              ),
+                              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                               borderRadius: BorderRadius.circular(10),
                               fixedWidth: 0.35, // 80% of the screen width
                             ),

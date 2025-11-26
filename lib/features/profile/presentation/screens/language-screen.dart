@@ -2,9 +2,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hawiah_driver/app_hawiah_driver_plus.dart';
 import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/features/app-language/presentation/controllers/app-language-cubit/app-language-cubit.dart';
-import 'package:hawiah_driver/main.dart';
 
 class LanguageScreen extends StatelessWidget {
   const LanguageScreen({super.key});
@@ -30,7 +30,7 @@ class LanguageScreen extends StatelessWidget {
               appLanguageCubit.changeLanguage(language: "arabic");
               await context.setLocale(const Locale("ar"));
               appLanguageCubit.changeRebuild();
-              MyApp.setMyAppState(context);
+              HawiahPlusDriverApp.setMyAppState(context);
             },
           ),
           languageItem(
@@ -40,7 +40,7 @@ class LanguageScreen extends StatelessWidget {
               appLanguageCubit.changeLanguage(language: "english");
               await context.setLocale(const Locale("en"));
               appLanguageCubit.changeRebuild();
-              MyApp.setMyAppState(context);
+              HawiahPlusDriverApp.setMyAppState(context);
             },
             isHaveLine: false,
           ),
@@ -76,10 +76,7 @@ class LanguageScreen extends StatelessWidget {
               ],
             ),
           ),
-          if (isHaveLine)
-            Divider(color: Colors.grey, thickness: 0.5)
-          else
-            SizedBox.shrink(),
+          if (isHaveLine) Divider(color: Colors.grey, thickness: 0.5) else SizedBox.shrink(),
         ],
       ),
     );

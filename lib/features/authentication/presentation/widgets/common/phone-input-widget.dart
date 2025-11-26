@@ -18,7 +18,7 @@ class PhoneInputWidget extends StatelessWidget {
     return CustomTextField(
       validator: (v) => ValidationMethods.validatePhone(v, country: _country),
       controller: controller,
-      labelText: "phone_number".tr(),
+      title: "phone_number".tr(),
       // hintText: "phone_number".tr(),
       onChanged: (value) {
         authCubit.PhoneController.text = value;

@@ -152,7 +152,14 @@ class _UserProfileState extends State<UserProfile> {
                   state is ProfileUpdating
                       ? const CustomLoading()
                       : CustomButton(
-                          onPressed: _onUpdatePressed,
+                          onPressed: () {
+                            cubit.updateProfile(
+                              name: _controllers['name']!.text,
+                              mobile: _controllers['mobile']!.text,
+                              email: '',
+                              imageFile: _pickedImage,
+                            );
+                          },
                           child: Text(
                             AppLocaleKey.saveChanges.tr(),
                             style: AppTextStyle.text16_600.copyWith(color: AppColor.whiteColor),

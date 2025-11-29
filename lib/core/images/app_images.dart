@@ -39,7 +39,7 @@ class AppImages {
   static const String instagram = 'assets/images/instagram.png';
   static const String linkedin = 'assets/images/linkedin.png';
   static const String twitter = 'assets/images/twitter.png';
-  static const String whatsapp = 'assets/images/whatsapp.png';
+  static const String whatsapp = 'assets/images/whatsApp.png';
   static const String loginImage = 'assets/images/loginImage.png';
   static const String bellIcon = 'assets/svg/bellIcon.svg';
   static const String sendIcon = 'assets/svg/sendIcon.svg';

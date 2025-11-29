@@ -5,7 +5,7 @@ class SettingInjection {
   static void init() {
     //cubit
 
-    sl.registerFactory(() => SettingCubit());
+    sl.registerLazySingleton(() => SettingCubit());
 
     //use cases
 

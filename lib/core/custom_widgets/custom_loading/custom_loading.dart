@@ -13,7 +13,7 @@ class CustomLoading extends StatelessWidget {
       height: size,
       child: LoadingIndicator(
         indicatorType: Indicator.ballSpinFadeLoader,
-        colors: [color ?? AppColor.blackColor],
+        colors: [color ?? AppColor.mainAppColor],
         strokeWidth: 2,
       ),
     );

@@ -5,7 +5,7 @@ class ProfileInjection {
   static void init() {
     //cubit
 
-    sl.registerFactory(() => ProfileCubit());
+    sl.registerLazySingleton<ProfileCubit>(() => ProfileCubit());
 
     //use cases
 

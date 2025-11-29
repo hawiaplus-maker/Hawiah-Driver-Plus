@@ -17,6 +17,7 @@ import 'package:hawiah_driver/features/chat/cubit/chat_cubit.dart';
 import 'package:hawiah_driver/features/chat/model/chat_model.dart';
 import 'package:hawiah_driver/features/chat/presentation/widget/conversation_list_tile.dart';
 import 'package:hawiah_driver/features/profile/presentation/cubit/cubit_profile.dart';
+import 'package:hawiah_driver/injection_container.dart';
 
 class AllChatsScreen extends StatefulWidget {
   const AllChatsScreen({super.key});
@@ -49,11 +50,11 @@ class _AllChatsScreenState extends State<AllChatsScreen> {
         NavigatorMethods.showAppDialog(context, UnauthenticatedDialog());
       });
     } else {
-      userId = context.read<ProfileCubit>().user!.id.toString();
+      userId = sl<ProfileCubit>().user.id.toString();
       chatCubit = ChatCubit();
       chatCubit.fetchRecentChats(
         currentId: userId,
-        currentType: 'user',
+        currentType: 'driver',
       );
     }
   }

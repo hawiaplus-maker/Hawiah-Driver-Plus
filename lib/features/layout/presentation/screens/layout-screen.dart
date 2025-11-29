@@ -1,6 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hawiah_driver/core/images/app_images.dart';
@@ -8,9 +7,7 @@ import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/core/theme/app_colors.dart';
 import 'package:hawiah_driver/features/chat/presentation/screens/chat-screen.dart';
 import 'package:hawiah_driver/features/order/presentation/screens/orders-screen.dart';
-import 'package:hawiah_driver/features/profile/presentation/cubit/cubit_profile.dart';
 import 'package:hawiah_driver/features/profile/presentation/screens/profile-screen.dart';
-import 'package:hawiah_driver/features/setting/cubit/setting_cubit.dart';
 
 class LayoutScreen extends StatefulWidget {
   static const routeName = '/layout-screen';
@@ -23,11 +20,6 @@ class LayoutScreen extends StatefulWidget {
 class _LayoutScreenState extends State<LayoutScreen> {
   @override
   void initState() {
-    Future.wait([
-      context.read<ProfileCubit>().fetchProfile(),
-      context.read<SettingCubit>().getsetting(),
-    ]);
-
     super.initState();
   }
 

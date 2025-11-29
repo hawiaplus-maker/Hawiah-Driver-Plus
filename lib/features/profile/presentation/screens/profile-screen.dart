@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:hawiah_driver/core/custom_widgets/custom_app_bar/custom_app_bar.dart';
 import 'package:hawiah_driver/core/custom_widgets/custom_image/custom_network_image.dart';
 import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/core/theme/app_colors.dart';
@@ -17,6 +18,7 @@ import 'package:hawiah_driver/features/profile/presentation/screens/language-scr
 import 'package:hawiah_driver/features/profile/presentation/screens/privacy-policy-screen.dart';
 import 'package:hawiah_driver/features/profile/presentation/screens/terms-and-conditions.dart';
 import 'package:hawiah_driver/features/profile/presentation/screens/user_profile_screen.dart';
+import 'package:hawiah_driver/injection_container.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -28,15 +30,12 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
-    // final profile = context.read<ProfileCubit>().user;
+    final profileCubit = sl<ProfileCubit>();
     return Scaffold(
       extendBody: true,
-      appBar: AppBar(
-        title: Text(
-          AppLocaleKey.profileFile.tr(),
-          style: TextStyle(color: Colors.black, fontSize: 20.sp),
-        ),
-        centerTitle: true,
+      appBar: CustomAppBar(
+        context,
+        titleText: AppLocaleKey.profileFile.tr(),
         actions: [
           IconButton(
             onPressed: () {
@@ -70,14 +69,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          context.read<ProfileCubit>().user.name,
+                          profileCubit.user.name,
                           style: TextStyle(
                             fontSize: 16.sp,
                             color: Colors.black,
                           ),
                         ),
                         Text(
-                          context.read<ProfileCubit>().user.email,
+                          profileCubit.user.email,
                           style: TextStyle(
                             fontSize: 12.sp,
                             color: Color(0xffB5B5B5),
@@ -120,53 +119,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               SizedBox(height: 10.h),
-
-              // Padding(
-              //   padding: EdgeInsets.symmetric(
-              //     horizontal: 40.w,
-              //   ),
-              //   child: Row(
-              //     mainAxisAlignment: MainAxisAlignment.spaceAround,
-              //     children: [
-              //       PersonProfileTap(
-              //           title: "الطلبات",
-              //           logo: "assets/icons/box_icon.png",
-              //           onTap: () {
-              //             Navigator.push<void>(
-              //                 context,
-              //                 MaterialPageRoute<void>(
-              //                   builder: (BuildContext context) =>
-              //                       const OrdersScreen(),
-              //                 ));
-              //           }),
-              //       PersonProfileTap(
-              //           title: "العقود",
-              //           logo: "assets/icons/order_icon.png",
-              //           onTap: () {}),
-              //       PersonProfileTap(
-              //           title: "المحادثات",
-              //           logo: "assets/icons/chat_icon.png",
-              //           onTap: () {
-              //             Navigator.push<void>(
-              //               context,
-              //               MaterialPageRoute<void>(
-              //                 builder: (BuildContext context) => ChatScreen(),
-              //               ),
-              //             );
-              //           }),
-              //       PersonProfileTap(
-              //           title: "المفضلة",
-              //           logo: "assets/icons/favorite_icon.png",
-              //           color: Color(0xffEA4335),
-              //           onTap: () {},
-              //           isLastItem: true),
-              //     ],
-              //   ),
-              // ),
-              SizedBox(height: 10.h),
               Container(color: Color(0xffF9F9F9), height: 15.h),
               SizedBox(height: 10.h),
-
               PersonProfileListTile(
                 isHaveLine: true,
                 title: AppLocaleKey.frequentlyAskedQuestions.tr(),
@@ -225,8 +179,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Navigator.push<void>(
                     context,
                     MaterialPageRoute<void>(
-                      builder:
-                          (BuildContext context) => TermsAndConditionsScreen(),
+                      builder: (BuildContext context) => TermsAndConditionsScreen(),
                     ),
                   );
                 },
@@ -241,13 +194,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   );
                 },
               ),
-
               PersonProfileListTile(
                 title: AppLocaleKey.inviteaFriend.tr(),
                 logo: "assets/icons/person_invite_icon.png",
                 onTap: () {},
               ),
-
               BlocConsumer<AuthCubit, AuthState>(
                 builder: (context, state) {
                   return InkWell(
@@ -345,15 +296,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           isLastItem == false
               ? Container(
-                alignment: Alignment.centerRight,
-                margin: EdgeInsets.symmetric(horizontal: 10.w),
-                height: 50,
-                child: VerticalDivider(
-                  thickness: 0.5,
-                  width: 20,
-                  color: Colors.grey,
-                ),
-              )
+                  alignment: Alignment.centerRight,
+                  margin: EdgeInsets.symmetric(horizontal: 10.w),
+                  height: 50,
+                  child: VerticalDivider(
+                    thickness: 0.5,
+                    width: 20,
+                    color: Colors.grey,
+                  ),
+                )
               : SizedBox.shrink(),
         ],
       ),
@@ -393,17 +344,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Spacer(),
                 trailing == null
                     ? Icon(
-                      Icons.arrow_forward_ios,
-                      size: 20.sp,
-                      color: Color(0xffA6A6A6),
-                    )
+                        Icons.arrow_forward_ios,
+                        size: 20.sp,
+                        color: Color(0xffA6A6A6),
+                      )
                     : trailing,
               ],
             ),
           ),
-          isHaveLine == true
-              ? Divider(color: Colors.grey, thickness: 0.5)
-              : SizedBox.shrink(),
+          isHaveLine == true ? Divider(color: Colors.grey, thickness: 0.5) : SizedBox.shrink(),
         ],
       ),
     );

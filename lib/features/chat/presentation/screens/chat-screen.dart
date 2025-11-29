@@ -50,7 +50,7 @@ class _AllChatsScreenState extends State<AllChatsScreen> {
         NavigatorMethods.showAppDialog(context, UnauthenticatedDialog());
       });
     } else {
-      userId = sl<ProfileCubit>().user.id.toString();
+      userId = sl<ProfileCubit>().user!.id.toString();
       chatCubit = ChatCubit();
       chatCubit.fetchRecentChats(
         currentId: userId,

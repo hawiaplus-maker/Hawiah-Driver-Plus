@@ -8,6 +8,7 @@ import 'package:hawiah_driver/features/profile/presentation/cubit/cubit_profile.
 import 'package:hawiah_driver/features/profile/presentation/cubit/state_profile.dart';
 import 'package:hawiah_driver/features/profile/widget/profile_header_widget.dart';
 import 'package:hawiah_driver/features/profile/widget/profile_menu_list.dart';
+import 'package:hawiah_driver/injection_container.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key, required this.onOrderTap});
@@ -33,10 +34,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       body: BlocBuilder<ProfileCubit, ProfileState>(
         builder: (context, state) {
-          final cubit = context.read<ProfileCubit>();
+          final cubit = sl<ProfileCubit>();
 
-          if (state is ProfileLoading) return const Center(child: CircularProgressIndicator());
-          if (state is ProfileError) return Center(child: Text(state.message));
           if (state is ProfileLoaded || cubit.user != null) {
             final user = cubit.user!;
             return SingleChildScrollView(

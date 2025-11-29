@@ -51,15 +51,19 @@ class ProfileCubit extends Cubit<ProfileState> {
     String? mobile,
     required String email,
     File? imageFile,
+    String? password,
+    String? password_confirmation,
   }) async {
     emit(ProfileUpdating());
 
     try {
-      final Map<String, dynamic> data = {};
-
-      if (name.isNotEmpty) data['name'] = name;
-      if (mobile?.isNotEmpty ?? false) data['mobile'] = mobile;
-      if (email.isNotEmpty) data['email'] = email;
+      final data = <String, dynamic>{
+        'name': name,
+        'mobile': mobile,
+        'email': email,
+        'password': password,
+        'password_confirmation': password_confirmation,
+      };
 
       if (imageFile != null) {
         data['image'] = await MultipartFile.fromFile(
@@ -68,19 +72,21 @@ class ProfileCubit extends Cubit<ProfileState> {
         );
       }
 
+      final formData = FormData.fromMap(data);
+
       final response = await ApiHelper.instance.post(
         Urls.updateProfile,
-        body: FormData.fromMap(data),
+        body: formData,
         hasToken: true,
         isMultipart: true,
       );
 
-      if (response.state == ResponseState.complete) {
-        _user = UserProfileModel.fromJson(response.data['data']);
-        emit(ProfileUpdateSuccess(response.data['message']));
-        emit(ProfileLoaded(_user!)); // مهم جدًا
+      if (response.data != null && response.data['message'] != null) {
+        final message = response.data['message'];
+        emit(ProfileUpdateSuccess(message));
+        await fetchProfile();
       } else {
-        emit(ProfileError(response.data?['message'] ?? "فشل تحديث البيانات"));
+        emit(ProfileError("فشل تحديث البيانات"));
       }
     } catch (e) {
       emit(ProfileError("حدث خطأ أثناء التحديث: $e"));

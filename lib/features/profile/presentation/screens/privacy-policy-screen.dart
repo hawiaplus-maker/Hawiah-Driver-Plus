@@ -6,14 +6,18 @@ import 'package:hawiah_driver/core/custom_widgets/custom_loading/custom_loading.
 import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/features/authentication/presentation/bottom_sheet/privacy_bottom_sheet.dart';
 import 'package:hawiah_driver/features/setting/cubit/setting_cubit.dart';
+import 'package:hawiah_driver/features/setting/cubit/setting_state.dart';
 import 'package:hawiah_driver/injection_container.dart';
 
-import '../../../setting/cubit/setting_state.dart';
-
-class PrivacyPolicyScreen extends StatelessWidget {
+class PrivacyPolicyScreen extends StatefulWidget {
+  static const String routeName = '/ privacyPolicy';
   const PrivacyPolicyScreen({super.key});
-  static const routeName = '/privacy-policy-screen';
+
   @override
+  State<PrivacyPolicyScreen> createState() => _PrivacyPolicyScreenState();
+}
+
+class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(context, titleText: AppLocaleKey.privacyPolicy.tr()),

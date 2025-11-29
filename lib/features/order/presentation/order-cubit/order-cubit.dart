@@ -6,7 +6,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:hawiah_driver/core/hive/hive_methods.dart';
 import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/core/networking/api_helper.dart';
 import 'package:hawiah_driver/core/networking/urls.dart';
@@ -71,10 +70,10 @@ class OrderCubit extends Cubit<OrderState> {
     log("**************************** getOrders($orderStatus) *************************");
 
     // =================== Check if user is visitor =====================
-    if (HiveMethods.isVisitor() || HiveMethods.getToken() == null) {
-      emit(Unauthenticated()); // فورًا emit
-      return; // وممنوع أي تحميل أكتر
-    }
+    // if (HiveMethods.isVisitor() || HiveMethods.getToken() == null) {
+    //   emit(Unauthenticated()); // فورًا emit
+    //   return; // وممنوع أي تحميل أكتر
+    // }
 
     final bool isCurrent = orderStatus == 0;
 
@@ -171,8 +170,9 @@ class OrderCubit extends Cubit<OrderState> {
       }
 
       emit(OrderSuccess(ordersModel: result));
-    } else if (response.state == ResponseState.unauthorized) {
-      if (state != Unauthenticated()) emit(Unauthenticated());
+      // } else if (response.state == ResponseState.unauthorized) {
+      //   if (state != Unauthenticated()) emit(Unauthenticated());
+      // }
     } else {
       if (isCurrent) {
         isLoadingCurrent = false;

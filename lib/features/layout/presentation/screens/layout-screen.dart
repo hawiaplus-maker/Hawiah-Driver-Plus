@@ -21,23 +21,25 @@ class LayoutScreen extends StatefulWidget {
 }
 
 class _LayoutScreenState extends State<LayoutScreen> {
+  int selectedIndex = 1;
+
   @override
   void initState() {
-    Future.wait([
-      context.read<ProfileCubit>().fetchProfile(),
-      context.read<SettingCubit>().getsetting(),
-    ]);
-
+    context.read<ProfileCubit>().fetchProfile();
+    context.read<SettingCubit>().getsetting();
     super.initState();
   }
 
-  int selectedIndex = 1;
+  void onProfileOrderTap() {
+    setState(() => selectedIndex = 1);
+  }
 
-  final List<Widget> _screens = [
-    AllChatsScreen(),
-    OrdersScreen(),
-    ProfileScreen(),
-  ];
+  List<Widget> get _screens => [
+        const AllChatsScreen(),
+        const OrdersScreen(),
+        ProfileScreen(onOrderTap: onProfileOrderTap),
+      ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,37 +51,27 @@ class _LayoutScreenState extends State<LayoutScreen> {
         selectedItemColor: AppColor.mainAppColor,
         unselectedItemColor: AppColor.greyColor,
         showUnselectedLabels: true,
-        onTap: (index) {
-          setState(() {
-            selectedIndex = index;
-          });
-        },
+        onTap: (index) => setState(() => selectedIndex = index),
         items: [
           BottomNavigationBarItem(
-            icon: SvgPicture.asset(
-              AppImages.message,
-              height: 24.h,
-              width: 24.w,
-              color: selectedIndex == 0 ? AppColor.mainAppColor : AppColor.greyColor,
-            ),
+            icon: SvgPicture.asset(AppImages.message,
+                height: 24.h,
+                width: 24.w,
+                color: selectedIndex == 0 ? AppColor.mainAppColor : AppColor.greyColor),
             label: AppLocaleKey.messages.tr(),
           ),
           BottomNavigationBarItem(
-            icon: SvgPicture.asset(
-              AppImages.logs,
-              height: 24.h,
-              width: 24.w,
-              color: selectedIndex == 1 ? AppColor.mainAppColor : AppColor.greyColor,
-            ),
+            icon: SvgPicture.asset(AppImages.logs,
+                height: 24.h,
+                width: 24.w,
+                color: selectedIndex == 1 ? AppColor.mainAppColor : AppColor.greyColor),
             label: AppLocaleKey.ordersPage.tr(),
           ),
           BottomNavigationBarItem(
-            icon: SvgPicture.asset(
-              AppImages.userSvg,
-              height: 24.h,
-              width: 24.w,
-              color: selectedIndex == 2 ? AppColor.mainAppColor : AppColor.greyColor,
-            ),
+            icon: SvgPicture.asset(AppImages.userSvg,
+                height: 24.h,
+                width: 24.w,
+                color: selectedIndex == 2 ? AppColor.mainAppColor : AppColor.greyColor),
             label: AppLocaleKey.profileFile.tr(),
           ),
         ],

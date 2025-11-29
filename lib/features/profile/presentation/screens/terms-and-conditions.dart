@@ -8,7 +8,7 @@ import '../../../setting/cubit/setting_state.dart';
 
 class TermsAndConditionsScreen extends StatelessWidget {
   const TermsAndConditionsScreen({super.key});
-
+  static const routeName = '/terms-and-conditions-screen';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,18 +21,18 @@ class TermsAndConditionsScreen extends StatelessWidget {
       ),
       body: ListView(
         children: [
-
-          BlocConsumer<SettingCubit,SettingState>(builder: (context,state){
-            return
-              (state is SettingUpdate )?Text('${context.read<SettingCubit>().setting?.termsCondition?.ar?.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'),'')}'):
-              (state is SettingLoading )?CircularProgressIndicator():SizedBox()
-            ;
-
-          }, listener: (context,state){}
-          )
+          BlocConsumer<SettingCubit, SettingState>(
+              builder: (context, state) {
+                return (state is SettingUpdate)
+                    ? Text(
+                        '${context.read<SettingCubit>().setting?.termsCondition?.ar?.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), '')}')
+                    : (state is SettingLoading)
+                        ? CircularProgressIndicator()
+                        : SizedBox();
+              },
+              listener: (context, state) {})
         ],
       ),
-
     );
   }
 }

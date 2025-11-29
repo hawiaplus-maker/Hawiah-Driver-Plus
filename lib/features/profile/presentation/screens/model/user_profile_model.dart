@@ -22,17 +22,17 @@ class UserProfileModel {
   });
 
   factory UserProfileModel.fromJson(Map<String, dynamic> json) {
-    final data = json['message'];
+    final data = json['message'] ?? {};
     return UserProfileModel(
-      id: data['id'],
-      name: data['name'] ?? '',
-      username: data['username'] ?? '',
-      mobile: data['mobile'] ?? '',
-      email: data['email'] ?? '',
-      city: data['city'] ?? '',
-      nationalId: data['national_id'] ?? '',
-      walletLimit: data['wallet_limit'] ?? '',
-      image: data['image'] ?? '',
+      id: data['id'] is int ? data['id'] : int.tryParse(data['id'].toString()) ?? 0,
+      name: data['name']?.toString() ?? '',
+      username: data['username']?.toString() ?? '',
+      mobile: data['mobile']?.toString() ?? '',
+      email: data['email']?.toString() ?? '',
+      city: data['city']?.toString() ?? '',
+      nationalId: data['national_id']?.toString() ?? '',
+      walletLimit: data['wallet_limit']?.toString() ?? '',
+      image: data['image']?.toString() ?? '',
     );
   }
 

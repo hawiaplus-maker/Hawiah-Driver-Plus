@@ -42,3 +42,13 @@ class AuthTimerState extends AuthState {
 class AuthChange extends AuthState {}
 
 class AuthRebuild extends AuthState {}
+
+class LogOutSuccess extends AuthState {
+  final String message;
+  final Map<String, dynamic>? data;
+
+  LogOutSuccess({
+    required this.message,
+    this.data,
+  });
+}

@@ -282,4 +282,5 @@ class AppLocaleKey {
   static const String fromxToY = 'fromxToY';
   static const String payXSar = 'payXSar';
   static const String orderReordered = 'orderReordered';
+  static const String contactUser = 'contactUser';
 }

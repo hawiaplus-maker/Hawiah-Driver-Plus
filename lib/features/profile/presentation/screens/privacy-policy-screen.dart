@@ -8,7 +8,7 @@ import '../../../setting/cubit/setting_state.dart';
 
 class PrivacyPolicyScreen extends StatelessWidget {
   const PrivacyPolicyScreen({super.key});
-
+  static const routeName = '/privacy-policy-screen';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,16 +20,17 @@ class PrivacyPolicyScreen extends StatelessWidget {
         centerTitle: true,
       ),
       body: ListView(
+        padding: const EdgeInsets.all(10),
         children: [
           BlocConsumer<SettingCubit, SettingState>(
             builder: (context, state) {
               return (state is SettingUpdate)
                   ? Text(
-                    '${context.read<SettingCubit>().setting?.privacy?.ar?.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), '')}',
-                  )
+                      '${context.read<SettingCubit>().setting?.privacy?.ar?.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), '')}',
+                    )
                   : (state is SettingLoading)
-                  ? CircularProgressIndicator()
-                  : SizedBox();
+                      ? CircularProgressIndicator()
+                      : SizedBox();
             },
             listener: (context, state) {},
           ),

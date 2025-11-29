@@ -7,6 +7,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hawiah_driver/core/hive/hive_methods.dart';
 import 'package:hawiah_driver/core/networking/api_helper.dart';
 import 'package:hawiah_driver/core/networking/urls.dart';
+import 'package:hawiah_driver/core/utils/common_methods.dart';
+import 'package:hawiah_driver/core/utils/navigator_methods.dart';
 import 'package:hawiah_driver/features/authentication/presentation/controllers/auth-cubit/auth-state.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
@@ -129,10 +131,8 @@ class AuthCubit extends Cubit<AuthState> {
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController usernameController = TextEditingController();
-  TextEditingController passwordControllerCompleteProfile =
-      TextEditingController();
-  TextEditingController confirmPasswordControllerCompleteProfile =
-      TextEditingController();
+  TextEditingController passwordControllerCompleteProfile = TextEditingController();
+  TextEditingController confirmPasswordControllerCompleteProfile = TextEditingController();
   TextEditingController PhoneController = TextEditingController();
   TextEditingController phoneControllerRegister = TextEditingController();
   String nameCompleteProfile = '';
@@ -213,8 +213,7 @@ class AuthCubit extends Cubit<AuthState> {
       hasToken: false,
     );
 
-    if (response.state == ResponseState.complete &&
-        response.data['success'] == true) {
+    if (response.state == ResponseState.complete && response.data['success'] == true) {
       final data = response.data['data'];
       final message = response.data['message'] ?? 'Login completed';
 
@@ -252,8 +251,7 @@ class AuthCubit extends Cubit<AuthState> {
       hasToken: false,
     );
 
-    if (response.state == ResponseState.complete &&
-        response.data['success'] == true) {
+    if (response.state == ResponseState.complete && response.data['success'] == true) {
       final data = response.data['data'];
       final message = response.data['message'] ?? 'Login completed';
 
@@ -290,8 +288,7 @@ class AuthCubit extends Cubit<AuthState> {
       hasToken: false,
     );
 
-    if (response.state == ResponseState.complete &&
-        response.data['success'] == true) {
+    if (response.state == ResponseState.complete && response.data['success'] == true) {
       final data = response.data['data'];
       final message = response.data['message'] ?? 'Login completed';
 
@@ -324,8 +321,7 @@ class AuthCubit extends Cubit<AuthState> {
       hasToken: false,
     );
 
-    if (response.state == ResponseState.complete &&
-        response.data['success'] == true) {
+    if (response.state == ResponseState.complete && response.data['success'] == true) {
       final message = response.data['message'] ?? 'تم إرسال رمز التحقق مجددًا';
 
       Fluttertoast.showToast(
@@ -369,8 +365,7 @@ class AuthCubit extends Cubit<AuthState> {
       hasToken: false,
     );
 
-    if (response.state == ResponseState.complete &&
-        response.data['success'] == true) {
+    if (response.state == ResponseState.complete && response.data['success'] == true) {
       final message = response.data['message'] ?? 'تم إرسال رمز التحقق مجددًا';
       final data = response.data['data'];
 
@@ -414,8 +409,7 @@ class AuthCubit extends Cubit<AuthState> {
       body: body,
       hasToken: false,
     );
-    if (response.state == ResponseState.complete &&
-        response.data['success'] == true) {
+    if (response.state == ResponseState.complete && response.data['success'] == true) {
       final message = response.data['message'] ?? 'تم إرسال رمز التحقق مجددًا';
       Fluttertoast.showToast(
         msg: message,
@@ -439,24 +433,25 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   ///*************logout************************** */
-  Future<void> logout() async {
+  Future<void> logout({void Function()? onSuccess}) async {
     emit(AuthLoading());
 
+    NavigatorMethods.loading();
+
     final response = await ApiHelper.instance.post(Urls.logout, hasToken: true);
+    NavigatorMethods.loadingOff();
 
     if (response.state == ResponseState.complete) {
       final data = response.data['data'];
       final message = response.data['message'] ?? 'Logout completed';
 
       if (response.state == ResponseState.complete) {
+        onSuccess?.call();
+        final msg = response.data['message'] ?? 'Logout completed';
         HiveMethods.deleteToken();
-        emit(AuthSuccess(message: message));
-      } else if (response.state == ResponseState.unauthorized) {
-        emit(AuthError(response.data['message'] ?? "تم انتهاء الجلسة"));
-      } else if (response.state == ResponseState.error) {
-        emit(AuthError(response.data['message'] ?? "حدث خطأ أثناء العملية"));
-      } else if (response.state == ResponseState.offline) {
-        emit(AuthError("لا يوجد اتصال بالإنترنت"));
+        HiveMethods.updateIsVisitor(true);
+        emit(LogOutSuccess(message: msg));
+        CommonMethods.showToast(message: msg);
       } else {
         emit(AuthError(response.data['message'] ?? "حدث خطأ أثناء العملية"));
       }

@@ -297,5 +297,6 @@
   "evaluationAdditionalNotes": "Additional notes (optional)",
   "evaluationHint": "Write your notes here...",
   "evaluationSend": "Send Evaluation",
-   "orderReordered": "Order Reordered"
+   "orderReordered": "Order Reordered",
+   "contactUser": "Contact User"
 }

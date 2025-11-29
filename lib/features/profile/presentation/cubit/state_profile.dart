@@ -1,3 +1,4 @@
+import 'package:hawiah_driver/features/profile/presentation/screens/model/question_model.dart';
 import 'package:hawiah_driver/features/profile/presentation/screens/model/user_profile_model.dart';
 
 abstract class ProfileState {}
@@ -23,4 +24,9 @@ class ProfileUpdateSuccess extends ProfileState {
 class ProfileError extends ProfileState {
   final String message;
   ProfileError(this.message);
+}
+
+class ProfileLoadedQuestions extends ProfileState {
+  final List<QuestionModel> questions;
+  ProfileLoadedQuestions(this.questions);
 }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
@@ -49,31 +50,46 @@ class ProfileCubit extends Cubit<ProfileState> {
   Future<void> updateProfile({
     required String name,
     String? mobile,
-    required String email,
+    String? email,
     File? imageFile,
     String? password,
     String? password_confirmation,
   }) async {
-    emit(ProfileUpdating());
+    log('============================= Update Profile Logic ==============================');
+    emit(ProfileUpdating()); // استخدام State مخصص للتحديث إن وجد، أو Loading
 
     try {
-      final data = <String, dynamic>{
+      // 1. تجهيز البيانات الأساسية
+      // إضافة _method: PUT ضروري جداً عند رفع الصور في Laravel/PHP
+      final Map<String, dynamic> dataMap = {
         'name': name,
-        'mobile': mobile,
-        'email': email,
-        'password': password,
-        'password_confirmation': password_confirmation,
+        '_method': 'PUT',
       };
 
+      // 2. إضافة البيانات فقط إذا كانت موجودة لتجنب إرسال قيم فارغة
+      if (mobile != null && mobile.isNotEmpty) dataMap['mobile'] = mobile;
+      if (email != null && email.isNotEmpty) dataMap['email'] = email;
+
+      if (password != null && password.isNotEmpty) {
+        dataMap['password'] = password;
+        dataMap['password_confirmation'] = password_confirmation;
+      }
+
+      // 3. معالجة الصورة
       if (imageFile != null) {
-        data['image'] = await MultipartFile.fromFile(
+        String fileName = imageFile.path.split('/').last;
+        dataMap['image'] = await MultipartFile.fromFile(
           imageFile.path,
-          filename: "profile.jpg",
+          filename: fileName,
         );
       }
 
-      final formData = FormData.fromMap(data);
+      // 4. تحويل الـ Map إلى FormData
+      final formData = FormData.fromMap(dataMap);
 
+      log("Sending Data: $dataMap");
+
+      // 5. الإرسال كـ POST
       final response = await ApiHelper.instance.post(
         Urls.updateProfile,
         body: formData,
@@ -81,14 +97,26 @@ class ProfileCubit extends Cubit<ProfileState> {
         isMultipart: true,
       );
 
-      if (response.data != null && response.data['message'] != null) {
-        final message = response.data['message'];
-        emit(ProfileUpdateSuccess(message));
+      // 6. التحقق من الاستجابة
+      if (response.state == ResponseState.complete &&
+          (response.data != null && response.data['message'] != null)) {
+        final message = response.data['message'] ?? 'تم التحديث بنجاح';
+
+        // إعادة طلب البروفايل لتحديث البيانات في الواجهة
         await fetchProfile();
+
+        emit(ProfileUpdateSuccess(message));
       } else {
-        emit(ProfileError("فشل تحديث البيانات"));
+        // محاولة استخراج رسالة الخطأ
+        String errorMsg = "فشل تحديث البيانات";
+        if (response.data != null) {
+          if (response.data['message'] != null) errorMsg = response.data['message'];
+          if (response.data['errors'] != null) errorMsg = response.data['errors'].toString();
+        }
+        emit(ProfileError(errorMsg));
       }
     } catch (e) {
+      log("Update Error: $e");
       emit(ProfileError("حدث خطأ أثناء التحديث: $e"));
     }
   }

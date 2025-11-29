@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -11,7 +13,8 @@ import 'package:hawiah_driver/features/profile/presentation/screens/profile-scre
 
 class LayoutScreen extends StatefulWidget {
   static const routeName = '/layout-screen';
-  const LayoutScreen({super.key});
+  const LayoutScreen({super.key, this.isRefreshOrders = false});
+  final bool isRefreshOrders;
 
   @override
   State<LayoutScreen> createState() => _LayoutScreenState();
@@ -23,6 +26,7 @@ class _LayoutScreenState extends State<LayoutScreen> {
   @override
   void initState() {
     super.initState();
+    log("${widget.isRefreshOrders} =================== isRefreshOrders ===================");
   }
 
   void onProfileOrderTap() {
@@ -31,7 +35,7 @@ class _LayoutScreenState extends State<LayoutScreen> {
 
   List<Widget> get _screens => [
         const AllChatsScreen(),
-        const OrdersScreen(),
+        OrdersScreen(isRefreshOrders: widget.isRefreshOrders),
         ProfileScreen(onOrderTap: onProfileOrderTap),
       ];
 

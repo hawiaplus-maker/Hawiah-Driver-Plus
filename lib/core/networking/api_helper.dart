@@ -137,22 +137,33 @@ class ApiHelper {
           onFinish: onFinish);
 
   Future<ApiResponse> post(String url,
-          {Map<String, dynamic>? queryParameters,
-          dynamic body,
-          Map<String, String>? headers,
-          void Function()? onFinish,
-          void Function(int, int)? onReceiveProgress,
-          void Function(int, int)? onSendProgress,
-          bool hasToken = true,
-          bool isMultipart = false}) async =>
-      _run(
-          () => _dio.post(url,
-              queryParameters: queryParameters,
-              data: isMultipart ? FormData.fromMap(body) : body,
-              options: _options(headers, hasToken),
-              onReceiveProgress: onReceiveProgress,
-              onSendProgress: onSendProgress),
-          onFinish: onFinish);
+      {Map<String, dynamic>? queryParameters,
+      dynamic body, // قد يكون Map أو FormData
+      Map<String, String>? headers,
+      void Function()? onFinish,
+      void Function(int, int)? onReceiveProgress,
+      void Function(int, int)? onSendProgress,
+      bool hasToken = true,
+      bool isMultipart = false}) async {
+    // التعديل هنا: فحص ما إذا كان البودي هو بالفعل FormData
+    dynamic requestData;
+    if (body is FormData) {
+      requestData = body;
+    } else if (isMultipart && body is Map<String, dynamic>) {
+      requestData = FormData.fromMap(body);
+    } else {
+      requestData = body;
+    }
+
+    return _run(
+        () => _dio.post(url,
+            queryParameters: queryParameters,
+            data: requestData, // استخدام المتغير الجديد
+            options: _options(headers, hasToken),
+            onReceiveProgress: onReceiveProgress,
+            onSendProgress: onSendProgress),
+        onFinish: onFinish);
+  }
 
   Future<ApiResponse> put(String url,
           {Map<String, dynamic>? queryParameters,

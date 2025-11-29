@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -275,6 +277,7 @@ class _CurrentOrderScreenState extends State<CurrentOrderScreen> {
                             child: GlobalElevatedButton(
                               label: AppLocaleKey.confirmOrder.tr(),
                               onPressed: () {
+                                log("OTP =================== ${widget.ordersDate.otp ?? ""} =================== OTP");
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(

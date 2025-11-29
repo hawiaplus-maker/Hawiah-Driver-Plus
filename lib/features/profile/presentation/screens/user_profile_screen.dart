@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
@@ -55,11 +56,16 @@ class _UserProfileState extends State<UserProfile> {
   }
 
   void _onUpdatePressed() async {
+    log('============================= Update Pressed ==============================');
     final cubit = sl<ProfileCubit>();
+
+    // تعديل: جلب الإيميل الحالي للمستخدم لتجنب إرسال قيمة فارغة
+    String currentEmail = cubit.user?.email ?? '';
+
     await cubit.updateProfile(
       name: _controllers['name']!.text,
       mobile: _controllers['mobile']!.text,
-      email: '',
+      email: currentEmail, // تم التعديل هنا
       imageFile: _pickedImage,
     );
   }
@@ -108,12 +114,13 @@ class _UserProfileState extends State<UserProfile> {
               context: context,
               barrierDismissible: false,
               builder: (ctx) => CustomConfirmDialog(
-                content: AppLocaleKey.saveChangesSuccess.tr(),
+                content: AppLocaleKey.saveChangesSuccess
+                    .tr(), // تم تعديل النص ليأخذ قيمة ديناميكية من الstate لو أردت state.message
                 image: AppImages.successGif,
               ),
             );
 
-            await Future.delayed(const Duration(seconds: 5));
+            await Future.delayed(const Duration(seconds: 3)); // تقليل المدة قليلاً
             if (mounted) Navigator.pop(context);
           }
 
@@ -127,7 +134,7 @@ class _UserProfileState extends State<UserProfile> {
               ),
             );
 
-            await Future.delayed(const Duration(seconds: 5));
+            await Future.delayed(const Duration(seconds: 3));
             if (mounted) Navigator.pop(context);
           }
         },
@@ -142,31 +149,28 @@ class _UserProfileState extends State<UserProfile> {
           return SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-              child: Column(
-                children: [
-                  const SizedBox(height: 40),
-                  _buildProfileImage(user.image),
-                  const SizedBox(height: 30),
-                  ..._buildTextFields(),
-                  Gap(40.h),
-                  state is ProfileUpdating
-                      ? const CustomLoading()
-                      : CustomButton(
-                          onPressed: () {
-                            cubit.updateProfile(
-                              name: _controllers['name']!.text,
-                              mobile: _controllers['mobile']!.text,
-                              email: '',
-                              imageFile: _pickedImage,
-                            );
-                          },
-                          child: Text(
-                            AppLocaleKey.saveChanges.tr(),
-                            style: AppTextStyle.text16_600.copyWith(color: AppColor.whiteColor),
+              child: SingleChildScrollView(
+                // إضافة Scroll لتجنب Overflow
+                child: Column(
+                  children: [
+                    const SizedBox(height: 40),
+                    _buildProfileImage(user.image),
+                    const SizedBox(height: 30),
+                    ..._buildTextFields(),
+                    Gap(40.h),
+                    // التحقق من حالتين: التحميل العام أو التحديث
+                    (state is ProfileLoading || state is ProfileUpdating)
+                        ? const CustomLoading()
+                        : CustomButton(
+                            onPressed: _onUpdatePressed,
+                            child: Text(
+                              AppLocaleKey.saveChanges.tr(),
+                              style: AppTextStyle.text16_600.copyWith(color: AppColor.whiteColor),
+                            ),
                           ),
-                        ),
-                  const SizedBox(height: 20),
-                ],
+                    const SizedBox(height: 20),
+                  ],
+                ),
               ),
             ),
           );

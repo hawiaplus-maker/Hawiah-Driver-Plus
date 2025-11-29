@@ -16,8 +16,8 @@ import '../order-cubit/order-cubit.dart';
 import '../order-cubit/order-state.dart';
 
 class OrdersScreen extends StatefulWidget {
-  const OrdersScreen({super.key});
-
+  const OrdersScreen({super.key, this.isRefreshOrders = false});
+  final bool isRefreshOrders;
   @override
   State<OrdersScreen> createState() => _OrdersScreenState();
 }
@@ -38,8 +38,8 @@ class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderSt
     // }
     final cubit = sl<OrderCubit>();
 
-    cubit.getOrders(orderStatus: 0);
-    cubit.getOrders(orderStatus: 1);
+    cubit.getOrders(orderStatus: 0, isRefresh: widget.isRefreshOrders);
+    cubit.getOrders(orderStatus: 1, isRefresh: widget.isRefreshOrders);
     _tabController = TabController(length: 2, vsync: this);
   }
 

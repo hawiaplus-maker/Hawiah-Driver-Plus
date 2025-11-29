@@ -118,4 +118,5 @@ class AppImages {
   static const String emptyDataImage = 'assets/images/emptyDataImage.png';
   static const String whiteLogoImage = 'assets/images/whiteLogoImage.png';
   static const String appWhiteLogoImage = 'assets/images/appWhiteLogoImage.png';
+  static const String carPickerIcon = 'assets/images/carPicker.png';
 }

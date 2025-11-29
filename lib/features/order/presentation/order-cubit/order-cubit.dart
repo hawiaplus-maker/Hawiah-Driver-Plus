@@ -61,24 +61,25 @@ class OrderCubit extends Cubit<OrderState> {
   bool get canLoadMoreCurrent => currentPageCurrent < lastPageCurrent;
   bool get canLoadMoreOld => currentPageOld < lastPageOld;
 
-// =================== Main API Function ====================
+// =================== Main API Function ====================// =================== Main API Function ====================
   Future<void> getOrders({
     required int orderStatus,
     int page = 1,
     bool isLoadMore = false,
+    bool isRefresh = false,
   }) async {
     log("**************************** getOrders($orderStatus) *************************");
 
-    // =================== Check if user is visitor =====================
-    // if (HiveMethods.isVisitor() || HiveMethods.getToken() == null) {
-    //   emit(Unauthenticated()); // فورًا emit
-    //   return; // وممنوع أي تحميل أكتر
-    // }
-
     final bool isCurrent = orderStatus == 0;
 
+    // إذا كان تحديث، تأكد أن الصفحة هي الأولى دائماً
+    if (isRefresh) {
+      page = 1;
+    }
+
     // =================== Prevent Re-fetching =====================
-    if (!isLoadMore) {
+    // التعديل هنا: لن يتم التوقف إذا كان isRefresh = true
+    if (!isLoadMore && !isRefresh) {
       if (isCurrent && currentOrders.isNotEmpty) {
         log("✔ Skipping fetch: current orders already loaded");
         emit(OrderSuccess(
@@ -111,6 +112,7 @@ class OrderCubit extends Cubit<OrderState> {
         return;
       }
     }
+
     // =================== Load =====================
     if (isLoadMore) {
       if (isCurrent ? isLoadingMoreCurrent : isLoadingMoreOld) return;
@@ -126,6 +128,8 @@ class OrderCubit extends Cubit<OrderState> {
       } else {
         isLoadingOld = true;
       }
+      // إذا كنت تريد أن يظهر Loading أثناء الرفرش اترك هذا السطر،
+      // أما إذا كنت تستخدم RefreshIndicator في الواجهة وتريد اختفاء اللودينج القديم، يمكنك وضع شرط هنا.
       emit(OrderLoading());
     }
 
@@ -151,6 +155,7 @@ class OrderCubit extends Cubit<OrderState> {
         lastPageOld = pagination?.lastPage ?? 1;
       }
 
+      // داخل دالة getOrders في حالة النجاح
       if (isLoadMore) {
         if (isCurrent) {
           currentOrders.addAll(newOrders);
@@ -161,18 +166,16 @@ class OrderCubit extends Cubit<OrderState> {
         }
       } else {
         if (isCurrent) {
-          currentOrders = newOrders;
+          currentOrders = newOrders; // استبدال القائمة بالكامل
           isLoadingCurrent = false;
         } else {
-          oldOrders = newOrders;
+          oldOrders = newOrders; // استبدال القائمة بالكامل
           isLoadingOld = false;
         }
       }
 
+      // هام: إرسال الحالة بعد تحديث المتغيرات
       emit(OrderSuccess(ordersModel: result));
-      // } else if (response.state == ResponseState.unauthorized) {
-      //   if (state != Unauthenticated()) emit(Unauthenticated());
-      // }
     } else {
       if (isCurrent) {
         isLoadingCurrent = false;

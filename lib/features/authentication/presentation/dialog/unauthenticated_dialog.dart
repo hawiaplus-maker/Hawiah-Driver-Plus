@@ -6,8 +6,7 @@ import 'package:hawiah_driver/core/images/app_images.dart';
 import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/core/theme/app_colors.dart';
 import 'package:hawiah_driver/core/theme/app_text_style.dart';
-import 'package:hawiah_driver/core/utils/navigator_methods.dart';
-import 'package:hawiah_driver/features/authentication/presentation/screens/validate_mobile_screen.dart';
+import 'package:hawiah_driver/features/authentication/presentation/screens/login-screen.dart';
 
 class UnauthenticatedDialog extends StatelessWidget {
   const UnauthenticatedDialog({super.key});
@@ -46,7 +45,13 @@ class UnauthenticatedDialog extends StatelessWidget {
               text: "login".tr(),
               style: AppTextStyle.buttonStyle.copyWith(color: AppColor.whiteColor, fontSize: 16),
               onPressed: () {
-                NavigatorMethods.pushNamedAndRemoveUntil(context, ValidateMobileScreen.routeName);
+                Navigator.pushAndRemoveUntil<void>(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (BuildContext context) => const LoginScreen(),
+                  ),
+                  (route) => false,
+                );
               },
             ),
           ),

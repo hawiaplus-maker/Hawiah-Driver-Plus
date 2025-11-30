@@ -10,6 +10,8 @@ import 'package:hawiah_driver/core/networking/urls.dart';
 import 'package:hawiah_driver/core/utils/common_methods.dart';
 import 'package:hawiah_driver/core/utils/navigator_methods.dart';
 import 'package:hawiah_driver/features/authentication/presentation/controllers/auth-cubit/auth-state.dart';
+import 'package:hawiah_driver/features/profile/presentation/cubit/cubit_profile.dart';
+import 'package:hawiah_driver/injection_container.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
 class AuthCubit extends Cubit<AuthState> {
@@ -219,7 +221,7 @@ class AuthCubit extends Cubit<AuthState> {
 
       if (data != null) {
         HiveMethods.updateToken(data['api_token']);
-
+        await sl<ProfileCubit>().fetchProfile();
         emit(AuthSuccess(message: message));
       } else {
         emit(AuthError(message));

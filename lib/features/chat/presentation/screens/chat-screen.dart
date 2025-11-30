@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -45,6 +47,8 @@ class _AllChatsScreenState extends State<AllChatsScreen> {
     super.didChangeDependencies();
 
     if (HiveMethods.isVisitor() || HiveMethods.getToken() == null) {
+      log(HiveMethods.isVisitor().toString());
+      log(HiveMethods.getToken().toString());
       isVesetor = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         NavigatorMethods.showAppDialog(context, UnauthenticatedDialog());

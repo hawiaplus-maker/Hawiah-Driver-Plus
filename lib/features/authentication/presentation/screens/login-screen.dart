@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:hawiah_driver/core/hive/hive_methods.dart';
 import 'package:hawiah_driver/core/theme/app_colors.dart';
 import 'package:hawiah_driver/core/theme/app_text_style.dart';
 import 'package:hawiah_driver/features/authentication/presentation/controllers/auth-cubit/auth-cubit.dart';
@@ -98,6 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
               textColor: Colors.white,
               fontSize: 16.0,
             );
+            HiveMethods.updateIsVisitor(false);
             Navigator.pushAndRemoveUntil<void>(
               context,
               MaterialPageRoute<void>(

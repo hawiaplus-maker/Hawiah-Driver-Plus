@@ -9,7 +9,7 @@ import 'package:hawiah_driver/core/utils/common_methods.dart';
 import 'package:hawiah_driver/core/utils/navigator_methods.dart';
 import 'package:hawiah_driver/features/authentication/presentation/controllers/auth-cubit/auth-cubit.dart';
 import 'package:hawiah_driver/features/authentication/presentation/controllers/auth-cubit/auth-state.dart';
-import 'package:hawiah_driver/features/authentication/presentation/screens/validate_mobile_screen.dart';
+import 'package:hawiah_driver/features/authentication/presentation/screens/login-screen.dart';
 import 'package:hawiah_driver/features/profile/widget/log_out_dialog.dart';
 
 class LogoutButton extends StatelessWidget {
@@ -23,9 +23,11 @@ class LogoutButton extends StatelessWidget {
           CustomLoading();
         } else if (state is LogOutSuccess) {
           CommonMethods.showToast(message: state.message);
-          Navigator.pushAndRemoveUntil(
+          Navigator.pushAndRemoveUntil<void>(
             context,
-            MaterialPageRoute(builder: (_) => const ValidateMobileScreen()),
+            MaterialPageRoute<void>(
+              builder: (BuildContext context) => const LoginScreen(),
+            ),
             (route) => false,
           );
         }

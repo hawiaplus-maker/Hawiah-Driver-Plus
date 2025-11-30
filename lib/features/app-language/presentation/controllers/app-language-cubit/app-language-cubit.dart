@@ -1,43 +1,37 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hawiah_driver/features/app-language/presentation/controllers/app-language-cubit/app-language-state.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'app-language-state.dart';
 
 class AppLanguageCubit extends Cubit<AppLanguageState> {
-  static AppLanguageCubit get(BuildContext context) => BlocProvider.of(context);
+  static AppLanguageCubit get(context) => BlocProvider.of(context);
 
-  AppLanguageCubit() : super(AppLanguageInitial());
+  AppLanguageCubit() : super(AppLanguageInitial()) {
+    loadSavedLanguage(); // تحميل اللغة المحفوظة عند إنشاء الكابت
+  }
+
   String? languageSelected;
 
-  changeLanguage({required String language}) {
-    languageSelected = language;
+  List<String> languages = ["arabic", "english", "urdu"];
 
-    emit(AppLanguageChange());
+  changeLanguage({required String language}) async {
+    languageSelected = language;
+    emit(AppLanguageChange(languageSelected: language));
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('selected_language', language);
   }
 
   changeRebuild() {
-    emit(AppLanguageRebuild());
+    emit(AppLanguageRebuild(languageSelected: languageSelected));
   }
 
-  List<String> languages = [
-    "arabic",
-    "english",
-  ];
-}
-
-class MyOrdersModel {
-  String serviceName;
-  String serviceType;
-  String serviceDate;
-  String companyName;
-  double companyRating;
-  String companyLogo;
-
-  MyOrdersModel({
-    required this.serviceName,
-    required this.serviceType,
-    required this.serviceDate,
-    required this.companyName,
-    required this.companyRating,
-    required this.companyLogo,
-  });
+  Future<void> loadSavedLanguage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedLang = prefs.getString('selected_language');
+    if (savedLang != null) {
+      languageSelected = savedLang;
+      emit(AppLanguageChange(languageSelected: savedLang));
+    }
+  }
 }

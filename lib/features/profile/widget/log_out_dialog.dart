@@ -5,9 +5,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hawiah_driver/core/hive/hive_methods.dart';
 import 'package:hawiah_driver/core/images/app_images.dart';
 import 'package:hawiah_driver/core/locale/app_locale_key.dart';
-import 'package:hawiah_driver/core/utils/navigator_methods.dart';
 import 'package:hawiah_driver/features/authentication/presentation/controllers/auth-cubit/auth-cubit.dart';
-import 'package:hawiah_driver/features/authentication/presentation/screens/validate_mobile_screen.dart';
+import 'package:hawiah_driver/features/authentication/presentation/screens/login-screen.dart';
 import 'package:hawiah_driver/features/profile/presentation/cubit/cubit_profile.dart';
 import 'package:hawiah_driver/injection_container.dart';
 
@@ -54,8 +53,13 @@ class LogOutDialog extends StatelessWidget {
                         HiveMethods.deleteToken();
                         sl<ProfileCubit>().user;
 
-                        NavigatorMethods.pushNamedAndRemoveUntil(
-                            context, ValidateMobileScreen.routeName);
+                        Navigator.pushAndRemoveUntil<void>(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (BuildContext context) => const LoginScreen(),
+                          ),
+                          (route) => false,
+                        );
                       },
                     );
                   },

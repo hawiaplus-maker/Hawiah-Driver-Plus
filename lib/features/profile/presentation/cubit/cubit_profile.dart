@@ -63,7 +63,6 @@ class ProfileCubit extends Cubit<ProfileState> {
       // إضافة _method: PUT ضروري جداً عند رفع الصور في Laravel/PHP
       final Map<String, dynamic> dataMap = {
         'name': name,
-        '_method': 'PUT',
       };
 
       // 2. إضافة البيانات فقط إذا كانت موجودة لتجنب إرسال قيم فارغة

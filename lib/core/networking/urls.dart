@@ -30,7 +30,7 @@ class Urls {
   static String showServices(int id) => '${baseUrl}services/$id';
   static const String services = '${baseUrl}services';
   static const String profile = '${baseUrl}users/profile';
-  static const String updateProfile = '${baseUrl}service-providers/update-profile';
+  static const String updateProfile = '${baseUrl}users/update-profile';
   static const String categories = '${baseUrl}categories';
   static String showCategory(int id) => '${baseUrl}categories/$id';
   static const String completeRegister = '${baseUrl}complete-register';

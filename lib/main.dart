@@ -23,9 +23,7 @@ void main() async {
   await AppInjector.init();
   await EasyLocalization.ensureInitialized();
   await ScreenUtil.ensureScreenSize();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await Hive.initFlutter();
   await Hive.openBox('app');
   Bloc.observer = MyBlocObserver();
@@ -36,11 +34,7 @@ void main() async {
   timeago.setLocaleMessages('en_short', timeago.EnShortMessages());
   runApp(
     EasyLocalization(
-      supportedLocales: const [
-        Locale('ar'),
-        Locale('en'),
-        Locale('ur'),
-      ],
+      supportedLocales: const [Locale('ar'), Locale('en'), Locale('ur')],
       path: 'assets/translations',
       fallbackLocale: const Locale('en'),
       child: BlocProvider(

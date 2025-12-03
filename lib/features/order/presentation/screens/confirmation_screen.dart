@@ -29,7 +29,6 @@ class ConfirmationScreen extends StatefulWidget {
 class _ConfirmationScreenState extends State<ConfirmationScreen> {
   @override
   void initState() {
-    // TODO: implement initState
     getLocation();
     super.initState();
   }

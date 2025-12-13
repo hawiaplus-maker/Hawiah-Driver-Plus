@@ -11,6 +11,7 @@ import 'package:hawiah_driver/core/utils/navigator_methods.dart';
 import 'package:hawiah_driver/core/utils/url_luncher_methods.dart';
 import 'package:hawiah_driver/features/chat/presentation/screens/single-chat-screen.dart';
 import 'package:hawiah_driver/features/order/presentation/model/orders_model.dart';
+import 'package:hawiah_driver/features/order/presentation/model/single_order_model.dart';
 import 'package:hawiah_driver/features/profile/presentation/cubit/cubit_profile.dart';
 
 class UserCardWidget extends StatelessWidget {
@@ -19,12 +20,12 @@ class UserCardWidget extends StatelessWidget {
     required this.ordersData,
   });
 
-  final SingleOrderData ordersData;
+  final SingleOrderModel ordersData;
 
   @override
   Widget build(BuildContext context) {
-    final vehicle = ordersData.vehicles?.isNotEmpty == true ? ordersData.vehicles!.first : null;
-    final driverName = ordersData.driver ?? '';
+    final vehicle = ordersData.data?.vehicles?.isNotEmpty == true ? ordersData.data?.vehicles!.first : null;
+    final driverName = ordersData.data?.driver ?? '';
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
@@ -53,12 +54,12 @@ class UserCardWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${AppLocaleKey.name.tr()}: ${ordersData.user ?? ""}',
+                Text('${AppLocaleKey.name.tr()}: ${ordersData.data?.user ?? ""}',
                     style: AppTextStyle.text16_400),
                 Gap(20.h),
                 GestureDetector(
                   onTap: () =>
-                      UrlLauncherMethods.launchURL(ordersData.userMobile, isWhatsapp: false),
+                      UrlLauncherMethods.launchURL(ordersData.data?.userMobile, isWhatsapp: false),
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                     decoration: BoxDecoration(
@@ -86,7 +87,7 @@ class UserCardWidget extends StatelessWidget {
                     Expanded(
                       child: GestureDetector(
                         onTap: () =>
-                            UrlLauncherMethods.launchURL(ordersData.userMobile, isWhatsapp: true),
+                            UrlLauncherMethods.launchURL(ordersData.data?.userMobile, isWhatsapp: true),
                         child: Container(
                           height: 45.h,
                           decoration: BoxDecoration(
@@ -148,13 +149,13 @@ class UserCardWidget extends StatelessWidget {
       context,
       SingleChatScreen.routeName,
       arguments: SingleChatScreenArgs(
-        receiverId: ordersData.userId.toString(),
+        receiverId: ordersData.data?.driverId.toString() ??"",
         receiverType: "user",
-        receiverName: ordersData.user ?? "",
-        receiverImage: ordersData.userImage ?? "",
+        receiverName: ordersData.data?.user ?? "",
+        receiverImage: ordersData.data?.image ?? "",
         senderId: context.read<ProfileCubit>().user?.id.toString() ?? "",
         senderType: "driver",
-        orderId: ordersData.id.toString(),
+        orderId: ordersData.data?.id.toString()??"",
         onMessageSent: () {},
       ),
     );

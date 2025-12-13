@@ -55,4 +55,5 @@ class Urls {
   static String deleteNotification(int id) => '${baseUrl}notifications/$id';
   static String applayCoupon = '${baseUrl}coupon/check';
   static String questions = '${baseUrl}faq';
+  static String showOrder(int id) => '${baseUrl}users/user-orders/$id';
 }

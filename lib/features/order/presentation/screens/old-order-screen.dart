@@ -51,7 +51,7 @@ class _OldOrderScreenState extends State<OldOrderScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            HawiahDetails(ordersDate: widget.ordersDate),
+            //HawiahDetails(ordersDate: widget.ordersDate),
             // Container(
             //   decoration: BoxDecoration(
             //     borderRadius: BorderRadius.circular(8.0),
@@ -127,7 +127,7 @@ class _OldOrderScreenState extends State<OldOrderScreen> {
             SizedBox(height: 16.0),
 
             SizedBox(height: 20.0),
-            UserCardWidget(ordersData: widget.ordersDate),
+           // UserCardWidget(ordersData: widget.ordersDate),
             // Container(
             //   padding: const EdgeInsets.all(12.0),
             //   decoration: BoxDecoration(

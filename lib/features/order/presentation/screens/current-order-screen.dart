@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hawiah_driver/core/custom_widgets/custom_app_bar/custom_app_bar.dart';
 import 'package:hawiah_driver/core/custom_widgets/global-elevated-button-widget.dart';
@@ -9,6 +10,7 @@ import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/core/theme/app_colors.dart';
 import 'package:hawiah_driver/core/theme/app_text_style.dart';
 import 'package:hawiah_driver/features/order/presentation/model/orders_model.dart';
+import 'package:hawiah_driver/features/order/presentation/order-cubit/order-cubit.dart';
 import 'package:hawiah_driver/features/order/presentation/screens/order-otp-screen.dart';
 import 'package:hawiah_driver/features/order/presentation/widget/hawiah_details.dart';
 import 'package:hawiah_driver/features/order/presentation/widget/support_card_widget.dart';
@@ -17,16 +19,21 @@ import 'package:url_launcher/url_launcher.dart';
 
 class CurrentOrderScreen extends StatefulWidget {
   const CurrentOrderScreen(
-      {Key? key, required this.ordersDate, required SingleOrderData ordersData})
+      {Key? key, required this.ordersDate, required SingleOrderData ordersData, required this.orderId})
       : super(key: key);
   final SingleOrderData ordersDate;
-
+ final int orderId;
   @override
   State<CurrentOrderScreen> createState() => _CurrentOrderScreenState();
 }
 
 class _CurrentOrderScreenState extends State<CurrentOrderScreen> {
+  
   @override
+    void initState() {
+    super.initState();
+    context.read<OrderCubit>().singleOrder(orderId: widget.orderId);
+  }
   Widget build(BuildContext context) {
     final double totalPrice = double.tryParse(widget.ordersDate.totalPrice ?? "0") ?? 0;
     final double vat = totalPrice * 0.15;
@@ -63,7 +70,7 @@ class _CurrentOrderScreenState extends State<CurrentOrderScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              HawiahDetails(ordersDate: widget.ordersDate),
+              //HawiahDetails(ordersDate: widget.ordersDate),
               // Container(
               //   decoration: BoxDecoration(borderRadius: BorderRadius.circular(8.0)),
               //   child: Column(
@@ -137,9 +144,9 @@ class _CurrentOrderScreenState extends State<CurrentOrderScreen> {
                 ),
                 child: Column(
                   children: [
-                    ReOrderAndEmptyHawiahButtons(widget: widget),
+                   // ReOrderAndEmptyHawiahButtons(widget: widget),
                     SizedBox(height: 20.0),
-                    UserCardWidget(ordersData: widget.ordersDate),
+                   // UserCardWidget(ordersData: widget.ordersDate),
                     // Row(
                     //   crossAxisAlignment: CrossAxisAlignment.start,
                     //   children: [

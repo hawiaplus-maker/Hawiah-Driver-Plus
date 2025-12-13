@@ -12,11 +12,13 @@ import 'package:hawiah_driver/core/networking/urls.dart';
 import 'package:hawiah_driver/core/utils/common_methods.dart';
 import 'package:hawiah_driver/core/utils/navigator_methods.dart';
 import 'package:hawiah_driver/features/order/presentation/model/orders_model.dart';
+import 'package:hawiah_driver/features/order/presentation/model/single_order_model.dart' hide SingleOrderData;
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import 'order-state.dart';
+
 
 class OrderCubit extends Cubit<OrderState> {
   static OrderCubit get(BuildContext context) => BlocProvider.of(context);
@@ -239,5 +241,25 @@ class OrderCubit extends Cubit<OrderState> {
       );
     }
   }
-  //?================== create order ====================
+  //?================== singleOrder ====================
+   Future<void> singleOrder({required int orderId}) async {
+    emit(OrderLoading());
+
+    final response = await ApiHelper.instance.get(Urls.showOrder(orderId));
+
+    if (response.state == ResponseState.complete) {
+      if (response.data?['success'] == true && response.data?['data'] != null) {
+        final order = SingleOrderModel.fromJson(response.data);
+        emit(CurrentOrderLoaded(order));
+      } else {
+        emit(CurrentOrderError(response.data?['message'] ?? 'حدث خطأ'));
+      }
+    } else if (response.state == ResponseState.unauthorized) {
+      CommonMethods.showAlertDialog(
+        message: tr(AppLocaleKey.youMustLogInFirst),
+      );
+    } else {
+      emit(CurrentOrderError(response.data?['message'] ?? 'حدث خطأ'));
+    }
+  }
 }

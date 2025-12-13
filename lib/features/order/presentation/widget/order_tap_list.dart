@@ -12,6 +12,7 @@ import 'package:hawiah_driver/core/theme/app_colors.dart';
 import 'package:hawiah_driver/core/theme/app_text_style.dart';
 import 'package:hawiah_driver/features/order/presentation/screens/current-order-screen.dart';
 import 'package:hawiah_driver/features/order/presentation/screens/old-order-screen.dart';
+import 'package:hawiah_driver/features/order/presentation/screens/order_details_screen.dart';
 import 'package:hawiah_driver/features/order/presentation/widget/order_card_widget.dart';
 
 import '../order-cubit/order-cubit.dart';
@@ -37,17 +38,11 @@ class _OrderTapListState extends State<OrderTapList> {
 
   void _onScroll() {
     final cubit = context.read<OrderCubit>();
-    final bool isLoadingMore =
-        widget.isCurrent ? cubit.isLoadingMoreCurrent : cubit.isLoadingMoreOld;
-    final bool canLoadMore = widget.isCurrent ? cubit.canLoadMoreCurrent : cubit.canLoadMoreOld;
-    final int currentPage = widget.isCurrent ? cubit.currentPageCurrent : cubit.currentPageOld;
-
     if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 150 &&
-        canLoadMore &&
-        !isLoadingMore) {
+        cubit.state is! OrderPaginationLoading) {
       cubit.getOrders(
         orderStatus: widget.isCurrent ? 0 : 1,
-        page: currentPage + 1,
+        page: widget.isCurrent ? cubit.currentPageCurrent + 1 : cubit.currentPageOld + 1,
         isLoadMore: true,
       );
     }
@@ -61,83 +56,64 @@ class _OrderTapListState extends State<OrderTapList> {
 
   @override
   Widget build(BuildContext context) {
-    // نستخدم BlocBuilder ليعيد بناء الواجهة عند كل تغيير في الحالة
     return BlocBuilder<OrderCubit, OrderState>(
+      bloc: context.read<OrderCubit>(),
       builder: (context, state) {
-        final cubit = context.read<OrderCubit>();
-
-        // جلب القائمة الصحيحة بناءً على التاب
+        final cubit = context.watch<OrderCubit>();
         final orders = widget.isCurrent ? cubit.currentOrders : cubit.oldOrders;
+        final isPaginating = widget.isCurrent ? cubit.isLoadingMoreCurrent : cubit.isLoadingMoreOld;
 
-        // التحقق مما إذا كان هناك تحميل جاري *لهذا التاب تحديداً*
-        // هذا أهم جزء لتجنب عرض "لا توجد بيانات" أثناء التحميل
-        final bool isThisListLoading =
-            widget.isCurrent ? cubit.isLoadingCurrent : cubit.isLoadingOld;
-        final bool isPaginating =
-            widget.isCurrent ? cubit.isLoadingMoreCurrent : cubit.isLoadingMoreOld;
-
-        // للتشخيص (يمكنك حذفه لاحقاً)
-        log("Tab Current: ${widget.isCurrent}, Loading: $isThisListLoading, Orders Count: ${orders.length}");
-
-        // 1. حالة التحميل الأولي (القائمة فارغة + جاري التحميل)
-        if (isThisListLoading && orders.isEmpty) {
+        // لو لسه أول تحميل
+        if (state is OrderLoading) {
           return Center(
-            child: SingleChildScrollView(
-              child: Column(
-                children: List.generate(
+              child: SingleChildScrollView(
+            child: Column(
+              children: List.generate(
                   6,
                   (index) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 3.5, horizontal: 16),
-                    child: const CustomShimmer(
-                      height: 120,
-                      width: double.infinity,
-                      radius: 15,
-                    ),
+                        padding: const EdgeInsets.symmetric(vertical: 3.5, horizontal: 16),
+                        child: CustomShimmer(
+                          height: 120,
+                          width: double.infinity,
+                          radius: 15,
+                        ),
+                      )),
+            ),
+          ));
+        } else if (state is OrderSuccess) {
+          if (orders.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SvgPicture.asset(
+                    AppImages.containerIcon,
+                    height: 120,
+                    colorFilter: ColorFilter.mode(AppColor.mainAppColor, BlendMode.srcIn),
                   ),
-                ),
+                  Text(
+                    widget.isCurrent
+                        ? AppLocaleKey.noCurrentOrders.tr()
+                        : AppLocaleKey.noOldOrders.tr(),
+                    style: AppTextStyle.text16_700,
+                  ),
+                  const SizedBox(height: 10),
+                  CustomButton(
+                    width: MediaQuery.of(context).size.width / 2.5,
+                    radius: 5,
+                    text: "request_hawaia".tr(),
+                  )
+                ],
               ),
-            ),
-          );
+            );
+          }
         }
 
-        // 2. حالة عدم وجود بيانات (التحميل انتهى + القائمة فارغة)
-        if (!isThisListLoading && orders.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SvgPicture.asset(
-                  AppImages.containerIcon,
-                  height: 120,
-                  colorFilter: ColorFilter.mode(AppColor.mainAppColor, BlendMode.srcIn),
-                ),
-                Text(
-                  widget.isCurrent
-                      ? AppLocaleKey.noCurrentOrders.tr()
-                      : AppLocaleKey.noOldOrders.tr(),
-                  style: AppTextStyle.text16_700,
-                ),
-                const SizedBox(height: 10),
-                CustomButton(
-                  width: MediaQuery.of(context).size.width / 2.5,
-                  radius: 5,
-                  text: "request_hawaia".tr(), // تأكد من وجود مفتاح الترجمة هذا
-                  onPressed: () {
-                    // Action
-                  },
-                )
-              ],
-            ),
-          );
-        }
-
-        // 3. عرض البيانات (القائمة تحتوي على عناصر)
         return ListView.separated(
           separatorBuilder: (context, index) => const SizedBox(height: 7),
           controller: _scrollController,
-          // إضافة عنصر واحد في الأسفل للودينج اذا كان هناك تحميل للمزيد
           itemCount: orders.length + (isPaginating ? 1 : 0),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           itemBuilder: (context, index) {
             if (index < orders.length) {
               final order = orders[index];
@@ -146,21 +122,16 @@ class _OrderTapListState extends State<OrderTapList> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => widget.isCurrent
-                          ? CurrentOrderScreen(
-                              ordersDate: order,
-                              ordersData: order,
-                            )
-                          : OldOrderScreen(
-                              ordersDate: order,
-                            ),
+                      builder: (_) => OrderDetailsScreen(
+                        orderId: order.id ?? 0,
+                        isCurrent: widget.isCurrent,
+                      ),
                     ),
                   );
                 },
                 child: OrderCardWidget(order: order),
               );
             } else {
-              // شكل التحميل في أسفل القائمة عند الـ Pagination
               return const Padding(
                 padding: EdgeInsets.symmetric(vertical: 20),
                 child: Center(

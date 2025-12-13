@@ -1,4 +1,5 @@
 import 'package:hawiah_driver/features/order/presentation/model/orders_model.dart';
+import 'package:hawiah_driver/features/order/presentation/model/single_order_model.dart';
 
 abstract class OrderState {}
 
@@ -27,3 +28,14 @@ class OrderError extends OrderState {}
 class OrderEmpty extends OrderState {}
 
 class Unauthenticated extends OrderState {}
+class CurrentOrderLoaded extends OrderState {
+  final SingleOrderModel order;
+  CurrentOrderLoaded(this.order);
+}
+
+class CurrentOrderError extends OrderState {
+  final String message;
+  CurrentOrderError(this.message);
+}
+
+class CurrentOrderLoading extends OrderState {}

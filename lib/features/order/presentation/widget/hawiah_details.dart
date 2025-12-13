@@ -7,13 +7,16 @@ import 'package:hawiah_driver/core/images/app_images.dart';
 import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/core/theme/app_colors.dart';
 import 'package:hawiah_driver/core/theme/app_text_style.dart';
-import 'package:hawiah_driver/features/order/presentation/model/orders_model.dart';
+import 'package:hawiah_driver/features/order/presentation/model/single_order_model.dart';
 
 class HawiahDetails extends StatelessWidget {
   const HawiahDetails({super.key, required this.ordersDate});
-  final SingleOrderData ordersDate;
+  final SingleOrderModel ordersDate;
   @override
   Widget build(BuildContext context) {
+    final status = context.locale.languageCode == 'ar'
+        ? ordersDate.data?.status?.ar ?? ''
+        : ordersDate.data?.status?.en ?? '';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -33,18 +36,16 @@ class HawiahDetails extends StatelessWidget {
                   const Spacer(),
                   Container(
                     decoration: BoxDecoration(
-                      color: gtOrderStatusColor(ordersDate.status?['en'] ?? '').withAlpha(50),
+                      color: gtOrderStatusColor(ordersDate.data?.status?.en ?? '').withAlpha(50),
                       borderRadius: BorderRadius.circular(5),
                     ),
                     child: Center(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         child: Text(
-                          context.locale.languageCode == 'ar'
-                              ? (ordersDate.status?['ar'] ?? '')
-                              : (ordersDate.status?['en'] ?? ''),
+                          status,
                           style: AppTextStyle.text16_500.copyWith(
-                            color: gtOrderStatusColor(ordersDate.status?['en'] ?? ''),
+                            color: gtOrderStatusColor(ordersDate.data?.status?.en ?? ''),
                           ),
                         ),
                       ),
@@ -59,7 +60,7 @@ class HawiahDetails extends StatelessWidget {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(15.0),
                       child: CustomNetworkImage(
-                        imageUrl: ordersDate.image ?? "",
+                        imageUrl: ordersDate.data?.image ?? "",
                         fit: BoxFit.fill,
                         height: 60.h,
                         width: 60.w,
@@ -71,7 +72,7 @@ class HawiahDetails extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        ordersDate.product ?? "",
+                        ordersDate.data?.product ?? "",
                         style: AppTextStyle.text16_700,
                       ),
                       SizedBox(height: 5.h),
@@ -88,7 +89,7 @@ class HawiahDetails extends StatelessWidget {
                                   ),
                                 ),
                                 TextSpan(
-                                  text: ordersDate.referenceNumber ?? '',
+                                  text: ordersDate.data?.referenceNumber ?? '',
                                   style: AppTextStyle.text14_500.copyWith(
                                     color: AppColor.greyColor.withValues(alpha: 0.7),
                                   ),
@@ -103,7 +104,7 @@ class HawiahDetails extends StatelessWidget {
                         children: [
                           Image.asset(AppImages.requestCode, height: 24.h, width: 24.w),
                           Text(
-                            ordersDate.serviceProvider ?? '',
+                            ordersDate.data?.serviceProvider.toString() ?? '',
                             style: AppTextStyle.text14_500.copyWith(
                               color: AppColor.greyColor.withValues(alpha: 0.7),
                             ),
@@ -127,7 +128,7 @@ class HawiahDetails extends StatelessWidget {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text(ordersDate.otp.toString(),
+                                Text(ordersDate.data?.otp.toString() ?? '',
                                     style:
                                         AppTextStyle.text12_400.copyWith(color: Color(0xff6E11B0))),
                               ],

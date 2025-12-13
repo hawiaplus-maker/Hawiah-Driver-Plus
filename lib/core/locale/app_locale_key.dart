@@ -283,4 +283,5 @@ class AppLocaleKey {
   static const String payXSar = 'payXSar';
   static const String orderReordered = 'orderReordered';
   static const String contactUser = 'contactUser';
+  static const String startAtDate = 'startAtDate';
 }

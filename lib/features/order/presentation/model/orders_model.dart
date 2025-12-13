@@ -91,8 +91,8 @@ class SingleOrderData {
   String? totalPrice;
   String? fromDate;
   String? toDate;
-  int? discount;
-  int? discountValue;
+  num? discount;
+  num? discountValue;
   String? createdAt;
   String? product;
   String? image;

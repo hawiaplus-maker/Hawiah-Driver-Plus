@@ -82,14 +82,14 @@ class OrderCardWidget extends StatelessWidget {
                   if (order.status?['en'] != 'Finish Order' &&
                       order.status?['en'] != 'Delivered') ...[
                     Text(
-                      AppLocaleKey.endAtDay.tr(),
+                      AppLocaleKey.startAtDate.tr(),
                       style: AppTextStyle.text14_400.copyWith(
                         color: AppColor.redColor,
                       ),
                     ),
                     Text(
                       DateMethods.formatToFullData(
-                        DateTime.tryParse(order.toDate ?? "") ?? DateTime.now(),
+                        DateTime.tryParse(order.fromDate ?? "") ?? DateTime.now(),
                       ),
                       style: AppTextStyle.text14_400.copyWith(
                         color: AppColor.redColor,

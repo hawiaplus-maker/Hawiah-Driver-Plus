@@ -78,40 +78,7 @@ class OrderCubit extends Cubit<OrderState> {
     }
 
     // =================== Prevent Re-fetching =====================
-    // التعديل هنا: لن يتم التوقف إذا كان isRefresh = true
-    if (!isLoadMore && !isRefresh) {
-      if (isCurrent && currentOrders.isNotEmpty) {
-        log("✔ Skipping fetch: current orders already loaded");
-        emit(OrderSuccess(
-          ordersModel: OrdersModel(
-            data: OrdersData(
-              data: currentOrders,
-              pagination: Pagination(
-                currentPage: currentPageCurrent,
-                lastPage: lastPageCurrent,
-              ),
-            ),
-          ),
-        ));
-        return;
-      }
-
-      if (!isCurrent && oldOrders.isNotEmpty) {
-        log("✔ Skipping fetch: old orders already loaded");
-        emit(OrderSuccess(
-          ordersModel: OrdersModel(
-            data: OrdersData(
-              data: oldOrders,
-              pagination: Pagination(
-                currentPage: currentPageOld,
-                lastPage: lastPageOld,
-              ),
-            ),
-          ),
-        ));
-        return;
-      }
-    }
+    // Removed to force reload every time
 
     // =================== Load =====================
     if (isLoadMore) {
@@ -125,8 +92,10 @@ class OrderCubit extends Cubit<OrderState> {
     } else {
       if (isCurrent) {
         isLoadingCurrent = true;
+        currentOrders = [];
       } else {
         isLoadingOld = true;
+        oldOrders = [];
       }
       // إذا كنت تريد أن يظهر Loading أثناء الرفرش اترك هذا السطر،
       // أما إذا كنت تستخدم RefreshIndicator في الواجهة وتريد اختفاء اللودينج القديم، يمكنك وضع شرط هنا.

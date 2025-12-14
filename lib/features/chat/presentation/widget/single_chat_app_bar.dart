@@ -98,20 +98,7 @@ class SingleChatAppBar extends StatelessWidget {
           ),
           centerTitle: false,
           leadingWidth: 70,
-          actions: [
-            // IconButton(
-            //   onPressed: () {},
-            //   icon: SvgPicture.asset(AppImages.phoneCallIcon),
-            // ),
-            // IconButton(
-            //   onPressed: () {},
-            //   icon: SvgPicture.asset(AppImages.videoCallIcon),
-            // ),
-            // IconButton(
-            //   onPressed: () {},
-            //   icon: Icon(Icons.more_vert, color: AppColor.lightGreyColor),
-            // ),
-          ],
+          actions: [],
         );
       },
     );

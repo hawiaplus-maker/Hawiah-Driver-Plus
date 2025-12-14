@@ -15,7 +15,7 @@ class AppImages {
   static const String closeIcon = 'assets/svg/closeIcon.svg';
   static const String logoIcon = 'assets/images/play_store.png';
   static const String profileEmptyImage = 'assets/images/profileEmptyImage.png';
-  static const String onboarding1 = 'assets/icons/onboarding1.png';
+
   static const String supportIcon = 'assets/svg/support_icon.svg';
   static const String langIcon = 'assets/svg/langIcon.svg';
   static const String noDataImage = 'assets/images/noDataImage.png';
@@ -77,8 +77,7 @@ class AppImages {
   static const String trash = 'assets/svg/trash-2.svg';
   static const String notification = 'assets/images/notifications.gif';
   static const String sends = 'assets/images/Icon.png';
-  static const String videoCallIcon = 'assets/svg/videoCallIcon.svg';
-  static const String phoneCallIcon = 'assets/svg/phoneCallIcon.svg';
+
   static const String noMessages = 'assets/svg/noMessages.svg';
   static const String signInIcon = 'assets/icons/signInIcon.png';
   static const String chatIcon = 'assets/svg/chatIcon.svg';
@@ -118,5 +117,4 @@ class AppImages {
   static const String emptyDataImage = 'assets/images/emptyDataImage.png';
   static const String whiteLogoImage = 'assets/images/whiteLogoImage.png';
   static const String appWhiteLogoImage = 'assets/images/appWhiteLogoImage.png';
-  static const String carPickerIcon = 'assets/images/carPicker.png';
 }

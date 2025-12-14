@@ -5,20 +5,17 @@ import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/core/networking/api_helper.dart';
 import 'package:hawiah_driver/core/networking/urls.dart';
 import 'package:hawiah_driver/core/utils/common_methods.dart';
 import 'package:hawiah_driver/core/utils/navigator_methods.dart';
 import 'package:hawiah_driver/features/order/presentation/model/orders_model.dart';
-import 'package:hawiah_driver/features/order/presentation/model/single_order_model.dart' hide SingleOrderData;
-import 'package:path/path.dart' as path;
-import 'package:path_provider/path_provider.dart';
+import 'package:hawiah_driver/features/order/presentation/model/single_order_model.dart'
+    hide SingleOrderData;
 import 'package:table_calendar/table_calendar.dart';
 
 import 'order-state.dart';
-
 
 class OrderCubit extends Cubit<OrderState> {
   static OrderCubit get(BuildContext context) => BlocProvider.of(context);
@@ -159,19 +156,20 @@ class OrderCubit extends Cubit<OrderState> {
     }
   }
 
-  compressImage(File file) async {
-    final dir = await getTemporaryDirectory();
-    final targetPath = path.join(dir.absolute.path, 'compressed_${path.basename(file.path)}');
+  // compressImage(File file) async {
+  //   final dir = await getTemporaryDirectory();
+  //   final targetPath =
+  //       path.join(dir.absolute.path, 'compressed_${DateTime.now().millisecondsSinceEpoch}.jpg');
 
-    final result = await FlutterImageCompress.compressAndGetFile(
-      file.absolute.path,
-      targetPath,
-      quality: 50, // Adjust quality (0-100)
-      format: CompressFormat.jpeg,
-    );
+  //   final result = await FlutterImageCompress.compressAndGetFile(
+  //     file.absolute.path,
+  //     targetPath,
+  //     quality: 50, // Adjust quality (0-100)
+  //     format: CompressFormat.jpeg,
+  //   );
 
-    return result ?? file; // fallback to original if compression fails
-  }
+  //   return result ?? file;
+  // }
 
   ApiResponse _ordersResponse = ApiResponse(state: ResponseState.sleep, data: null);
   Future<void> confirmOrders({
@@ -181,13 +179,13 @@ class OrderCubit extends Cubit<OrderState> {
     required long,
     required File img,
   }) async {
-    XFile imageFile = await compressImage(File(img.path));
+    //  XFile imageFile = await compressImage(File(img.path));
     final data = <String, dynamic>{
       'otp': otp,
       'latitude': lat,
       'longitude': long,
     };
-    data['hawiah_image'] = await MultipartFile.fromFile(imageFile.path,
+    data['hawiah_image'] = await MultipartFile.fromFile(img.path,
         filename: "hawiah.jpg", contentType: DioMediaType('image', 'jpg'));
 
     final formData = FormData.fromMap(data);
@@ -241,8 +239,9 @@ class OrderCubit extends Cubit<OrderState> {
       );
     }
   }
+
   //?================== singleOrder ====================
-   Future<void> singleOrder({required int orderId}) async {
+  Future<void> singleOrder({required int orderId}) async {
     emit(OrderLoading());
 
     final response = await ApiHelper.instance.get(Urls.showOrder(orderId));

@@ -1,6 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:hawiah_driver/core/images/app_images.dart';
@@ -10,9 +9,9 @@ import 'package:hawiah_driver/core/theme/app_text_style.dart';
 import 'package:hawiah_driver/core/utils/navigator_methods.dart';
 import 'package:hawiah_driver/core/utils/url_luncher_methods.dart';
 import 'package:hawiah_driver/features/chat/presentation/screens/single-chat-screen.dart';
-import 'package:hawiah_driver/features/order/presentation/model/orders_model.dart';
 import 'package:hawiah_driver/features/order/presentation/model/single_order_model.dart';
 import 'package:hawiah_driver/features/profile/presentation/cubit/cubit_profile.dart';
+import 'package:hawiah_driver/injection_container.dart';
 
 class UserCardWidget extends StatelessWidget {
   const UserCardWidget({
@@ -24,9 +23,12 @@ class UserCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final vehicle = ordersData.data?.vehicles?.isNotEmpty == true ? ordersData.data?.vehicles!.first : null;
-    final driverName = ordersData.data?.driver ?? '';
+    final user = sl<ProfileCubit>().user;
 
+    final driverName = user?.name ?? "";
+    if (ordersData.data?.orderStatus == 6) {
+      return SizedBox();
+    }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
       decoration: BoxDecoration(
@@ -38,13 +40,13 @@ class UserCardWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(AppLocaleKey.customerData.tr(), style: AppTextStyle.text16_700),
-          _buildDriverInfo(driverName, vehicle, context),
+          _buildDriverInfo(driverName, context),
         ],
       ),
     );
   }
 
-  Widget _buildDriverInfo(String driverName, dynamic vehicle, BuildContext context) {
+  Widget _buildDriverInfo(String driverName, BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -54,7 +56,7 @@ class UserCardWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${AppLocaleKey.name.tr()}: ${ordersData.data?.user ?? ""}',
+                Text('${AppLocaleKey.name.tr()}: ${ordersData.data?.user}',
                     style: AppTextStyle.text16_400),
                 Gap(20.h),
                 GestureDetector(
@@ -86,8 +88,8 @@ class UserCardWidget extends StatelessWidget {
                   children: [
                     Expanded(
                       child: GestureDetector(
-                        onTap: () =>
-                            UrlLauncherMethods.launchURL(ordersData.data?.userMobile, isWhatsapp: true),
+                        onTap: () => UrlLauncherMethods.launchURL(ordersData.data?.userMobile,
+                            isWhatsapp: true),
                         child: Container(
                           height: 45.h,
                           decoration: BoxDecoration(
@@ -143,19 +145,19 @@ class UserCardWidget extends StatelessWidget {
 
   ///  Navigation logic
   void _navigateToChat(BuildContext context, String driverName) {
-    final profileCubit = context.read<ProfileCubit>();
+    final driver = sl<ProfileCubit>().user;
 
     NavigatorMethods.pushNamed(
       context,
       SingleChatScreen.routeName,
       arguments: SingleChatScreenArgs(
-        receiverId: ordersData.data?.driverId.toString() ??"",
+        receiverId: ordersData.data?.userId.toString() ?? "",
         receiverType: "user",
         receiverName: ordersData.data?.user ?? "",
         receiverImage: ordersData.data?.image ?? "",
-        senderId: context.read<ProfileCubit>().user?.id.toString() ?? "",
+        senderId: driver?.id.toString() ?? "",
         senderType: "driver",
-        orderId: ordersData.data?.id.toString()??"",
+        orderId: ordersData.data?.id.toString() ?? "",
         onMessageSent: () {},
       ),
     );

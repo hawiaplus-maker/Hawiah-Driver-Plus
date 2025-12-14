@@ -53,6 +53,7 @@ class HawiahDetails extends StatelessWidget {
                   ),
                 ],
               ),
+              Gap(15.h),
               Row(
                 children: [
                   // Vehicle Image
@@ -75,7 +76,7 @@ class HawiahDetails extends StatelessWidget {
                         ordersDate.data?.product ?? "",
                         style: AppTextStyle.text16_700,
                       ),
-                      SizedBox(height: 5.h),
+                      Gap(15.h),
                       Row(
                         children: [
                           Image.asset(AppImages.requestName, height: 24.h, width: 24.w),
@@ -99,7 +100,7 @@ class HawiahDetails extends StatelessWidget {
                           ),
                         ],
                       ),
-                      SizedBox(height: 5.h),
+                      Gap(15.h),
                       Row(
                         children: [
                           Image.asset(AppImages.requestCode, height: 24.h, width: 24.w),
@@ -111,31 +112,31 @@ class HawiahDetails extends StatelessWidget {
                           ),
                         ],
                       ),
-                      SizedBox(height: 5.h),
-                      Row(
-                        children: [
-                          Text(
-                            AppLocaleKey.confirmNumber.tr(),
-                            style: AppTextStyle.text14_500,
-                          ),
-                          Gap(5.w),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                            decoration: BoxDecoration(
-                              color: Color(0xffF3E8FF),
-                              borderRadius: BorderRadius.circular(11),
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(ordersDate.data?.otp.toString() ?? '',
-                                    style:
-                                        AppTextStyle.text12_400.copyWith(color: Color(0xff6E11B0))),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+                      Gap(15.h),
+                      // Row(
+                      //   children: [
+                      //     Text(
+                      //       AppLocaleKey.confirmNumber.tr(),
+                      //       style: AppTextStyle.text14_500,
+                      //     ),
+                      //     Gap(5.w),
+                      //     // Container(
+                      //     //   padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                      //     //   decoration: BoxDecoration(
+                      //     //     color: Color(0xffF3E8FF),
+                      //     //     borderRadius: BorderRadius.circular(11),
+                      //     //   ),
+                      //     //   child: Column(
+                      //     //     mainAxisAlignment: MainAxisAlignment.center,
+                      //     //     children: [
+                      //     //       Text(ordersDate.data?.otp.toString() ?? '',
+                      //     //           style:
+                      //     //               AppTextStyle.text12_400.copyWith(color: Color(0xff6E11B0))),
+                      //     //     ],
+                      //     //   ),
+                      //     // ),
+                      //   ],
+                      // ),
                     ],
                   ),
                 ],

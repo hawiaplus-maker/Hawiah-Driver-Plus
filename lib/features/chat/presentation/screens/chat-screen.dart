@@ -30,7 +30,7 @@ class AllChatsScreen extends StatefulWidget {
 
 class _AllChatsScreenState extends State<AllChatsScreen> {
   late ChatCubit chatCubit;
-  late String userId;
+  late String driverId;
   final TextEditingController _searchController = TextEditingController();
   List<RecentChatModel> _allChats = [];
   List<RecentChatModel> _filteredChats = [];
@@ -54,10 +54,10 @@ class _AllChatsScreenState extends State<AllChatsScreen> {
         NavigatorMethods.showAppDialog(context, UnauthenticatedDialog());
       });
     } else {
-      userId = sl<ProfileCubit>().user!.id.toString();
+      driverId = sl<ProfileCubit>().user!.id.toString();
       chatCubit = ChatCubit();
       chatCubit.fetchRecentChats(
-        currentId: userId,
+        currentId: driverId,
         currentType: 'driver',
       );
     }
@@ -136,7 +136,7 @@ class _AllChatsScreenState extends State<AllChatsScreen> {
                           itemBuilder: (context, index) {
                             final chat = chats[index];
                             return ConversationListTile(
-                                chat: chat, userId: userId, chatCubit: chatCubit);
+                                chat: chat, driverId: driverId, chatCubit: chatCubit);
                           },
                         );
                       } else if (state is ChatEmpty) {

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:easy_localization/easy_localization.dart' as es;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -12,9 +14,14 @@ import 'package:hawiah_driver/features/order/presentation/screens/confirmation_s
 import 'package:pinput/pinput.dart';
 
 class OrderOtpScreen extends StatefulWidget {
-  const OrderOtpScreen({Key? key, required this.id, required this.otp}) : super(key: key);
+  const OrderOtpScreen(
+      {Key? key, required this.id, required this.otp, this.image, this.lat, this.long})
+      : super(key: key);
   final String otp;
   final int? id;
+  final File? image;
+  final double? lat;
+  final double? long;
   @override
   _OrderOtpScreenState createState() => _OrderOtpScreenState();
 }
@@ -152,6 +159,9 @@ class _OrderOtpScreenState extends State<OrderOtpScreen> {
                                 builder: (context) => ConfirmationScreen(
                                   otp: widget.otp,
                                   id: widget.id,
+                                  image: widget.image,
+                                  lat: widget.lat,
+                                  long: widget.long,
                                 ),
                               ),
                             )
@@ -173,6 +183,9 @@ class _OrderOtpScreenState extends State<OrderOtpScreen> {
                             builder: (context) => ConfirmationScreen(
                               otp: widget.otp,
                               id: widget.id,
+                              image: widget.image,
+                              lat: widget.lat,
+                              long: widget.long,
                             ),
                           ),
                         )

@@ -35,15 +35,16 @@ class Datum {
   int? notifiableId;
   String? modelType;
   int? modelId;
-  int? seen;
+  bool? seen;
   int? userId;
   Data? data;
   DateTime? createdAt;
   DateTime? updatedAt;
-  int? showClient;
-  int? showCompany;
-  int? showPuncher;
-  int? showEmployee;
+  dynamic showClient;
+  dynamic showCompany;
+  dynamic showPuncher;
+  dynamic showEmployee;
+  dynamic orderStatusType;
 
   Datum({
     this.id,
@@ -62,6 +63,7 @@ class Datum {
     this.showCompany,
     this.showPuncher,
     this.showEmployee,
+    this.orderStatusType,
   });
 
   factory Datum.fromJson(Map<String, dynamic> json) => Datum(
@@ -72,12 +74,10 @@ class Datum {
         notifiableId: json["notifiable_id"],
         modelType: json["model_type"],
         modelId: json["model_id"],
-        seen: json["seen"],
+        seen: json["seen"], // ← Boolean
         userId: json["user_id"],
         data: json["data"] != null
-            ? Data.fromJson(
-                json["data"] is String ? jsonDecode(json["data"]) : json["data"],
-              )
+            ? Data.fromJson(json["data"] is String ? jsonDecode(json["data"]) : json["data"])
             : null,
         createdAt: json["created_at"] != null ? DateTime.tryParse(json["created_at"]) : null,
         updatedAt: json["updated_at"] != null ? DateTime.tryParse(json["updated_at"]) : null,
@@ -85,6 +85,7 @@ class Datum {
         showCompany: json["show_company"],
         showPuncher: json["show_puncher"],
         showEmployee: json["show_employee"],
+        orderStatusType: json["order_status_type"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -96,7 +97,6 @@ class Datum {
         "model_type": modelType,
         "model_id": modelId,
         "seen": seen,
-        // "seen_by_admin": seenByAdmin,
         "user_id": userId,
         "data": data != null ? jsonEncode(data!.toJson()) : null,
         "created_at": createdAt?.toIso8601String(),
@@ -105,6 +105,7 @@ class Datum {
         "show_company": showCompany,
         "show_puncher": showPuncher,
         "show_employee": showEmployee,
+        "order_status_type": orderStatusType,
       };
 }
 
@@ -123,17 +124,17 @@ class Data {
 }
 
 class Message {
-  String en;
-  String ar;
+  String? en;
+  String? ar;
 
   Message({
-    required this.en,
-    required this.ar,
+    this.en,
+    this.ar,
   });
 
   factory Message.fromJson(Map<String, dynamic> json) => Message(
-        en: json["en"] ?? "",
-        ar: json["ar"] ?? "",
+        en: json["en"],
+        ar: json["ar"],
       );
 
   Map<String, dynamic> toJson() => {

@@ -7,7 +7,6 @@ import 'package:hawiah_driver/core/utils/navigator_methods.dart';
 import 'package:hawiah_driver/features/app-language/presentation/screens/app-language-screen.dart';
 import 'package:hawiah_driver/features/authentication/presentation/screens/login-screen.dart';
 import 'package:hawiah_driver/features/layout/presentation/screens/layout-screen.dart';
-import 'package:hawiah_driver/features/on-boarding/presentation/controllers/on-boarding-cubit/on-boarding-cubit.dart';
 import 'package:hawiah_driver/features/profile/presentation/cubit/cubit_profile.dart';
 import 'package:hawiah_driver/features/setting/cubit/setting_cubit.dart';
 import 'package:hawiah_driver/injection_container.dart';
@@ -36,7 +35,7 @@ class _SplashScreenState extends State<SplashScreen> {
     await Future.delayed(const Duration(seconds: 2));
 
     if (HiveMethods.isFirstTime() == true) {
-      OnBoardingCubit.get(context).getOnboarding();
+      // OnBoardingCubit.get(context).getOnboarding();
       if (!mounted) return;
       Navigator.pushReplacement(
         context,

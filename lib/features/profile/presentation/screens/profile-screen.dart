@@ -1,8 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:hawiah_driver/core/custom_widgets/custom_app_bar/custom_app_bar.dart';
+import 'package:hawiah_driver/core/images/app_images.dart' show AppImages;
 import 'package:hawiah_driver/core/locale/app_locale_key.dart';
+import 'package:hawiah_driver/core/utils/navigator_methods.dart';
+import 'package:hawiah_driver/features/notifications/presentation/screen/notifications_screen.dart';
 import 'package:hawiah_driver/features/profile/presentation/cubit/cubit_profile.dart';
 import 'package:hawiah_driver/features/profile/widget/profile_header_widget.dart';
 import 'package:hawiah_driver/features/profile/widget/profile_menu_list.dart';
@@ -24,6 +28,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: CustomAppBar(
         context,
         titleText: AppLocaleKey.profileFile.tr(),
+        actions: [
+          IconButton(
+            icon: SvgPicture.asset(AppImages.notificationDot),
+            onPressed: () {
+              NavigatorMethods.pushNamed(context, NotificationsScreen.routeName);
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(

@@ -25,15 +25,11 @@ class SingleChatAppBar extends StatelessWidget {
       stream: FirebaseFirestore.instance.collection('orders').doc(widget.args.orderId).snapshots(),
       builder: (context, snapshot) {
         String statusText = '';
-
         if (snapshot.hasData && snapshot.data!.exists) {
           final data = snapshot.data!.data() as Map<String, dynamic>;
-
           final receiverType = widget.args.receiverType;
-
           final bool isOnline = data['${receiverType}_isOnline'] ?? false;
           final lastSeen = (data['${receiverType}_lastSeen'] as Timestamp?)?.toDate();
-
           if (isOnline) {
             statusText = AppLocaleKey.connected.tr();
           } else if (lastSeen != null) {

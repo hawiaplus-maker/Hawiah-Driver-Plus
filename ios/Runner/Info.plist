@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<!-- The following keys are used to specify the localization -->
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>ar</string>
+	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -45,5 +51,17 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UIStatusBarHidden</key>
+	<false/>
+
+	<!-- PERMISSIONS ADDED TO FIX APP STORE CONNECT ISSUE -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to allow you to upload your profile picture or documents.</string>
+
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We need access to your location to provide location-based services within the app.</string>
+
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>We need access to your location to provide location-based services even when the app is in the background.</string>
 </dict>
 </plist>

@@ -61,7 +61,7 @@ class UserCardWidget extends StatelessWidget {
                 Gap(20.h),
                 GestureDetector(
                   onTap: () =>
-                      UrlLauncherMethods.launchURL(ordersData.data?.userMobile, isWhatsapp: false),
+                      UrlLauncherMethods.makePhoneCall("+966${ordersData.data?.userMobile ?? ""}"),
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                     decoration: BoxDecoration(
@@ -88,8 +88,8 @@ class UserCardWidget extends StatelessWidget {
                   children: [
                     Expanded(
                       child: GestureDetector(
-                        onTap: () => UrlLauncherMethods.launchURL(ordersData.data?.userMobile,
-                            isWhatsapp: true),
+                        onTap: () => UrlLauncherMethods.launchWhatsApp(
+                            "+966${ordersData.data?.userMobile ?? ""}"),
                         child: Container(
                           height: 45.h,
                           decoration: BoxDecoration(

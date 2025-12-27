@@ -70,10 +70,10 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                     ),
                     child: Column(
                       children: [
-                        if (widget.isCurrent && support.isNotEmpty)
-                          ReOrderAndEmptyHawiahButtons(support: support),
-                        SizedBox(height: 20.0),
                         UserCardWidget(ordersData: ordersData),
+                        SizedBox(height: 20.0),
+                        if (widget.isCurrent && support.isNotEmpty)
+                          SuppprtCardWidget(support: support),
                         SizedBox(height: 50.h),
                         isDelivered
                             ? SizedBox()
@@ -103,7 +103,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                                               context,
                                               MaterialPageRoute(
                                                 builder: (context) => OrderOtpScreen(
-                                                  otp: "ordersData.data?.otp ?? " "",
+                                                  otp: ordersData.data?.otp ?? "",
                                                   id: ordersData.data?.id,
                                                   image: image,
                                                   lat: location?.latitude,

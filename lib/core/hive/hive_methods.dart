@@ -1,13 +1,18 @@
-import 'package:flutter/material.dart';
+import 'dart:ui';
+
 import 'package:hive/hive.dart';
 
 import '../theme/theme_enum.dart';
 
 class HiveMethods {
+  static String getDeviceLanguage() {
+    return PlatformDispatcher.instance.locale.languageCode;
+  }
+
   static final _box = Hive.box('app');
 
   static String getLang() {
-    return _box.get('lang', defaultValue: 'ar');
+    return _box.get('lang', defaultValue: getDeviceLanguage());
   }
 
   static void updateLang(Locale locale) {

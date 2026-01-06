@@ -81,10 +81,11 @@ class OrderCubit extends Cubit<OrderState> {
 
     // =================== Load =====================
     if (isLoadMore) {
-      if (isCurrent ? isLoadingMoreCurrent : isLoadingMoreOld) return;
       if (isCurrent) {
+        if (!canLoadMoreCurrent || isLoadingMoreCurrent) return;
         isLoadingMoreCurrent = true;
       } else {
+        if (!canLoadMoreOld || isLoadingMoreOld) return;
         isLoadingMoreOld = true;
       }
       emit(OrderPaginationLoading());
@@ -105,45 +106,57 @@ class OrderCubit extends Cubit<OrderState> {
     final response = await ApiHelper.instance.get(
       Urls.orders(orderStatus),
       queryParameters: {
-        "order_status": orderStatus,
+        // "order_status": orderStatus,
         "page": page,
       },
     );
 
     if (response.state == ResponseState.complete) {
-      final result = OrdersModel.fromJson(response.data);
-      final newOrders = result.data?.data ?? [];
-      final pagination = result.data?.pagination;
+      try {
+        final result = OrdersModel.fromJson(response.data);
+        final newOrders = result.data?.data ?? [];
+        final pagination = result.data?.pagination;
 
-      if (isCurrent) {
-        currentPageCurrent = pagination?.currentPage ?? 1;
-        lastPageCurrent = pagination?.lastPage ?? 1;
-      } else {
-        currentPageOld = pagination?.currentPage ?? 1;
-        lastPageOld = pagination?.lastPage ?? 1;
-      }
-
-      // داخل دالة getOrders في حالة النجاح
-      if (isLoadMore) {
         if (isCurrent) {
-          currentOrders.addAll(newOrders);
+          currentPageCurrent = pagination?.currentPage ?? 1;
+          lastPageCurrent = pagination?.lastPage ?? 1;
+        } else {
+          currentPageOld = pagination?.currentPage ?? 1;
+          lastPageOld = pagination?.lastPage ?? 1;
+        }
+
+        // داخل دالة getOrders في حالة النجاح
+        if (isLoadMore) {
+          if (isCurrent) {
+            currentOrders.addAll(newOrders);
+            isLoadingMoreCurrent = false;
+          } else {
+            oldOrders.addAll(newOrders);
+            isLoadingMoreOld = false;
+          }
+        } else {
+          if (isCurrent) {
+            currentOrders = newOrders; // استبدال القائمة بالكامل
+            isLoadingCurrent = false;
+          } else {
+            oldOrders = newOrders; // استبدال القائمة بالكامل
+            isLoadingOld = false;
+          }
+        }
+
+        // هام: إرسال الحالة بعد تحديث المتغيرات
+        emit(OrderSuccess(ordersModel: result));
+      } catch (e) {
+        log("Error parsing orders: $e");
+        if (isCurrent) {
+          isLoadingCurrent = false;
           isLoadingMoreCurrent = false;
         } else {
-          oldOrders.addAll(newOrders);
+          isLoadingOld = false;
           isLoadingMoreOld = false;
         }
-      } else {
-        if (isCurrent) {
-          currentOrders = newOrders; // استبدال القائمة بالكامل
-          isLoadingCurrent = false;
-        } else {
-          oldOrders = newOrders; // استبدال القائمة بالكامل
-          isLoadingOld = false;
-        }
+        emit(OrderError());
       }
-
-      // هام: إرسال الحالة بعد تحديث المتغيرات
-      emit(OrderSuccess(ordersModel: result));
     } else {
       if (isCurrent) {
         isLoadingCurrent = false;
@@ -170,7 +183,7 @@ class OrderCubit extends Cubit<OrderState> {
 
   //   return result ?? file;
   // }
-
+//================== confirm order ====================
   ApiResponse _ordersResponse = ApiResponse(state: ResponseState.sleep, data: null);
   Future<void> confirmOrders({
     required int orderId,
@@ -204,6 +217,45 @@ class OrderCubit extends Cubit<OrderState> {
 
     if (_ordersResponse.data['success'] == true) {
       emit(OrderConfirmed(success: _success));
+    } else {
+      emit(OrderError());
+    }
+  }
+
+  //========================== empty order ==========================
+  ApiResponse _emptyOrdersResponse = ApiResponse(state: ResponseState.sleep, data: null);
+  Future<void> confirmEmptyOrder({
+    required int orderId,
+    required lat,
+    required long,
+    required File img,
+    required VoidCallback onSuccess,
+  }) async {
+    //  XFile imageFile = await compressImage(File(img.path));
+    final data = <String, dynamic>{
+      'empty_latitude': lat,
+      'empty_longitude': long,
+    };
+    data['empty_image'] = await MultipartFile.fromFile(img.path,
+        filename: "hawiah.jpg", contentType: DioMediaType('image', 'jpg'));
+
+    final formData = FormData.fromMap(data);
+
+    emit(OrderLoading());
+    _emptyOrdersResponse = ApiResponse(state: ResponseState.loading, data: null);
+    var _success = null;
+    emit(OrderLoading());
+    _emptyOrdersResponse = await ApiHelper.instance.post(
+      Urls.confirmEmptyOrders(orderId),
+      body: formData,
+      hasToken: true,
+      isMultipart: true,
+    );
+    emit(OrderChange());
+
+    if (_emptyOrdersResponse.data['success'] == true) {
+      emit(OrderConfirmed(success: _success));
+      onSuccess.call();
     } else {
       emit(OrderError());
     }

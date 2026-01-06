@@ -15,6 +15,7 @@ class Urls {
 
   //! ===================> Live Api <=================== !//
   static const String baseUrl = 'https://hawiaplus.com/api/';
+  // static const String baseUrl = 'https://testing.hawiaplus.com/api/';
   static const String login = '${baseUrl}service-providers/login';
   static const String validateMobile = '${baseUrl}validate-mobile';
   static const String companyRegister = '${baseUrl}company/register';
@@ -39,6 +40,7 @@ class Urls {
   static const String onBoarding = '${baseUrl}on-boarding';
   static String orders(int id) => '${baseUrl}drivers/orders?order_status=$id';
   static String confirmOrders(int id) => '${baseUrl}drivers/orders/confirm-order/$id';
+  static String confirmEmptyOrders(int id) => '${baseUrl}drivers/orders/empty-order-and-finish/$id';
   static const String cities = '${baseUrl}cities';
   static const String addresses = '${baseUrl}user-addresses';
   static const String storeAddress = '${baseUrl}user-addresses';

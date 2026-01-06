@@ -27,6 +27,9 @@ class _LayoutScreenState extends State<LayoutScreen> {
   void initState() {
     super.initState();
     log("${widget.isRefreshOrders} =================== isRefreshOrders ===================");
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      UpdateChecker.checkForUpdate(context);
+    });
   }
 
   void onProfileOrderTap() {

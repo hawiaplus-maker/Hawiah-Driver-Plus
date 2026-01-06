@@ -214,7 +214,7 @@
    "Viewinvoice": "عرض الفاتورة",
    "Invoicecannotbedisplayed": "لا يمكن عرض الفاتورة",
 
-   "Emptythecontainer": "إفراغ الحاوية",
+   "emptythecontainer": "إفراغ الحاوية",
    "Contactthedriver": "تواصل مع السائق",
    "ContactSupport": "تواصل مع الدعم",
    "representativewasuncooperative": "المندوب كان غير متعاون معي",
@@ -387,5 +387,12 @@
    "evaluationSend": "إرسال التقييم",
    "orderReordered":"تم اعادة الطلب بنجاح",
    "contactUser": "تواصل مع العميل ",
-   "startAtDate":"تبدأ يوم"
+    "startAtDate":"تبدأ يوم",
+    "pleaseEnableLocation": "الرجاء تفعيل خدمة الموقع للمتابعة",
+    "locationServiceDisabled": "خدمة الموقع غير مفعلة",
+    "invalidOtp": "رمز التحقق غير صحيح",
+       "update_title": "تحديث جديد متوفر",
+  "update_content": "هناك إصدار جديد متاح ({store_version}).\nأنت تستخدم حالياً الإصدار ({local_version}). يرجى التحديث.",
+  "update_later": "لاحقاً",
+  "update_now": "تحديث الآن"
 }

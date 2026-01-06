@@ -29,6 +29,7 @@ if (keystoreFile.exists()) {
 
 android {
     namespace = "com.future.hawiah.driver.plus"
+
     compileSdk = 36
     ndkVersion = "27.0.12077973"
 
@@ -45,10 +46,12 @@ android {
 
         externalNativeBuild {
             cmake {
+
                 arguments(
-                    "-DANDROID_STL=c++_shared"
-                    // -Wl,-z,max-page-size=16384 لا يمكن فرضه مباشرة على Android
+                    "-DANDROID_STL=c++_shared",
+                    "-DANDROID_EXT_LINKER_FLAGS=-Wl,-z,max-page-size=16384"
                 )
+                cppFlags += "-Wl,-z,max-page-size=16384"
             }
         }
     }
@@ -80,61 +83,20 @@ android {
         }
     }
 
-    packagingOptions {
-        jniLibs.useLegacyPackaging = false
+    // التعديل الصحيح لضمان عدم ضغط المكتبات ومحاذاتها
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
     }
 }
 
-// Flutter source
 flutter {
     source = "../.."
 }
 
-// Dependencies
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 }
 
-// Task لتعديل محاذاة مكتبات .so إلى 16KB
-tasks.register("alignNativeLibs") {
-    group = "build"
-    description = "Align native .so libraries to 16KB page size"
-
-    doLast {
-        val libDir = File(buildDir, "intermediates/cmake/release/obj")
-        if (!libDir.exists()) {
-            println("No native libraries found at ${libDir.absolutePath}")
-            return@doLast
-        }
-
-        val soFiles = libDir.walkTopDown().filter { it.extension == "so" }
-        soFiles.forEach { soFile ->
-            val tempFile = File(soFile.parent, "${soFile.name}.tmp")
-            val ndkObjcopy = "${android.ndkDirectory}/toolchains/llvm/prebuilt/windows-x86_64/bin/llvm-objcopy.exe"
-
-            if (File(ndkObjcopy).exists()) {
-                println("Aligning ${soFile.name} to 16KB pages...")
-                exec {
-                    commandLine(
-                        ndkObjcopy,
-                        "--pad-to=16384",
-                        soFile.absolutePath,
-                        tempFile.absolutePath
-                    )
-                }
-                soFile.delete()
-                tempFile.renameTo(soFile)
-            } else {
-                println("NDK objcopy not found at $ndkObjcopy")
-            }
-        }
-    }
-}
-
-// ربط Task مع assembleRelease بعد تحميل المشروع
-afterEvaluate {
-    tasks.findByName("assembleRelease")?.let { assembleReleaseTask ->
-        assembleReleaseTask.finalizedBy("alignNativeLibs")
-    }
-}

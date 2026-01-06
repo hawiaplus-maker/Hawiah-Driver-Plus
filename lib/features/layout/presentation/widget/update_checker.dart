@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:new_version_plus/model/version_status.dart';

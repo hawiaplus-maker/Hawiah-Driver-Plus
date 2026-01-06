@@ -8,6 +8,7 @@ import 'package:hawiah_driver/core/images/app_images.dart';
 import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/core/theme/app_colors.dart';
 import 'package:hawiah_driver/features/chat/presentation/screens/chat-screen.dart';
+import 'package:hawiah_driver/features/layout/presentation/widget/update_checker.dart';
 import 'package:hawiah_driver/features/order/presentation/screens/orders-screen.dart';
 import 'package:hawiah_driver/features/profile/presentation/screens/profile-screen.dart';
 

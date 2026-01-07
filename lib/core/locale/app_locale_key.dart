@@ -288,8 +288,9 @@ class AppLocaleKey {
   static const String locationServiceDisabled = 'locationServiceDisabled';
   static const String enterVerificationCode = 'enterVerificationCode';
   static const String invalidOtp = 'invalidOtp';
-  static const updateTitle = 'update_title';
-  static const updateContent = 'update_content';
-  static const updateLater = 'update_later';
-  static const updateNow = 'update_now';
+  static const String updateTitle = 'update_title';
+  static const String updateContent = 'update_content';
+  static const String updateLater = 'update_later';
+  static const String updateNow = 'update_now';
+  static const String imagesFromDeliveryLocation = 'imagesFromDeliveryLocation';
 }

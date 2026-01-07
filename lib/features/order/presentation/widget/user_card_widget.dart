@@ -73,7 +73,7 @@ class UserCardWidget extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Image.asset(AppImages.phoneSupport,
+                        Image.asset(AppImages.callImage,
                             height: 14.h, width: 14.w, fit: BoxFit.cover),
                         Gap(5.w),
                         Text(AppLocaleKey.contactUser.tr(),
@@ -123,7 +123,7 @@ class UserCardWidget extends StatelessWidget {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Image.asset(AppImages.chats, height: 14.h, width: 14.w),
+                              Image.asset(AppImages.chatImage, height: 14.h, width: 14.w),
                               Gap(5.w),
                               Text(AppLocaleKey.chats.tr(),
                                   style: AppTextStyle.text16_600

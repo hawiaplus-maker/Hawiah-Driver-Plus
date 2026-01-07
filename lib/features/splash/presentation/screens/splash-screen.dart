@@ -86,12 +86,10 @@ class _SplashScreenState extends State<SplashScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 30.0),
-            child: Center(
-              child: Image.asset(
-                AppImages.hawiahPlus,
-                height: 500,
-                width: 500,
-              ),
+            child: Image.asset(
+              AppImages.newAppLogoImage,
+              height: 500,
+              width: 500,
             ),
           ),
         ],

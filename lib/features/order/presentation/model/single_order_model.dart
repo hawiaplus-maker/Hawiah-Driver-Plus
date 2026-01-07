@@ -51,6 +51,7 @@ class SingleOrderData {
   int? userId;
   String? driverFcmToken;
   String? userFcmToken;
+  List<ContainerImage>? containerImages;
 
   SingleOrderData({
     this.id,
@@ -76,6 +77,7 @@ class SingleOrderData {
     this.userId,
     this.driverFcmToken,
     this.userFcmToken,
+    this.containerImages,
   });
 
   factory SingleOrderData.fromJson(Map<String, dynamic> json) => SingleOrderData(
@@ -102,6 +104,8 @@ class SingleOrderData {
         userId: json['user_id'],
         driverFcmToken: json['driver_fcm_token'],
         userFcmToken: json['user_fcm_token'],
+        containerImages:
+            (json['container_images'] as List?)?.map((v) => ContainerImage.fromJson(v)).toList(),
       );
 
   Map<String, dynamic> toJson() => {
@@ -128,6 +132,7 @@ class SingleOrderData {
         'user_id': userId,
         'driver_fcm_token': driverFcmToken,
         'user_fcm_token': userFcmToken,
+        'container_images': containerImages?.map((v) => v.toJson()).toList(),
       };
 }
 
@@ -146,4 +151,28 @@ class LocalizedTitle {
         'en': en,
         'ar': ar,
       };
+}
+
+class ContainerImage {
+  final int id;
+  final String url;
+
+  ContainerImage({
+    required this.id,
+    required this.url,
+  });
+
+  factory ContainerImage.fromJson(Map<String, dynamic> json) {
+    return ContainerImage(
+      id: json['id'],
+      url: json['url'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'url': url,
+    };
+  }
 }

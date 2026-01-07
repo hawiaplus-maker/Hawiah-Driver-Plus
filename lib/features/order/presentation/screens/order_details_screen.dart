@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hawiah_driver/core/custom_widgets/custom_app_bar/custom_app_bar.dart';
 import 'package:hawiah_driver/core/custom_widgets/custom_button.dart';
+import 'package:hawiah_driver/core/custom_widgets/custom_image/custom_network_image.dart';
 import 'package:hawiah_driver/core/custom_widgets/custom_loading/custom_loading.dart';
 import 'package:hawiah_driver/core/custom_widgets/global-elevated-button-widget.dart';
 import 'package:hawiah_driver/core/images/image_methods.dart';
@@ -104,6 +105,35 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 ? _buildCurrentOrderInfo(ordersData, support, isDelivered)
                 : UserCardWidget(ordersData: ordersData),
 
+            if (ordersData.data?.containerImages?.isNotEmpty ?? false) ...[
+              Text(AppLocaleKey.imagesFromDeliveryLocation.tr(), style: AppTextStyle.text16_700),
+              const SizedBox(height: 16),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                  border: Border.all(color: AppColor.mainAppColor),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: GridView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 16,
+                      crossAxisSpacing: 16,
+                    ),
+                    itemCount: ordersData.data?.containerImages?.length ?? 0,
+                    itemBuilder: (context, index) {
+                      final image = ordersData.data?.containerImages?[index];
+                      return CustomNetworkImage(
+                          radius: 5, hasZoom: true, imageUrl: image?.url ?? "");
+                    },
+                  ),
+                ),
+              ),
+            ],
+
             // Empty container action (Order Status 9)
             if (ordersData.data?.orderStatus == 9) ...[
               const SizedBox(height: 20),
@@ -130,7 +160,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             const SizedBox(height: 20.0),
             SuppprtCardWidget(support: support),
           ],
-          const SizedBox(height: 50),
+          const SizedBox(height: 30),
           if (!isDelivered) _buildConfirmButton(ordersData),
         ],
       ),

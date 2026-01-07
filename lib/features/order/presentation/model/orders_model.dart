@@ -104,7 +104,7 @@ class SingleOrderData {
   List<VehicleModel>? vehicles;
   String? otp;
   String? user;
-  int? userId;
+  dynamic userId;
   String? userMobile;
   String? userImage;
   String? driverFcmToken;

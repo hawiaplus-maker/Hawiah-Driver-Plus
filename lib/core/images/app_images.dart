@@ -117,4 +117,10 @@ class AppImages {
   static const String emptyDataImage = 'assets/images/emptyDataImage.png';
   static const String whiteLogoImage = 'assets/images/whiteLogoImage.png';
   static const String appWhiteLogoImage = 'assets/images/appWhiteLogoImage.png';
+  static const String newAppLogoImage = 'assets/images/newAppLogoImage.png';
+  static const String callImage = 'assets/images/callImage.png';
+  static const String chatImage = 'assets/images/chatImage.png';
+  static const String codeImage = 'assets/images/codeImage.png';
+  static const String mainCallImage = 'assets/images/mainCallImage.png';
+  static const String serviceProviderImage = 'assets/images/serviceProviderImage.png';
 }

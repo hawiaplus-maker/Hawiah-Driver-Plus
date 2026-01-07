@@ -42,7 +42,7 @@ class SuppprtCardWidget extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Image.asset(AppImages.phoneSupport, height: 20.h, width: 20.w),
+                      Image.asset(AppImages.mainCallImage, height: 20.h, width: 20.w),
                       Gap(5.w),
                       Text(AppLocaleKey.connectede.tr(),
                           style: AppTextStyle.text16_600.copyWith(color: AppColor.mainAppColor)),

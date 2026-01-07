@@ -81,7 +81,7 @@ class HawiahDetails extends StatelessWidget {
                       Gap(15.h),
                       Row(
                         children: [
-                          Image.asset(AppImages.requestName, height: 24.h, width: 24.w),
+                          Image.asset(AppImages.codeImage, height: 24.h, width: 24.w),
                           RichText(
                             text: TextSpan(
                               children: [
@@ -106,7 +106,7 @@ class HawiahDetails extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Image.asset(AppImages.requestCode, height: 24.h, width: 24.w),
+                          Image.asset(AppImages.serviceProviderImage, height: 24.h, width: 24.w),
                           Text(
                             ordersDate.data?.serviceProvider.toString() ?? '',
                             style: AppTextStyle.text14_500.copyWith(
@@ -132,7 +132,7 @@ class HawiahDetails extends StatelessWidget {
                         padding: const EdgeInsets.all(8.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               AppLocaleKey.location.tr(),

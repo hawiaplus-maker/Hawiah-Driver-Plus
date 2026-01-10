@@ -11,9 +11,13 @@ import 'package:hawiah_driver/features/layout/presentation/screens/layout-screen
 @pragma('vm:entry-point')
 final FlutterLocalNotificationsPlugin _localNotifications =
     FlutterLocalNotificationsPlugin();
+
 @pragma('vm:entry-point')
 final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+
 late final GlobalKey<NavigatorState> navigatorKey;
+
+/// ================= BACKGROUND HANDLERS =================
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -22,21 +26,27 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 @pragma('vm:entry-point')
-void notificationTapBackground(NotificationResponse details) {
-  if (details.payload != null) {
-    final data = jsonDecode(details.payload!);
-    handleNotificationTap(data);
-  }
+void notificationTapBackground(NotificationResponse response) {
+  if (response.payload == null) return;
+  final data = jsonDecode(response.payload!);
+  handleNotificationTap(data);
 }
+
+/// ================= NOTIFICATION DATA =================
 
 enum NotificationType { trackOrder }
 
 class NotificationData {
   final NotificationType type;
   final int? orderId;
-  NotificationData._({required this.type, this.orderId});
+
+  NotificationData._({
+    required this.type,
+    this.orderId,
+  });
+
   factory NotificationData.fromMap(Map<String, dynamic> map) {
-    switch (map['notification_type'] as String?) {
+    switch (map['notification_type']?.toString()) {
       case '1':
         return NotificationData._(
           type: NotificationType.trackOrder,
@@ -50,35 +60,53 @@ class NotificationData {
   }
 }
 
+/// ================= LOCAL NOTIFICATION =================
+
 Future<void> _showLocalNotification(RemoteMessage message) async {
   final notification = message.notification;
+
+  // في iOS أحيانًا notification = null (data-only)
+  if (notification == null && message.data.isEmpty) return;
+
   final payload = jsonEncode(message.data);
+
   await _localNotifications.show(
-    notification.hashCode,
-    notification?.title,
-    notification?.body,
+    DateTime.now().millisecondsSinceEpoch ~/ 1000,
+    notification?.title ?? message.data['title'],
+    notification?.body ?? message.data['body'],
     const NotificationDetails(
       android: AndroidNotificationDetails(
         'high_importance',
-        'High Importance',
+        'High Importance Notifications',
         channelDescription: 'Important notifications',
+        importance: Importance.max,
+        priority: Priority.high,
         sound: RawResourceAndroidNotificationSound('custom_sound'),
         icon: '@mipmap/ic_launcher',
       ),
-      iOS: DarwinNotificationDetails(sound: 'custom_sound.caf'),
+      iOS: DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+        sound: 'custom_sound.caf',
+      ),
     ),
     payload: payload,
   );
 }
 
+/// ================= TAP HANDLING =================
+
 void handleNotificationTap(Map<String, dynamic> data) {
-  log('Handling notification tap with data: $data');
+  log('Notification tapped with data: $data');
+
   try {
     final notificationData = NotificationData.fromMap(data);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final ctx = navigatorKey.currentContext;
+
       if (ctx == null || !ctx.mounted) {
-        log('Context not available, retrying...');
         Future.delayed(const Duration(milliseconds: 500), () {
           if (navigatorKey.currentContext?.mounted ?? false) {
             _performNavigation(notificationData);
@@ -86,10 +114,11 @@ void handleNotificationTap(Map<String, dynamic> data) {
         });
         return;
       }
+
       _performNavigation(notificationData);
     });
   } catch (e) {
-    log('Error handling notification tap: $e');
+    log('Notification tap error: $e');
   }
 }
 
@@ -102,6 +131,8 @@ void _performNavigation(NotificationData data) {
   }
 }
 
+/// ================= MESSAGING SERVICE =================
+
 class MessagingService {
   MessagingService._();
 
@@ -109,56 +140,80 @@ class MessagingService {
     required GlobalKey<NavigatorState> navKey,
   }) async {
     navigatorKey = navKey;
+
+    /// Firebase init
     await Firebase.initializeApp();
+
+    /// Android channel
     await _createAndroidChannel();
 
+    /// Local notifications init
     await _localNotifications.initialize(
       const InitializationSettings(
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-        iOS: DarwinInitializationSettings(),
+        iOS: DarwinInitializationSettings(
+          requestAlertPermission: true,
+          requestBadgePermission: true,
+          requestSoundPermission: true,
+        ),
       ),
-      onDidReceiveNotificationResponse: (details) {
-        if (details.payload != null) {
-          final data = jsonDecode(details.payload!);
-          handleNotificationTap(data);
+      onDidReceiveNotificationResponse: (response) {
+        if (response.payload != null) {
+          handleNotificationTap(jsonDecode(response.payload!));
         }
       },
       onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
     );
 
+    /// Request permission (iOS APNs)
     final settings = await _firebaseMessaging.requestPermission(
       alert: true,
       badge: true,
       sound: true,
+      announcement: false,
+      provisional: false,
     );
-    log('Permission status: ${settings.authorizationStatus}');
 
-    FirebaseMessaging.onMessage.listen((msg) async {
-      await _showLocalNotification(msg);
-    });
-    FirebaseMessaging.onMessageOpenedApp.listen((msg) {
-      handleNotificationTap(msg.data);
-    });
+    log('Notification permission: ${settings.authorizationStatus}');
 
+    /// 🔑 IMPORTANT: wait for APNs token
+    final apnsToken = await _firebaseMessaging.getAPNSToken();
+    log('APNs Token: $apnsToken');
+
+    /// Foreground
+    FirebaseMessaging.onMessage.listen(_showLocalNotification);
+
+    /// Background → App opened
+    FirebaseMessaging.onMessageOpenedApp.listen(
+      (msg) => handleNotificationTap(msg.data),
+    );
+
+    /// Terminated
     final initialMessage = await _firebaseMessaging.getInitialMessage();
-    if (initialMessage != null) handleNotificationTap(initialMessage.data);
+    if (initialMessage != null) {
+      handleNotificationTap(initialMessage.data);
+    }
 
-    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    /// Background handler
+    FirebaseMessaging.onBackgroundMessage(
+      firebaseMessagingBackgroundHandler,
+    );
+
     return initialMessage;
   }
 
   static Future<void> _createAndroidChannel() async {
     const channel = AndroidNotificationChannel(
       'high_importance',
-      'High Importance',
+      'High Importance Notifications',
       description: 'Important notifications',
       importance: Importance.max,
       sound: RawResourceAndroidNotificationSound('custom_sound'),
     );
+
     await _localNotifications
         .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >()
+            AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
   }
 }

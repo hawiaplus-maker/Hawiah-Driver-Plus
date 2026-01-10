@@ -2,12 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- The following keys are used to specify the localization -->
-	<key>CFBundleLocalizations</key>
-	<array>
-		<string>en</string>
-		<string>ar</string>
-	</array>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -18,6 +14,11 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>ar</string>
+	</array>
 	<key>CFBundleName</key>
 	<string>Hawiah Driver Plus</string>
 	<key>CFBundlePackageType</key>
@@ -30,10 +31,22 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>We need access to your location to provide location-based services even when the app is in the background.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We need access to your location to provide location-based services within the app.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to allow you to upload your profile picture or documents.</string>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+	<key>UIBackgroundModes</key>
+	<array/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+	<key>UIStatusBarHidden</key>
+	<false/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
@@ -47,21 +60,22 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
-	<key>UIStatusBarHidden</key>
-	<false/>
+	<key>CFBundleDisplayName</key>
+    <string>Hawiah</string>
 
-	<!-- PERMISSIONS ADDED TO FIX APP STORE CONNECT ISSUE -->
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>We need access to your photo library to allow you to upload your profile picture or documents.</string>
+    <key>NSUserNotificationUsageDescription</key>
+    <string>We use notifications to notify you about orders, messages, and important updates.</string>
 
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>We need access to your location to provide location-based services within the app.</string>
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>remote-notification</string>
+    </array>
 
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>We need access to your location to provide location-based services even when the app is in the background.</string>
+    <key>FirebaseAppDelegateProxyEnabled</key>
+    <false/>
+
+    <key>UIApplicationSupportsIndirectInputEvents</key>
+    <true/>
+
 </dict>
 </plist>

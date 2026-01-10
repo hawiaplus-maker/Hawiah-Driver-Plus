@@ -5,8 +5,9 @@
     <uses-permission android:name="com.google.android.gms.permission.AD_ID" tools:node="remove"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" tools:node="remove"/>
-    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" tools:node="remove"/>
+
+
+
 
 
 
@@ -26,8 +27,10 @@
     </queries>
 
     <application
+
         android:label="@string/app_name"
         android:name="${applicationName}"
+        android:extractNativeLibs="false"
         android:icon="@mipmap/launcher_icon">
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -35,6 +38,9 @@
         <meta-data
               android:name="firebase_messaging_auto_initialization_enabled"
               android:value="false" />
+        <meta-data
+              android:name="com.google.firebase.messaging.default_notification_channel_id"
+              android:value="high_importance" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

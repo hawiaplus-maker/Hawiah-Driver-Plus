@@ -8,9 +8,8 @@ import 'package:hawiah_driver/core/theme/app_colors.dart';
 import 'package:hawiah_driver/core/theme/app_text_style.dart';
 import 'package:hawiah_driver/core/utils/url_luncher_methods.dart';
 
-
-class ReOrderAndEmptyHawiahButtons extends StatelessWidget {
-  const ReOrderAndEmptyHawiahButtons({
+class SuppprtCardWidget extends StatelessWidget {
+  const SuppprtCardWidget({
     super.key,
     required this.support,
   });
@@ -33,7 +32,7 @@ class ReOrderAndEmptyHawiahButtons extends StatelessWidget {
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             Expanded(
               child: GestureDetector(
-                onTap: () => UrlLauncherMethods.launchURL(support),
+                onTap: () => UrlLauncherMethods.makePhoneCall("+966$support"),
                 child: Container(
                   height: 45.h,
                   decoration: BoxDecoration(
@@ -43,7 +42,7 @@ class ReOrderAndEmptyHawiahButtons extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Image.asset(AppImages.phoneSupport, height: 20.h, width: 20.w),
+                      Image.asset(AppImages.mainCallImage, height: 20.h, width: 20.w),
                       Gap(5.w),
                       Text(AppLocaleKey.connectede.tr(),
                           style: AppTextStyle.text16_600.copyWith(color: AppColor.mainAppColor)),
@@ -55,7 +54,7 @@ class ReOrderAndEmptyHawiahButtons extends StatelessWidget {
             Gap(10.w),
             Expanded(
               child: GestureDetector(
-                onTap: () => UrlLauncherMethods.launchURL(support, isWhatsapp: true),
+                onTap: () => UrlLauncherMethods.launchWhatsApp("+966$support"),
                 child: Container(
                   height: 45.h,
                   decoration: BoxDecoration(

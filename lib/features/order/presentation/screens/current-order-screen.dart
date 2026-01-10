@@ -12,28 +12,28 @@ import 'package:hawiah_driver/core/theme/app_text_style.dart';
 import 'package:hawiah_driver/features/order/presentation/model/orders_model.dart';
 import 'package:hawiah_driver/features/order/presentation/order-cubit/order-cubit.dart';
 import 'package:hawiah_driver/features/order/presentation/screens/order-otp-screen.dart';
-import 'package:hawiah_driver/features/order/presentation/widget/hawiah_details.dart';
-import 'package:hawiah_driver/features/order/presentation/widget/support_card_widget.dart';
-import 'package:hawiah_driver/features/order/presentation/widget/user_card_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CurrentOrderScreen extends StatefulWidget {
   const CurrentOrderScreen(
-      {Key? key, required this.ordersDate, required SingleOrderData ordersData, required this.orderId})
+      {Key? key,
+      required this.ordersDate,
+      required SingleOrderData ordersData,
+      required this.orderId})
       : super(key: key);
   final SingleOrderData ordersDate;
- final int orderId;
+  final int orderId;
   @override
   State<CurrentOrderScreen> createState() => _CurrentOrderScreenState();
 }
 
 class _CurrentOrderScreenState extends State<CurrentOrderScreen> {
-  
   @override
-    void initState() {
+  void initState() {
     super.initState();
     context.read<OrderCubit>().singleOrder(orderId: widget.orderId);
   }
+
   Widget build(BuildContext context) {
     final double totalPrice = double.tryParse(widget.ordersDate.totalPrice ?? "0") ?? 0;
     final double vat = totalPrice * 0.15;
@@ -144,9 +144,9 @@ class _CurrentOrderScreenState extends State<CurrentOrderScreen> {
                 ),
                 child: Column(
                   children: [
-                   // ReOrderAndEmptyHawiahButtons(widget: widget),
+                    // ReOrderAndEmptyHawiahButtons(widget: widget),
                     SizedBox(height: 20.0),
-                   // UserCardWidget(ordersData: widget.ordersDate),
+                    // UserCardWidget(ordersData: widget.ordersDate),
                     // Row(
                     //   crossAxisAlignment: CrossAxisAlignment.start,
                     //   children: [

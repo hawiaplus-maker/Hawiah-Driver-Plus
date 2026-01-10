@@ -23,11 +23,15 @@ class OrderChange extends OrderState {}
 
 class OrderRebuild extends OrderState {}
 
-class OrderError extends OrderState {}
+class OrderError extends OrderState {
+  final String message;
+  OrderError(this.message);
+}
 
 class OrderEmpty extends OrderState {}
 
 class Unauthenticated extends OrderState {}
+
 class CurrentOrderLoaded extends OrderState {
   final SingleOrderModel order;
   CurrentOrderLoaded(this.order);

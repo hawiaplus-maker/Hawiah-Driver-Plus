@@ -104,7 +104,7 @@ class AppLocaleKey {
   static const String chooseAction = "Chooseaction";
   static const String viewInvoice = "Viewinvoice";
   static const String invoiceCannotBeDisplayed = "Invoicecannotbedisplayed";
-  static const String emptytheContainer = "Emptythecontainer";
+  static const String emptythecontainer = "emptythecontainer";
   static const String contactTheDriver = "Contactthedriver";
   static const String contactSupport = "ContactSupport";
   static const String representativewasuncooperative = "representativewasuncooperative";
@@ -284,4 +284,13 @@ class AppLocaleKey {
   static const String orderReordered = 'orderReordered';
   static const String contactUser = 'contactUser';
   static const String startAtDate = 'startAtDate';
+  static const String pleaseEnableLocation = 'pleaseEnableLocation';
+  static const String locationServiceDisabled = 'locationServiceDisabled';
+  static const String enterVerificationCode = 'enterVerificationCode';
+  static const String invalidOtp = 'invalidOtp';
+  static const String updateTitle = 'update_title';
+  static const String updateContent = 'update_content';
+  static const String updateLater = 'update_later';
+  static const String updateNow = 'update_now';
+  static const String imagesFromDeliveryLocation = 'imagesFromDeliveryLocation';
 }

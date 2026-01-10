@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hawiah_driver/app_hawiah_driver_plus.dart';
 import 'package:hawiah_driver/core/custom_widgets/custom_app_bar/custom_app_bar.dart';
+import 'package:hawiah_driver/core/hive/hive_methods.dart';
 import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/core/theme/app_colors.dart';
 import 'package:hawiah_driver/features/app-language/presentation/controllers/app-language-cubit/app-language-cubit.dart';
@@ -105,12 +106,14 @@ class LanguageScreen extends StatelessWidget {
 
     if (language == "arabic") {
       await context.setLocale(const Locale("ar"));
+      HiveMethods.updateLang(Locale('ar'));
     } else if (language == "english") {
       await context.setLocale(const Locale("en"));
+      HiveMethods.updateLang(Locale('en'));
     } else if (language == "urdu") {
       await context.setLocale(const Locale("ur"));
+      HiveMethods.updateLang(Locale('ur'));
     }
-
     cubit.changeRebuild();
     HawiahPlusDriverApp.setMyAppState(context);
   }

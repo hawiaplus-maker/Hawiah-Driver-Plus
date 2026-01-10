@@ -64,7 +64,7 @@ class _OrderOtpScreenState extends State<OrderOtpScreen> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
-                    "enterVerificationCode".tr(),
+                    AppLocaleKey.enterVerificationCode.tr(),
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 10),
@@ -166,7 +166,7 @@ class _OrderOtpScreenState extends State<OrderOtpScreen> {
                               ),
                             )
                           : CommonMethods.showToast(
-                              message: 'not valid otp', type: ToastType.error);
+                              message: AppLocaleKey.invalidOtp.tr(), type: ToastType.error);
                     },
                   ),
                 ),
@@ -174,7 +174,7 @@ class _OrderOtpScreenState extends State<OrderOtpScreen> {
               Spacer(),
               SizedBox(height: 20),
               CustomButton(
-                text: "continue".tr(),
+                text: AppLocaleKey.continueing.tr(),
                 onPressed: () {
                   (isOtpValid)
                       ? Navigator.push(
@@ -189,7 +189,8 @@ class _OrderOtpScreenState extends State<OrderOtpScreen> {
                             ),
                           ),
                         )
-                      : CommonMethods.showToast(message: 'not valid otp', type: ToastType.error);
+                      : CommonMethods.showToast(
+                          message: AppLocaleKey.invalidOtp.tr(), type: ToastType.error);
                 },
               ),
               SizedBox(height: 40),

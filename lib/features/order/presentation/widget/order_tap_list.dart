@@ -34,14 +34,25 @@ class _OrderTapListState extends State<OrderTapList> {
 
   void _onScroll() {
     final cubit = context.read<OrderCubit>();
+    final canLoadMore = widget.isCurrent ? cubit.canLoadMoreCurrent : cubit.canLoadMoreOld;
+
     if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 150 &&
-        cubit.state is! OrderPaginationLoading) {
+        cubit.state is! OrderPaginationLoading &&
+        canLoadMore) {
       cubit.getOrders(
         orderStatus: widget.isCurrent ? 0 : 1,
         page: widget.isCurrent ? cubit.currentPageCurrent + 1 : cubit.currentPageOld + 1,
         isLoadMore: true,
       );
     }
+  }
+
+  Future<void> _onRefresh() async {
+    final cubit = context.read<OrderCubit>();
+    await cubit.getOrders(
+      orderStatus: widget.isCurrent ? 0 : 1,
+      isRefresh: true,
+    );
   }
 
   @override
@@ -78,68 +89,85 @@ class _OrderTapListState extends State<OrderTapList> {
           ));
         } else if (state is OrderSuccess) {
           if (orders.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SvgPicture.asset(
-                    AppImages.containerIcon,
-                    height: 120,
-                    colorFilter: ColorFilter.mode(AppColor.mainAppColor, BlendMode.srcIn),
-                  ),
-                  Text(
-                    widget.isCurrent
-                        ? AppLocaleKey.noCurrentOrders.tr()
-                        : AppLocaleKey.noOldOrders.tr(),
-                    style: AppTextStyle.text16_700,
-                  ),
-                  const SizedBox(height: 10),
-                  CustomButton(
-                    width: MediaQuery.of(context).size.width / 2.5,
-                    radius: 5,
-                    text: "request_hawaia".tr(),
-                  )
-                ],
+            return RefreshIndicator(
+              onRefresh: _onRefresh,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SvgPicture.asset(
+                              AppImages.containerIcon,
+                              height: 120,
+                              colorFilter: ColorFilter.mode(AppColor.mainAppColor, BlendMode.srcIn),
+                            ),
+                            Text(
+                              widget.isCurrent
+                                  ? AppLocaleKey.noCurrentOrders.tr()
+                                  : AppLocaleKey.noOldOrders.tr(),
+                              style: AppTextStyle.text16_700,
+                            ),
+                            const SizedBox(height: 10),
+                            CustomButton(
+                              width: MediaQuery.of(context).size.width / 2.5,
+                              radius: 5,
+                              text: "request_hawaia".tr(),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
             );
           }
         }
 
-        return ListView.separated(
-          separatorBuilder: (context, index) => const SizedBox(height: 7),
-          controller: _scrollController,
-          itemCount: orders.length + (isPaginating ? 1 : 0),
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          itemBuilder: (context, index) {
-            if (index < orders.length) {
-              final order = orders[index];
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => OrderDetailsScreen(
-                        orderId: order.id ?? 0,
-                        isCurrent: widget.isCurrent,
+        return RefreshIndicator(
+          onRefresh: _onRefresh,
+          child: ListView.separated(
+            physics: const AlwaysScrollableScrollPhysics(),
+            separatorBuilder: (context, index) => const SizedBox(height: 7),
+            controller: _scrollController,
+            itemCount: orders.length + (isPaginating ? 1 : 0),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemBuilder: (context, index) {
+              if (index < orders.length) {
+                final order = orders[index];
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => OrderDetailsScreen(
+                          orderId: order.id ?? 0,
+                          isCurrent: widget.isCurrent,
+                        ),
                       ),
+                    );
+                  },
+                  child: OrderCardWidget(order: order),
+                );
+              } else {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: Center(
+                    child: CustomShimmer(
+                      height: 120,
+                      width: double.infinity,
+                      radius: 15,
                     ),
-                  );
-                },
-                child: OrderCardWidget(order: order),
-              );
-            } else {
-              return const Padding(
-                padding: EdgeInsets.symmetric(vertical: 20),
-                child: Center(
-                  child: CustomShimmer(
-                    height: 120,
-                    width: double.infinity,
-                    radius: 15,
                   ),
-                ),
-              );
-            }
-          },
+                );
+              }
+            },
+          ),
         );
       },
     );

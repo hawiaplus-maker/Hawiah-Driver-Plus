@@ -11,13 +11,13 @@ import 'package:hawiah_driver/core/custom_widgets/custom_button.dart';
 import 'package:hawiah_driver/core/custom_widgets/custom_loading/custom_loading.dart';
 import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/core/theme/app_colors.dart';
+import 'package:hawiah_driver/core/utils/common_methods.dart';
 import 'package:hawiah_driver/features/layout/presentation/screens/layout-screen.dart';
 import 'package:hawiah_driver/features/order/presentation/order-cubit/order-cubit.dart';
 import 'package:hawiah_driver/features/order/presentation/order-cubit/order-state.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../../../core/custom_widgets/global-elevated-button-widget.dart';
-import '../../../../core/images/app_images.dart';
 
 class ConfirmationScreen extends StatefulWidget {
   const ConfirmationScreen(
@@ -199,36 +199,37 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                 ),
               );
             } else if (state is OrderError) {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  backgroundColor: AppColor.whiteColor,
-                  content: Container(
-                    height: 150.h,
-                    width: 200.h,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Image.asset(AppImages.error, height: 40.h),
-                        Text(AppLocaleKey.checkTheData.tr()),
-                        GlobalElevatedButton(
-                          label: AppLocaleKey.ok.tr(),
-                          onPressed: () {
-                            Navigator.pop(context);
-                            Navigator.pop(context);
-                            Navigator.pop(context);
-                          },
-                          backgroundColor: Colors.red,
-                          textColor: Colors.white,
-                          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                          borderRadius: BorderRadius.circular(10),
-                          fixedWidth: 0.35, // 80% of the screen width
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
+              CommonMethods.showToast(message: state.message);
+              // showDialog(
+              //   context: context,
+              //   builder: (context) => AlertDialog(
+              //     backgroundColor: AppColor.whiteColor,
+              //     content: Container(
+              //       height: 150.h,
+              //       width: 200.h,
+              //       child: Column(
+              //         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              //         children: [
+              //           Image.asset(AppImages.error, height: 40.h),
+              //           Text(AppLocaleKey.checkTheData.tr()),
+              //           GlobalElevatedButton(
+              //             label: AppLocaleKey.ok.tr(),
+              //             onPressed: () {
+              //               Navigator.pop(context);
+              //               Navigator.pop(context);
+              //               Navigator.pop(context);
+              //             },
+              //             backgroundColor: Colors.red,
+              //             textColor: Colors.white,
+              //             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              //             borderRadius: BorderRadius.circular(10),
+              //             fixedWidth: 0.35, // 80% of the screen width
+              //           ),
+              //         ],
+              //       ),
+              //     ),
+              //   ),
+              // );
               loading = false;
             } else if (state is OrderLoading) {
               loading = true;

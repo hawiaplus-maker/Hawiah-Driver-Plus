@@ -9,8 +9,7 @@ class LocationService {
 
   Future<LocationData?> getCurrentLocation() async {
     try {
-      if (await checkAndRequestLocationService() &&
-          await checkAndRequestLocationPermission()) {
+      if (await checkAndRequestLocationService() && await checkAndRequestLocationPermission()) {
         return await _location.getLocation();
       }
       return null;
@@ -18,6 +17,10 @@ class LocationService {
       print("Error getting location: $e");
       return null;
     }
+  }
+
+  Future<LocationData> getLocation() async {
+    return await _location.getLocation();
   }
 
   Future<bool> checkAndRequestLocationService() async {
@@ -39,11 +42,11 @@ class LocationService {
     return permission == PermissionStatus.granted;
   }
 
-
   void getLocationData(void Function(LocationData)? onData) async {
     _location.onLocationChanged.listen(onData);
   }
-   void pauseLocationStream() {
+
+  void pauseLocationStream() {
     _locationSubscription?.pause();
     _isListening = false;
   }
@@ -63,6 +66,5 @@ class LocationService {
 
   void dispose() {
     _locationSubscription?.cancel();
-    
   }
 }

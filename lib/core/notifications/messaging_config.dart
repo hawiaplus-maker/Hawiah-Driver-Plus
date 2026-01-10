@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:ui' as ui; // ضروري لمعرفة لغة الجهاز في الخلفية
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -9,8 +10,7 @@ import 'package:hawiah_driver/core/utils/navigator_methods.dart';
 import 'package:hawiah_driver/features/layout/presentation/screens/layout-screen.dart';
 
 @pragma('vm:entry-point')
-final FlutterLocalNotificationsPlugin _localNotifications =
-    FlutterLocalNotificationsPlugin();
+final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
 
 @pragma('vm:entry-point')
 final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
@@ -22,7 +22,12 @@ late final GlobalKey<NavigatorState> navigatorKey;
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  await _showLocalNotification(message);
+
+  // إذا كان الإشعار يحتوي على "notification"، فأندرويد يظهره تلقائياً في الخلفية.
+  // لذا لا نستدعي _showLocalNotification هنا لتجنب التكرار (إلا إذا كان data-only).
+  if (message.notification == null) {
+    await _showLocalNotification(message);
+  }
 }
 
 @pragma('vm:entry-point')
@@ -32,30 +37,27 @@ void notificationTapBackground(NotificationResponse response) {
   handleNotificationTap(data);
 }
 
-/// ================= NOTIFICATION DATA =================
-
-enum NotificationType { trackOrder }
+enum NotificationType { trackOrder, unknown }
 
 class NotificationData {
   final NotificationType type;
   final int? orderId;
-
-  NotificationData._({
-    required this.type,
-    this.orderId,
-  });
+  NotificationData._({required this.type, this.orderId});
 
   factory NotificationData.fromMap(Map<String, dynamic> map) {
-    switch (map['notification_type']?.toString()) {
-      case '1':
-        return NotificationData._(
-          type: NotificationType.trackOrder,
-          orderId: int.tryParse(map['order_id']?.toString() ?? ''),
-        );
-      default:
-        throw ArgumentError(
-          'Unsupported notification type: ${map['notification_type']}',
-        );
+    try {
+      // بناءً على الـ payload الجديد، تأكد من مفتاح نوع الإشعار (مثلاً notification_type)
+      switch (map['notification_type'] as String?) {
+        case '1':
+          return NotificationData._(
+            type: NotificationType.trackOrder,
+            orderId: int.tryParse(map['order_id']?.toString() ?? ''),
+          );
+        default:
+          return NotificationData._(type: NotificationType.unknown);
+      }
+    } catch (e) {
+      return NotificationData._(type: NotificationType.unknown);
     }
   }
 }
@@ -63,17 +65,31 @@ class NotificationData {
 /// ================= LOCAL NOTIFICATION =================
 
 Future<void> _showLocalNotification(RemoteMessage message) async {
+  final data = message.data;
   final notification = message.notification;
 
-  // في iOS أحيانًا notification = null (data-only)
-  if (notification == null && message.data.isEmpty) return;
+  // 1. تحديد لغة الجهاز الحالية
+  // نستخدم PlatformDispatcher لأنه يعمل حتى لو التطبيق في الخلفية/مغلق
+  String languageCode = ui.PlatformDispatcher.instance.locale.languageCode;
 
-  final payload = jsonEncode(message.data);
+  // 2. اختيار العنوان والمحتوى بناءً على اللغة المرسلة في الـ data
+  String title = '';
+  String body = '';
+
+  if (languageCode == 'ar') {
+    title = data['title_ar'] ?? notification?.title ?? "إشعار جديد";
+    body = data['message_ar'] ?? notification?.body ?? "";
+  } else {
+    title = data['title_en'] ?? notification?.title ?? "New Notification";
+    body = data['message_en'] ?? notification?.body ?? "";
+  }
+
+  final payload = jsonEncode(data);
 
   await _localNotifications.show(
-    DateTime.now().millisecondsSinceEpoch ~/ 1000,
-    notification?.title ?? message.data['title'],
-    notification?.body ?? message.data['body'],
+    message.hashCode,
+    title,
+    body,
     const NotificationDetails(
       android: AndroidNotificationDetails(
         'high_importance',
@@ -83,6 +99,7 @@ Future<void> _showLocalNotification(RemoteMessage message) async {
         priority: Priority.high,
         sound: RawResourceAndroidNotificationSound('custom_sound'),
         icon: '@mipmap/ic_launcher',
+      
       ),
       iOS: DarwinNotificationDetails(
         presentAlert: true,
@@ -98,37 +115,30 @@ Future<void> _showLocalNotification(RemoteMessage message) async {
 /// ================= TAP HANDLING =================
 
 void handleNotificationTap(Map<String, dynamic> data) {
-  log('Notification tapped with data: $data');
+  log('Handling notification tap with data: $data');
 
-  try {
-    final notificationData = NotificationData.fromMap(data);
+  WidgetsBinding.instance.addPostFrameCallback((_) async {
+    int retryCount = 0;
+    while (navigatorKey.currentState == null && retryCount < 10) {
+      await Future.delayed(const Duration(milliseconds: 500));
+      retryCount++;
+    }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final ctx = navigatorKey.currentContext;
-
-      if (ctx == null || !ctx.mounted) {
-        Future.delayed(const Duration(milliseconds: 500), () {
-          if (navigatorKey.currentContext?.mounted ?? false) {
-            _performNavigation(notificationData);
-          }
-        });
-        return;
-      }
-
+    final ctx = navigatorKey.currentContext;
+    if (ctx != null) {
+      final notificationData = NotificationData.fromMap(data);
       _performNavigation(notificationData);
-    });
-  } catch (e) {
-    log('Notification tap error: $e');
-  }
+    }
+  });
 }
 
 void _performNavigation(NotificationData data) {
-  final ctx = navigatorKey.currentContext!;
-  switch (data.type) {
-    case NotificationType.trackOrder:
-      NavigatorMethods.pushNamed(ctx, LayoutScreen.routeName);
-      break;
-  }
+  final ctx = navigatorKey.currentContext;
+  if (ctx == null) return;
+
+  log('Navigating to LayoutScreen from notification...');
+  // الانتقال للرئيسية ومسح كل ما قبلها
+  NavigatorMethods.pushNamedAndRemoveUntil(ctx, LayoutScreen.routeName);
 }
 
 /// ================= MESSAGING SERVICE =================
@@ -136,7 +146,7 @@ void _performNavigation(NotificationData data) {
 class MessagingService {
   MessagingService._();
 
-  static Future<RemoteMessage?> init({
+  static Future<void> init({
     required GlobalKey<NavigatorState> navKey,
   }) async {
     navigatorKey = navKey;
@@ -147,7 +157,7 @@ class MessagingService {
     /// Android channel
     await _createAndroidChannel();
 
-    /// Local notifications init
+    // 1. تهيئة الإشعارات المحلية
     await _localNotifications.initialize(
       const InitializationSettings(
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
@@ -165,8 +175,8 @@ class MessagingService {
       onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
     );
 
-    /// Request permission (iOS APNs)
-    final settings = await _firebaseMessaging.requestPermission(
+    // 2. طلب التصاريح
+    await _firebaseMessaging.requestPermission(
       alert: true,
       badge: true,
       sound: true,
@@ -174,32 +184,27 @@ class MessagingService {
       provisional: false,
     );
 
-    log('Notification permission: ${settings.authorizationStatus}');
+    // 3. التطبيق مفتوح (Foreground)
+    FirebaseMessaging.onMessage.listen((msg) async {
+      log('Foreground message received: Showing localized notification');
+      await _showLocalNotification(msg);
+    });
 
-    /// 🔑 IMPORTANT: wait for APNs token
-    final apnsToken = await _firebaseMessaging.getAPNSToken();
-    log('APNs Token: $apnsToken');
+    // 4. الضغط من الخلفية (Background)
+    FirebaseMessaging.onMessageOpenedApp.listen((msg) {
+      log('Notification tapped (Background)');
+      handleNotificationTap(msg.data);
+    });
 
-    /// Foreground
-    FirebaseMessaging.onMessage.listen(_showLocalNotification);
-
-    /// Background → App opened
-    FirebaseMessaging.onMessageOpenedApp.listen(
-      (msg) => handleNotificationTap(msg.data),
-    );
-
-    /// Terminated
+    // 5. الضغط والتطبيق مغلق تماماً (Terminated)
     final initialMessage = await _firebaseMessaging.getInitialMessage();
     if (initialMessage != null) {
+      log('Notification tapped (Terminated)');
       handleNotificationTap(initialMessage.data);
     }
 
-    /// Background handler
-    FirebaseMessaging.onBackgroundMessage(
-      firebaseMessagingBackgroundHandler,
-    );
-
-    return initialMessage;
+    // 6. معالج الخلفية
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   }
 
   static Future<void> _createAndroidChannel() async {
@@ -212,8 +217,7 @@ class MessagingService {
     );
 
     await _localNotifications
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
   }
 }

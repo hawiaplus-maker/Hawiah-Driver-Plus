@@ -41,7 +41,8 @@ class ProfileCubit extends Cubit<ProfileState> {
         onError?.call();
         return;
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      log("Exception in fetchProfile: $e", stackTrace: stackTrace);
       emit(ProfileError("Failed to fetch profile: $e"));
       onError?.call();
     }

@@ -1,4 +1,7 @@
+import 'dart:ui';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hawiah_driver/core/hive/hive_methods.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app-language-state.dart';
@@ -16,8 +19,19 @@ class AppLanguageCubit extends Cubit<AppLanguageState> {
 
   changeLanguage({required String language}) async {
     languageSelected = language;
-    emit(AppLanguageChange(languageSelected: language));
 
+    emit(AppLanguageChange(languageSelected: language));
+    switch (language) {
+      case 'arabic':
+        HiveMethods.updateLang(Locale('ar'));
+        break;
+      case 'english':
+        HiveMethods.updateLang(Locale('en'));
+        break;
+      case 'urdu':
+        HiveMethods.updateLang(Locale('ur'));
+        break;
+    }
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('selected_language', language);
   }

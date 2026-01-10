@@ -53,7 +53,15 @@ class _SplashScreenState extends State<SplashScreen> {
             );
           },
           onError: () {
-            log("Navigation to AppLanguageScreen");
+            log("Navigation to LoginScreen (Error)");
+            if (!mounted) return;
+            Navigator.pushAndRemoveUntil<void>(
+              context,
+              MaterialPageRoute<void>(
+                builder: (BuildContext context) => const LoginScreen(),
+              ),
+              (route) => false,
+            );
           },
         );
       } else {
@@ -78,12 +86,10 @@ class _SplashScreenState extends State<SplashScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 30.0),
-            child: Center(
-              child: Image.asset(
-                AppImages.hawiahPlus,
-                height: 500,
-                width: 500,
-              ),
+            child: Image.asset(
+              AppImages.newAppLogoImage,
+              height: 500,
+              width: 500,
             ),
           ),
         ],

@@ -7,6 +7,7 @@ import 'package:hawiah_driver/core/images/app_images.dart';
 import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/core/theme/app_colors.dart';
 import 'package:hawiah_driver/core/theme/app_text_style.dart';
+import 'package:hawiah_driver/core/utils/url_luncher_methods.dart';
 import 'package:hawiah_driver/features/order/presentation/model/single_order_model.dart';
 
 class HawiahDetails extends StatelessWidget {
@@ -55,6 +56,7 @@ class HawiahDetails extends StatelessWidget {
               ),
               Gap(15.h),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   // Vehicle Image
                   Flexible(
@@ -68,7 +70,7 @@ class HawiahDetails extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(width: 20.w),
+
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -79,7 +81,7 @@ class HawiahDetails extends StatelessWidget {
                       Gap(15.h),
                       Row(
                         children: [
-                          Image.asset(AppImages.requestName, height: 24.h, width: 24.w),
+                          Image.asset(AppImages.codeImage, height: 24.h, width: 24.w),
                           RichText(
                             text: TextSpan(
                               children: [
@@ -102,8 +104,9 @@ class HawiahDetails extends StatelessWidget {
                       ),
                       Gap(15.h),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Image.asset(AppImages.requestCode, height: 24.h, width: 24.w),
+                          Image.asset(AppImages.serviceProviderImage, height: 24.h, width: 24.w),
                           Text(
                             ordersDate.data?.serviceProvider.toString() ?? '',
                             style: AppTextStyle.text14_500.copyWith(
@@ -112,32 +115,38 @@ class HawiahDetails extends StatelessWidget {
                           ),
                         ],
                       ),
-                      Gap(15.h),
-                      // Row(
-                      //   children: [
-                      //     Text(
-                      //       AppLocaleKey.confirmNumber.tr(),
-                      //       style: AppTextStyle.text14_500,
-                      //     ),
-                      //     Gap(5.w),
-                      //     // Container(
-                      //     //   padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                      //     //   decoration: BoxDecoration(
-                      //     //     color: Color(0xffF3E8FF),
-                      //     //     borderRadius: BorderRadius.circular(11),
-                      //     //   ),
-                      //     //   child: Column(
-                      //     //     mainAxisAlignment: MainAxisAlignment.center,
-                      //     //     children: [
-                      //     //       Text(ordersDate.data?.otp.toString() ?? '',
-                      //     //           style:
-                      //     //               AppTextStyle.text12_400.copyWith(color: Color(0xff6E11B0))),
-                      //     //     ],
-                      //     //   ),
-                      //     // ),
-                      //   ],
-                      // ),
                     ],
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      UrlLauncherMethods.launchGoogleMap(
+                          double.tryParse(ordersDate.data?.latitude ?? "0.0") ?? 0.0,
+                          double.tryParse(ordersDate.data?.longitude ?? "0.0") ?? 0.0);
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: AppColor.mainAppColor.withAlpha(50),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              AppLocaleKey.location.tr(),
+                              style: AppTextStyle.text14_500,
+                            ),
+                            Image.asset(
+                              AppImages.locationMainImage,
+                              height: 20.h,
+                              width: 20.w,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),

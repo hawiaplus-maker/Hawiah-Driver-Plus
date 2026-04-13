@@ -17,6 +17,8 @@ final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
 late final GlobalKey<NavigatorState> navigatorKey;
 
+/// ================= BACKGROUND HANDLERS =================
+
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -29,11 +31,10 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 @pragma('vm:entry-point')
-void notificationTapBackground(NotificationResponse details) {
-  if (details.payload != null) {
-    final data = jsonDecode(details.payload!);
-    handleNotificationTap(data);
-  }
+void notificationTapBackground(NotificationResponse response) {
+  if (response.payload == null) return;
+  final data = jsonDecode(response.payload!);
+  handleNotificationTap(data);
 }
 
 enum NotificationType { trackOrder, unknown }
@@ -60,6 +61,8 @@ class NotificationData {
     }
   }
 }
+
+/// ================= LOCAL NOTIFICATION =================
 
 Future<void> _showLocalNotification(RemoteMessage message) async {
   final data = message.data;
@@ -90,18 +93,26 @@ Future<void> _showLocalNotification(RemoteMessage message) async {
     const NotificationDetails(
       android: AndroidNotificationDetails(
         'high_importance',
-        'High Importance',
+        'High Importance Notifications',
         channelDescription: 'Important notifications',
-        sound: RawResourceAndroidNotificationSound('custom_sound'),
-        icon: '@mipmap/ic_launcher',
         importance: Importance.max,
         priority: Priority.high,
+        sound: RawResourceAndroidNotificationSound('custom_sound'),
+        icon: '@mipmap/ic_launcher',
+      
       ),
-      iOS: DarwinNotificationDetails(sound: 'custom_sound.caf'),
+      iOS: DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+        sound: 'custom_sound.caf',
+      ),
     ),
     payload: payload,
   );
 }
+
+/// ================= TAP HANDLING =================
 
 void handleNotificationTap(Map<String, dynamic> data) {
   log('Handling notification tap with data: $data');
@@ -130,6 +141,8 @@ void _performNavigation(NotificationData data) {
   NavigatorMethods.pushNamedAndRemoveUntil(ctx, LayoutScreen.routeName);
 }
 
+/// ================= MESSAGING SERVICE =================
+
 class MessagingService {
   MessagingService._();
 
@@ -137,19 +150,26 @@ class MessagingService {
     required GlobalKey<NavigatorState> navKey,
   }) async {
     navigatorKey = navKey;
+
+    /// Firebase init
     await Firebase.initializeApp();
+
+    /// Android channel
     await _createAndroidChannel();
 
     // 1. تهيئة الإشعارات المحلية
     await _localNotifications.initialize(
       const InitializationSettings(
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-        iOS: DarwinInitializationSettings(),
+        iOS: DarwinInitializationSettings(
+          requestAlertPermission: true,
+          requestBadgePermission: true,
+          requestSoundPermission: true,
+        ),
       ),
-      onDidReceiveNotificationResponse: (details) {
-        if (details.payload != null) {
-          final data = jsonDecode(details.payload!);
-          handleNotificationTap(data);
+      onDidReceiveNotificationResponse: (response) {
+        if (response.payload != null) {
+          handleNotificationTap(jsonDecode(response.payload!));
         }
       },
       onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
@@ -160,6 +180,8 @@ class MessagingService {
       alert: true,
       badge: true,
       sound: true,
+      announcement: false,
+      provisional: false,
     );
 
     // 3. التطبيق مفتوح (Foreground)
@@ -188,11 +210,12 @@ class MessagingService {
   static Future<void> _createAndroidChannel() async {
     const channel = AndroidNotificationChannel(
       'high_importance',
-      'High Importance',
+      'High Importance Notifications',
       description: 'Important notifications',
       importance: Importance.max,
       sound: RawResourceAndroidNotificationSound('custom_sound'),
     );
+
     await _localNotifications
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);

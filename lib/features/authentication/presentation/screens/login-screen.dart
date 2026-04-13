@@ -107,15 +107,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               (route) => false,
             );
-          } else if (state is AuthError) {
-            Fluttertoast.showToast(
-              msg: state.message,
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.BOTTOM,
-              backgroundColor: Colors.redAccent,
-              textColor: Colors.white,
-              fontSize: 16.0,
-            );
           }
         },
       ),

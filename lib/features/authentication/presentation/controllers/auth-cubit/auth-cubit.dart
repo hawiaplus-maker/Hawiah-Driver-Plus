@@ -370,7 +370,7 @@ class AuthCubit extends Cubit<AuthState> {
     );
 
     if (response.state == ResponseState.complete && response.data['success'] == true) {
-      final message = response.getMessage().isNotEmpty ? response.getMessage() : 'تم إرسال رمز التحقق مجددًا';
+      final message = response.getMessage().isNotEmpty ? response.getMessage() : tr(AppLocaleKey.verificationCodeResent);
 
       Fluttertoast.showToast(
         msg: message,
@@ -414,7 +414,7 @@ class AuthCubit extends Cubit<AuthState> {
     );
 
     if (response.state == ResponseState.complete && response.data['success'] == true) {
-      final message = response.getMessage().isNotEmpty ? response.getMessage() : 'تم إرسال رمز التحقق مجددًا';
+      final message = response.getMessage().isNotEmpty ? response.getMessage() : tr(AppLocaleKey.verificationCodeResent);
       final data = response.data['data'];
 
       Fluttertoast.showToast(
@@ -458,7 +458,7 @@ class AuthCubit extends Cubit<AuthState> {
       hasToken: false,
     );
     if (response.state == ResponseState.complete && response.data['success'] == true) {
-      final message = response.getMessage().isNotEmpty ? response.getMessage() : 'تم إرسال رمز التحقق مجددًا';
+      final message = response.getMessage().isNotEmpty ? response.getMessage() : tr(AppLocaleKey.verificationCodeResent);
 
       Fluttertoast.showToast(
         msg: message,

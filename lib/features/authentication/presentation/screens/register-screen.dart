@@ -85,7 +85,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         );
       }, listener: (context, state) {
-        if (state is AuthSuccess) {
+        if (state is AuthRegisterSuccess) {
           Fluttertoast.showToast(
             msg: state.message,
             toastLength: Toast.LENGTH_LONG,

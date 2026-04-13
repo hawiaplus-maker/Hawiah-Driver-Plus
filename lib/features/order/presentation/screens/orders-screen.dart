@@ -9,6 +9,7 @@ import 'package:hawiah_driver/core/theme/app_colors.dart';
 import 'package:hawiah_driver/core/theme/app_text_style.dart';
 import 'package:hawiah_driver/core/utils/navigator_methods.dart';
 import 'package:hawiah_driver/features/authentication/presentation/dialog/unauthenticated_dialog.dart';
+import 'package:hawiah_driver/features/authentication/presentation/screens/login-screen.dart';
 import 'package:hawiah_driver/features/order/presentation/widget/order_tap_list.dart';
 import 'package:hawiah_driver/injection_container.dart';
 
@@ -102,10 +103,14 @@ class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderSt
             Expanded(
               child: BlocConsumer<OrderCubit, OrderState>(
                 listener: (context, state) async {
-                  if (state is Unauthenticated && !_isDialogOpen) {
-                    _isDialogOpen = true;
-                    await NavigatorMethods.showAppDialog(context, UnauthenticatedDialog());
-                    _isDialogOpen = false;
+                  if (state is Unauthenticated) {
+                    Navigator.pushAndRemoveUntil<void>(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (BuildContext context) => const LoginScreen(),
+                      ),
+                      (route) => false,
+                    );
                   }
                 },
                 builder: (context, state) {

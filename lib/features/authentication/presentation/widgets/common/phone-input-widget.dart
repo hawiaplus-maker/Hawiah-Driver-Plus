@@ -23,6 +23,7 @@ class PhoneInputWidget extends StatelessWidget {
       onChanged: (value) {
         authCubit.PhoneController.text = value;
       },
+      keyboardType: TextInputType.phone,
     );
   }
 }

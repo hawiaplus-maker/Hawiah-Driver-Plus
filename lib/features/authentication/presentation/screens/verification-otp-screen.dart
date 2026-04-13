@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart' as es;
+import 'package:hawiah_driver/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -37,7 +38,7 @@ class _VerificationOtpScreenState extends State<VerificationOtpScreen> {
   @override
   void dispose() {
     otpController.dispose();
-    context.read<AuthCubit>().timer.cancel();
+    sl<AuthCubit>().stopTimer();
     super.dispose();
   }
   // @override
@@ -251,10 +252,10 @@ class _VerificationOtpScreenState extends State<VerificationOtpScreen> {
               fontSize: 16.0,
             );
           }
-          if (state is AuthSuccess) {
+          if (state is AuthOtpSuccess) {
             final authCubit = AuthCubit.get(context);
             final isResetPassword = authCubit.isResetPassword;
-            context.read<AuthCubit>().timer.cancel();
+            authCubit.stopTimer();
 
             if (isResetPassword) {
               Navigator.push(

@@ -4,7 +4,9 @@ import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/core/networking/api_helper.dart';
 import 'package:hawiah_driver/core/networking/urls.dart';
 import 'package:hawiah_driver/features/profile/presentation/cubit/state_profile.dart';
@@ -37,7 +39,8 @@ class ProfileCubit extends Cubit<ProfileState> {
       }
 
       if (response.state == ResponseState.error) {
-        emit(ProfileError(response.data?['message'] ?? "Failed to fetch profile"));
+        emit(ProfileError(
+            response.getMessage().isNotEmpty ? response.getMessage() : "Failed to fetch profile"));
         onError?.call();
         return;
       }
@@ -98,26 +101,27 @@ class ProfileCubit extends Cubit<ProfileState> {
       );
 
       // 6. التحقق من الاستجابة
-      if (response.state == ResponseState.complete &&
-          (response.data != null && response.data['message'] != null)) {
-        final message = response.data['message'] ?? 'تم التحديث بنجاح';
+      if (response.state == ResponseState.complete) {
+        final message = response.getMessage().isNotEmpty
+            ? response.getMessage()
+            : tr(AppLocaleKey.updatedSuccessfully);
 
         // إعادة طلب البروفايل لتحديث البيانات في الواجهة
         await fetchProfile();
 
         emit(ProfileUpdateSuccess(message));
+      } else if (response.state == ResponseState.unauthorized) {
+        emit(ProfileUnAuthorized());
       } else {
         // محاولة استخراج رسالة الخطأ
-        String errorMsg = "فشل تحديث البيانات";
-        if (response.data != null) {
-          if (response.data['message'] != null) errorMsg = response.data['message'];
-          if (response.data['errors'] != null) errorMsg = response.data['errors'].toString();
-        }
+        String errorMsg = response.getMessage().isNotEmpty
+            ? response.getMessage()
+            : tr(AppLocaleKey.failedToUpdateData);
         emit(ProfileError(errorMsg));
       }
     } catch (e) {
       log("Update Error: $e");
-      emit(ProfileError("حدث خطأ أثناء التحديث: $e"));
+      emit(ProfileError("${tr(AppLocaleKey.errorDuringUpdate)}: $e"));
     }
   }
 

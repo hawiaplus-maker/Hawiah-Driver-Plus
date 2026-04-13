@@ -90,7 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
               fontSize: 16.0,
             );
           }
-          if (state is AuthSuccess) {
+          if (state is AuthLoginSuccess) {
             Fluttertoast.showToast(
               msg: state.message,
               toastLength: Toast.LENGTH_LONG,

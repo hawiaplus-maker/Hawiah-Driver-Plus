@@ -11,6 +11,7 @@ import 'package:hawiah_driver/core/networking/api_helper.dart';
 import 'package:hawiah_driver/core/networking/urls.dart';
 import 'package:hawiah_driver/core/utils/common_methods.dart';
 import 'package:hawiah_driver/core/utils/navigator_methods.dart';
+import 'package:hawiah_driver/features/authentication/presentation/screens/login-screen.dart';
 import 'package:hawiah_driver/features/order/presentation/model/orders_model.dart';
 import 'package:hawiah_driver/features/order/presentation/model/single_order_model.dart'
     hide SingleOrderData;
@@ -18,6 +19,7 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import '../../../../core/routes/app_routers_import.dart';
 import 'order-state.dart';
 
 class OrderCubit extends Cubit<OrderState> {
@@ -157,10 +159,20 @@ class OrderCubit extends Cubit<OrderState> {
           isLoadingOld = false;
           isLoadingMoreOld = false;
         }
-        emit(OrderError(
-          _ordersResponse.data['message'],
-        ));
+
+        // Use response.getMessage() or fallback to the exception message
+        final errorMsg = response.getMessage().isNotEmpty ? response.getMessage() : e.toString();
+        emit(OrderError(errorMsg));
       }
+    } else if (response.state == ResponseState.unauthorized) {
+      if (isCurrent) {
+        isLoadingCurrent = false;
+        isLoadingMoreCurrent = false;
+      } else {
+        isLoadingOld = false;
+        isLoadingMoreOld = false;
+      }
+      emit(Unauthenticated());
     } else {
       if (isCurrent) {
         isLoadingCurrent = false;
@@ -169,7 +181,11 @@ class OrderCubit extends Cubit<OrderState> {
         isLoadingOld = false;
         isLoadingMoreOld = false;
       }
-      emit(OrderError(_ordersResponse.data['message']));
+
+      final errorMsg =
+          response.getMessage().isNotEmpty ? response.getMessage() : "Failed to load orders";
+
+      emit(OrderError(errorMsg));
     }
   }
 
@@ -245,7 +261,9 @@ class OrderCubit extends Cubit<OrderState> {
     if (_ordersResponse.data['success'] == true) {
       emit(OrderConfirmed(success: _success));
     } else {
-      emit(OrderError(_ordersResponse.data['message']));
+      emit(OrderError(_ordersResponse.getMessage().isNotEmpty
+          ? _ordersResponse.getMessage()
+          : tr(AppLocaleKey.unknownError)));
     }
   }
 
@@ -284,7 +302,9 @@ class OrderCubit extends Cubit<OrderState> {
       emit(OrderConfirmed(success: _success));
       onSuccess.call();
     } else {
-      emit(OrderError(_ordersResponse.data['message']));
+      emit(OrderError(_emptyOrdersResponse.getMessage().isNotEmpty
+          ? _emptyOrdersResponse.getMessage()
+          : tr(AppLocaleKey.unknownError)));
     }
   }
 
@@ -308,12 +328,13 @@ class OrderCubit extends Cubit<OrderState> {
     if (response.state == ResponseState.complete) {
       onSuccess.call();
     } else if (response.state == ResponseState.unauthorized) {
-      CommonMethods.showAlertDialog(
-        message: tr(AppLocaleKey.youMustLogInFirst),
-      );
+      NavigatorMethods.pushNamedAndRemoveUntil(
+          AppRouters.navigatorKey.currentContext!, LoginScreen.routeName);
     } else {
       CommonMethods.showError(
-        message: response.data['message'] ?? 'حدث خطاء',
+        message: response.getMessage().isNotEmpty
+            ? response.getMessage()
+            : tr(AppLocaleKey.anErrorOccurred),
         apiResponse: response,
       );
     }
@@ -330,14 +351,17 @@ class OrderCubit extends Cubit<OrderState> {
         final order = SingleOrderModel.fromJson(response.data);
         emit(CurrentOrderLoaded(order));
       } else {
-        emit(CurrentOrderError(response.data?['message'] ?? 'حدث خطأ'));
+        emit(CurrentOrderError(response.getMessage().isNotEmpty
+            ? response.getMessage()
+            : tr(AppLocaleKey.anErrorOccurred)));
       }
     } else if (response.state == ResponseState.unauthorized) {
-      CommonMethods.showAlertDialog(
-        message: tr(AppLocaleKey.youMustLogInFirst),
-      );
+      NavigatorMethods.pushNamedAndRemoveUntil(
+          AppRouters.navigatorKey.currentContext!, LoginScreen.routeName);
     } else {
-      emit(CurrentOrderError(response.data?['message'] ?? 'حدث خطأ'));
+      emit(CurrentOrderError(response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : tr(AppLocaleKey.anErrorOccurred)));
     }
   }
 }

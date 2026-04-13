@@ -84,10 +84,8 @@ class ForgetPasswordScreen extends StatelessWidget {
                     label: "continue".tr(),
                     onPressed: () {
                       if (authCubit.formKeyRegister.currentState!.validate()) {
-                        final cleanedPhone = AuthCubit.get(context)
-                            .phoneNumber
-                            .replaceFirst('+966', '0');
-                        AuthCubit.get(context).forgotPassword(
+                        final cleanedPhone = authCubit.formatPhoneNumber(authCubit.phoneNumber);
+                        authCubit.forgotPassword(
                           phoneNumber: cleanedPhone,
                         );
                       }
@@ -111,11 +109,11 @@ class ForgetPasswordScreen extends StatelessWidget {
               toastLength: Toast.LENGTH_LONG,
               gravity: ToastGravity.BOTTOM,
               backgroundColor: Colors.redAccent,
-              textColor: Colors.black,
+              textColor: Colors.white,
               fontSize: 16.0,
             );
           }
-          if (state is AuthSuccess) {
+          if (state is AuthForgotPasswordSuccess) {
             AuthCubit.get(context).isResetPassword = true;
             Navigator.push(
                 context,
@@ -124,15 +122,6 @@ class ForgetPasswordScreen extends StatelessWidget {
                           phoneNumber: state.data?['mobile'],
                           otp: state.data?['otp'],
                         )));
-          } else if (state is AuthError) {
-            Fluttertoast.showToast(
-              msg: state.message,
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.BOTTOM,
-              backgroundColor: Colors.redAccent,
-              textColor: Colors.white,
-              fontSize: 16.0,
-            );
           }
         },
       ),

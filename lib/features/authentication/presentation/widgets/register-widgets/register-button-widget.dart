@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hawiah_driver/core/custom_widgets/global-elevated-button-widget.dart';
 import 'package:hawiah_driver/core/theme/app_colors.dart';
+import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/features/authentication/presentation/controllers/auth-cubit/auth-cubit.dart';
 import 'package:hawiah_driver/features/authentication/presentation/controllers/auth-cubit/auth-state.dart';
 
@@ -30,7 +31,7 @@ class RegisterButtonWidget extends StatelessWidget {
 
                   if (!authCubit.checkedValueTerms) {
                     Fluttertoast.showToast(
-                      msg: "يجب الموافقة على الشروط والأحكام أولاً.",
+                      msg: tr(AppLocaleKey.mustAgreeToTerms),
                       toastLength: Toast.LENGTH_LONG,
                       gravity: ToastGravity.BOTTOM,
                       backgroundColor: Colors.redAccent,
@@ -42,7 +43,7 @@ class RegisterButtonWidget extends StatelessWidget {
 
                   if (formKey.currentState!.validate()) {
                     final cleanedPhone =
-                        authCubit.phoneNumber.replaceFirst('+966', '0');
+                        authCubit.formatPhoneNumber(authCubit.phoneNumber);
 
                     authCubit.register(
                       phoneNumber: authCubit.phoneControllerRegister.text,

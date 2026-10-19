@@ -114,14 +114,10 @@ class _UserProfileState extends State<UserProfile> {
               context: context,
               barrierDismissible: false,
               builder: (ctx) => CustomConfirmDialog(
-                content: AppLocaleKey.saveChangesSuccess
-                    .tr(), // تم تعديل النص ليأخذ قيمة ديناميكية من الstate لو أردت state.message
+                content: AppLocaleKey.saveChangesSuccess.tr(),
                 image: AppImages.successGif,
               ),
             );
-
-            await Future.delayed(const Duration(seconds: 3)); // تقليل المدة قليلاً
-            if (mounted) Navigator.pop(context);
           }
 
           if (state is ProfileError) {
@@ -129,13 +125,10 @@ class _UserProfileState extends State<UserProfile> {
               context: context,
               barrierDismissible: false,
               builder: (ctx) => CustomConfirmDialog(
-                content: AppLocaleKey.somethingWentWrong.tr(),
+                content: state.message.isNotEmpty ? state.message : AppLocaleKey.somethingWentWrong.tr(),
                 image: AppImages.errorSvg,
               ),
             );
-
-            await Future.delayed(const Duration(seconds: 3));
-            if (mounted) Navigator.pop(context);
           }
         },
         builder: (context, state) {

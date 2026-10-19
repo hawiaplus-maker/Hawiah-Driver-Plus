@@ -15,6 +15,7 @@ import 'package:hawiah_driver/core/theme/app_colors.dart';
 import 'package:hawiah_driver/core/theme/app_text_style.dart';
 import 'package:hawiah_driver/core/utils/navigator_methods.dart';
 import 'package:hawiah_driver/features/authentication/presentation/dialog/unauthenticated_dialog.dart';
+import 'package:hawiah_driver/features/authentication/presentation/screens/login-screen.dart';
 import 'package:hawiah_driver/features/chat/cubit/chat_cubit.dart';
 import 'package:hawiah_driver/features/chat/model/chat_model.dart';
 import 'package:hawiah_driver/features/chat/presentation/widget/conversation_list_tile.dart';
@@ -51,7 +52,13 @@ class _AllChatsScreenState extends State<AllChatsScreen> {
       log(HiveMethods.getToken().toString());
       isVesetor = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        NavigatorMethods.showAppDialog(context, UnauthenticatedDialog());
+        Navigator.pushAndRemoveUntil<void>(
+          context,
+          MaterialPageRoute<void>(
+            builder: (BuildContext context) => const LoginScreen(),
+          ),
+          (route) => false,
+        );
       });
     } else {
       driverId = sl<ProfileCubit>().user!.id.toString();

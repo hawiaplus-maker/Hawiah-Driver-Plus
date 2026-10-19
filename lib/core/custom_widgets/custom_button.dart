@@ -27,7 +27,7 @@ class CustomButton extends StatelessWidget {
     super.key,
     this.radius = 12,
     this.width,
-    this.height = 47,
+    this.height = 50,
     this.style,
     this.text,
     this.prefixIcon = const SizedBox(),
@@ -62,7 +62,7 @@ class CustomButton extends StatelessWidget {
                   (hasShadow
                       ? [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
+                            color: Colors.black.withValues(alpha: 0.08),
                             offset: const Offset(0, 0),
                             blurRadius: 6,
                           )

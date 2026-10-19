@@ -26,16 +26,7 @@ class LanguageListViewWidget extends StatelessWidget {
           return ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 8),
             onTap: () async {
-              appLanguageCubit.changeLanguage(language: language);
-              if (language == "arabic") {
-                await context.setLocale(const Locale("ar"));
-              } else if (language == "english") {
-                await context.setLocale(const Locale("en"));
-              } else if (language == "Urdu") {
-                await context.setLocale(
-                  Locale('ur'),
-                );
-              }
+              await appLanguageCubit.changeLanguage(language: language, context: context);
               appLanguageCubit.changeRebuild();
             },
             title: Row(
@@ -60,15 +51,10 @@ class LanguageListViewWidget extends StatelessWidget {
               value: language,
               groupValue: selectedLang,
               onChanged: (value) async {
-                appLanguageCubit.changeLanguage(language: language);
-                if (language == "arabic") {
-                  await context.setLocale(const Locale("ar"));
-                } else if (language == "english") {
-                  await context.setLocale(const Locale("en"));
-                } else if (language == "Urdu") {
-                  await context.setLocale(const Locale("ur"));
+                if (value != null) {
+                  await appLanguageCubit.changeLanguage(language: value, context: context);
+                  appLanguageCubit.changeRebuild();
                 }
-                appLanguageCubit.changeRebuild();
               },
               activeColor: AppColor.mainAppColor,
             ),

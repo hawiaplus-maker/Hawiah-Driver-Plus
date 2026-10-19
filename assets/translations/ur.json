@@ -386,5 +386,9 @@
   "evaluationSend": "درجہ بندی جمع کریں",
   "orderReordered": "آرڈر کامیابی سے دوبارہ کیا گیا",
   "contactUser": "کسٹمر سے رابطہ کریں",
-  "startAtDate": "شروع ہوتا ہے"
+  "startAtDate": "شروع ہوتا ہے",
+  "update_title": "نئی اپ ڈیٹ دستیاب ہے",
+  "update_content": "ایک نیا ورژن دستیاب ہے ({store_version}).\nآپ فی الحال ({local_version}) استعمال کر رہے ہیں۔ براہ کرم اپ ڈیٹ کریں۔",
+  "update_later": "بعد میں",
+  "update_now": "اپ ڈیٹ کریں"
 }

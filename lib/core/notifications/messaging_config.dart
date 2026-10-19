@@ -99,7 +99,7 @@ Future<void> _showLocalNotification(RemoteMessage message) async {
         priority: Priority.high,
         sound: RawResourceAndroidNotificationSound('custom_sound'),
         icon: '@mipmap/ic_launcher',
-      
+              
       ),
       iOS: DarwinNotificationDetails(
         presentAlert: true,
@@ -151,8 +151,12 @@ class MessagingService {
   }) async {
     navigatorKey = navKey;
 
-    /// Firebase init
-    await Firebase.initializeApp();
+    /// Firebase init (already initialized in main)
+    try {
+      await Firebase.app();
+    } catch (_) {
+      await Firebase.initializeApp();
+    }
 
     /// Android channel
     await _createAndroidChannel();
@@ -197,10 +201,16 @@ class MessagingService {
     });
 
     // 5. الضغط والتطبيق مغلق تماماً (Terminated)
-    final initialMessage = await _firebaseMessaging.getInitialMessage();
-    if (initialMessage != null) {
-      log('Notification tapped (Terminated)');
-      handleNotificationTap(initialMessage.data);
+    try {
+      final initialMessage = await _firebaseMessaging.getInitialMessage().timeout(
+        const Duration(seconds: 3),
+      );
+      if (initialMessage != null) {
+        log('Notification tapped (Terminated)');
+        handleNotificationTap(initialMessage.data);
+      }
+    } catch (e) {
+      log('getInitialMessage failed/timeout: $e');
     }
 
     // 6. معالج الخلفية

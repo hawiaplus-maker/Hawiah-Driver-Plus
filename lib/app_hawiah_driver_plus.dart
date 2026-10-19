@@ -11,14 +11,14 @@ import 'package:hawiah_driver/core/bloc-config/bloc_providers.dart';
 import 'package:hawiah_driver/core/hive/hive_methods.dart';
 import 'package:hawiah_driver/core/notifications/messaging_config.dart';
 import 'package:hawiah_driver/core/routes/app_routers_import.dart';
+import 'package:hawiah_driver/features/app-language/presentation/widgets/locale_initializer.dart';
 import 'package:hawiah_driver/features/profile/presentation/cubit/cubit_profile.dart';
 import 'package:hawiah_driver/features/splash/presentation/screens/splash-screen.dart';
 import 'package:hawiah_driver/injection_container.dart';
 import 'package:hawiah_driver/main.dart';
 
 class HawiahPlusDriverApp extends StatefulWidget {
-  final RemoteMessage? initialMessage;
-  const HawiahPlusDriverApp({super.key, this.initialMessage});
+  const HawiahPlusDriverApp({super.key});
 
   static void setMyAppState(BuildContext context) async {
     _HawiahPlusDriverAppState? state = context.findAncestorStateOfType<_HawiahPlusDriverAppState>();
@@ -37,7 +37,6 @@ class _HawiahPlusDriverAppState extends State<HawiahPlusDriverApp> {
     });
     _appToken();
     super.initState();
-    _handleInitialNotification();
   }
 
   void setMyAppState() {
@@ -45,34 +44,10 @@ class _HawiahPlusDriverAppState extends State<HawiahPlusDriverApp> {
   }
 
   void _initializeMessaging() async {
-    await MessagingService.init(navKey: AppRouters.navigatorKey);
-  }
-
-  void _handleInitialNotification() {
-    if (widget.initialMessage != null) {
-      log('Handling initial notification from terminated state');
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _navigateFromNotification(widget.initialMessage!.data);
-      });
-    }
-  }
-
-  void _navigateFromNotification(Map<String, dynamic> data) {
     try {
-      final context = navigatorKey.currentContext;
-      if (context != null && context.mounted) {
-        log('Navigating from initial notification with data: $data');
-        handleNotificationTap(data);
-      } else {
-        log('Context not available for initial navigation');
-        Future.delayed(const Duration(milliseconds: 1000), () {
-          if (navigatorKey.currentContext?.mounted ?? false) {
-            handleNotificationTap(data);
-          }
-        });
-      }
+      await MessagingService.init(navKey: AppRouters.navigatorKey);
     } catch (e) {
-      log('Error handling initial notification: $e');
+      log('Messaging init failed: $e');
     }
   }
 
@@ -94,21 +69,23 @@ class _HawiahPlusDriverAppState extends State<HawiahPlusDriverApp> {
       builder: (_, child) {
         return MultiBlocProvider(
           providers: BlocProviders.blocs(),
-          child: MaterialApp(
-            localizationsDelegates: context.localizationDelegates,
-            supportedLocales: context.supportedLocales,
-            locale: context.locale,
-            debugShowCheckedModeBanner: false,
-            title: 'Hawiah Client',
-            // You can use the library anywhere in the app even in theme
-            theme: appTHeme(),
-            home: child,
-            builder: BotToastInit(),
-            navigatorObservers: [BotToastNavigatorObserver()],
-            onGenerateRoute: AppRouters.onGenerateRoute,
-            navigatorKey: AppRouters.navigatorKey,
-            scrollBehavior: const MaterialScrollBehavior().copyWith(
-              overscroll: false,
+          child: LocaleInitializer(
+            child: MaterialApp(
+              localizationsDelegates: context.localizationDelegates,
+              supportedLocales: context.supportedLocales,
+              locale: context.locale,
+              debugShowCheckedModeBanner: false,
+              title: 'Hawiah Client',
+              // You can use the library anywhere in the app even in theme
+              theme: appTHeme(),
+              home: child,
+              builder: BotToastInit(),
+              navigatorObservers: [BotToastNavigatorObserver()],
+              onGenerateRoute: AppRouters.onGenerateRoute,
+              navigatorKey: AppRouters.navigatorKey,
+              scrollBehavior: const MaterialScrollBehavior().copyWith(
+                overscroll: false,
+              ),
             ),
           ),
         );

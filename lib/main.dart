@@ -27,7 +27,6 @@ void main() async {
   await Hive.initFlutter();
   await Hive.openBox('app');
   Bloc.observer = MyBlocObserver();
-  final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
   timeago.setLocaleMessages('ar', timeago.ArMessages());
   timeago.setLocaleMessages('ar_short', timeago.ArShortMessages());
   timeago.setLocaleMessages('en', timeago.EnMessages());
@@ -37,9 +36,11 @@ void main() async {
       supportedLocales: const [Locale('ar'), Locale('en'), Locale('ur')],
       path: 'assets/translations',
       fallbackLocale: const Locale('en'),
+      useOnlyLangCode: true,
+      startLocale: const Locale('en'),
       child: BlocProvider(
         create: (context) => AppThemeCubit()..initial(),
-        child: HawiahPlusDriverApp(initialMessage: initialMessage),
+        child: const HawiahPlusDriverApp(),
       ),
     ),
   );

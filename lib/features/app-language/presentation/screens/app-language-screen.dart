@@ -17,15 +17,40 @@ class AppLanguageScreen extends StatefulWidget {
 }
 
 class _AppLanguageScreenState extends State<AppLanguageScreen> {
+  bool _localeInitialized = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final currentLocale = context.locale.languageCode;
-      context
-          .read<AppLanguageCubit>()
-          .changeLanguage(language: currentLocale == 'en' ? "english" : "arabic");
+      _initializeLocale();
     });
+  }
+
+  Future<void> _initializeLocale() async {
+    if (!_localeInitialized && mounted) {
+      _localeInitialized = true;
+      final cubit = context.read<AppLanguageCubit>();
+      await cubit.initializeLocale(context);
+      
+      // Update the UI to reflect the current locale
+      final currentLocale = context.locale.languageCode;
+      String languageName;
+      switch (currentLocale) {
+        case 'ar':
+          languageName = 'arabic';
+          break;
+      case 'en':
+        languageName = 'english';
+        break;
+      case 'ur':
+        languageName = 'urdu';
+        break;
+      default:
+        languageName = 'english';
+      }
+      cubit.changeLanguage(language: languageName, context: context);
+    }
   }
 
   @override

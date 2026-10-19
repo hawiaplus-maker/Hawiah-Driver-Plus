@@ -386,5 +386,9 @@
   "evaluationSend": "Submit evaluation",
   "orderReordered": "Order reordered successfully",
   "contactUser": "Contact customer",
-  "startAtDate": "Starts on"
+  "startAtDate": "Starts on",
+  "update_title": "New update available",
+  "update_content": "A new version is available ({store_version}).\nYou are currently using ({local_version}). Please update.",
+  "update_later": "Later",
+  "update_now": "Update now"
 }

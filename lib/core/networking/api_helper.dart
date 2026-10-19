@@ -29,6 +29,36 @@ class ApiResponse {
   ResponseState state;
   dynamic data;
   ApiResponse({required this.state, required this.data});
+
+  String getMessage() {
+    if (data == null) return "";
+    if (data is String) return data;
+    if (data is Map) {
+      // Priority 1: String in 'message'
+      if (data['message'] != null && data['message'] is String) {
+        return data['message'];
+      }
+      // Priority 2: String in 'error'
+      if (data['error'] != null && data['error'] is String) {
+        return data['error'];
+      }
+      // Priority 3: Formatted 'errors' (for 422 validation errors)
+      if (data['errors'] != null) {
+        if (data['errors'] is Map) {
+          final Map errors = data['errors'];
+          if (errors.isNotEmpty) {
+            final firstError = errors.values.first;
+            if (firstError is List && firstError.isNotEmpty) {
+              return firstError.first.toString();
+            }
+            return firstError.toString();
+          }
+        }
+        return data['errors'].toString();
+      }
+    }
+    return "";
+  }
 }
 
 class ApiHelper {
@@ -235,10 +265,8 @@ class ApiHelper {
       case 401:
         Future.delayed(Duration.zero, () {
           HiveMethods.deleteToken();
-          if (!HiveMethods.isVisitor()) {
-            NavigatorMethods.pushNamedAndRemoveUntil(
-                AppRouters.navigatorKey.currentContext!, LoginScreen.routeName);
-          }
+          NavigatorMethods.pushNamedAndRemoveUntil(
+              AppRouters.navigatorKey.currentContext!, LoginScreen.routeName);
         });
         return ApiResponse(state: ResponseState.unauthorized, data: data);
       case 400:

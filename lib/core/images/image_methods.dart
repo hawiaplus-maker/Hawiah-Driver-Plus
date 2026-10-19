@@ -1,12 +1,9 @@
 import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hawiah_driver/core/custom_widgets/choose_gallery_or_camera_bottom_sheet.dart';
 import 'package:hawiah_driver/core/utils/navigator_methods.dart';
 import 'package:image_picker/image_picker.dart';
-
-
 
 class ImageMethods {
   static Future<void> pickImage({
@@ -47,21 +44,5 @@ class ImageMethods {
         ),
       ),
     );
-  }
-
-  static Future<void> pickFile({
-    required void Function(File) onSuccess,
-    FileType type = FileType.any,
-    List<String>? allowedExtensions,
-  }) async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: type,
-      allowedExtensions: allowedExtensions,
-    );
-
-    if (result != null) {
-      File file = File(result.files.single.path!);
-      onSuccess.call(file);
-    }
   }
 }

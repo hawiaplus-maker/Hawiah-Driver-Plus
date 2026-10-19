@@ -22,6 +22,8 @@ class AppRouters {
         return MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen());
       case TermsAndConditionsScreen.routeName:
         return MaterialPageRoute(builder: (_) => const TermsAndConditionsScreen());
+      case NotificationsScreen.routeName:
+        return MaterialPageRoute(builder: (_) => const NotificationsScreen());
       default:
         return MaterialPageRoute(builder: (_) => const LayoutScreen());
     }

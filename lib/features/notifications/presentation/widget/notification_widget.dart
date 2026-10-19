@@ -7,6 +7,7 @@ import 'package:hawiah_driver/core/theme/app_colors.dart';
 import 'package:hawiah_driver/core/theme/app_text_style.dart';
 import 'package:hawiah_driver/features/notifications/model/notifications_model.dart';
 import 'package:hawiah_driver/features/notifications/presentation/cubit/notifications_cubit.dart';
+import 'package:hawiah_driver/features/order/presentation/screens/order_details_screen.dart';
 
 class NotificationWidget extends StatelessWidget {
   const NotificationWidget({super.key, required this.item});
@@ -17,45 +18,61 @@ class NotificationWidget extends StatelessWidget {
     final locale = context.locale.languageCode;
     final title = locale == 'ar' ? item.title?.ar : item.title?.en;
     final message = locale == 'ar' ? item.message?.ar : item.message?.en;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 2),
-      decoration: BoxDecoration(
-        color: item.seen == 0 ? AppColor.mainAppColor.withAlpha(40) : AppColor.whiteColor,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: ListTile(
-        title: Row(
-          children: [
-            Text(
-              title ?? "-----------",
-              style: AppTextStyle.text16_700,
-            ),
-            Expanded(
-              child: Text(
-                textAlign: TextAlign.end,
-                _formatRelativeTime(item.createdAt),
-                style: AppTextStyle.text12_400.copyWith(
-                  color: AppColor.textGrayColor,
+    return GestureDetector(
+      onTap: () {
+        item.orderStatusType == null
+            ? null
+            : Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => OrderDetailsScreen(
+                          orderId: item.modelId ?? 0,
+                          isCurrent: item.orderStatusType == 0 ? true : false,
+                        )),
+              );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 2),
+        decoration: BoxDecoration(
+          color: item.seen == 0 ? AppColor.mainAppColor.withAlpha(40) : AppColor.whiteColor,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: ListTile(
+          title: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title ?? "-----------",
+                  style: AppTextStyle.text16_700,
                 ),
               ),
-            ),
-          ],
-        ),
-        subtitle: Text(
-          message ?? "-----------",
-          style: AppTextStyle.text14_400.copyWith(
-            color: AppColor.textGrayColor,
+              Expanded(
+                child: Text(
+                  textAlign: TextAlign.end,
+                  _formatRelativeTime(item.createdAt),
+                  style: AppTextStyle.text12_400.copyWith(
+                    color: AppColor.textGrayColor,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ),
-        trailing: GestureDetector(
-          onTap: () async {
-            final cubit = NotificationsCubit.get(context);
-            await cubit.deleteNotification(item.id!);
-          },
-          child: SvgPicture.asset(
-            AppImages.trash,
-            height: 24,
-            width: 24,
+          subtitle: Text(
+            message ?? "-----------",
+            style: AppTextStyle.text14_400.copyWith(
+              color: AppColor.textGrayColor,
+            ),
+          ),
+          trailing: GestureDetector(
+            onTap: () async {
+              final cubit = NotificationsCubit.get(context);
+              await cubit.deleteNotification(item.id!);
+            },
+            child: SvgPicture.asset(
+              AppImages.trash,
+              height: 24,
+              width: 24,
+            ),
           ),
         ),
       ),

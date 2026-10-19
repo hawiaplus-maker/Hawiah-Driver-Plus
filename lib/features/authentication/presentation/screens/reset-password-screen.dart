@@ -26,10 +26,6 @@ class ResetPasswordScreen extends StatelessWidget {
       body: BlocConsumer<AuthCubit, AuthState>(
         builder: (BuildContext context, AuthState state) {
           final authCubit = AuthCubit.get(context);
-          context.read<AuthCubit>().timer.cancel();
-          String passwordReset = authCubit.passwordReset;
-
-          String passwordConfirmReset = authCubit.passwordConfirmReset;
           bool passwordVisibleReset = authCubit.passwordVisibleReset;
           final listPasswordCriteria = authCubit.listPasswordCriteria;
           return SizedBox(
@@ -62,21 +58,7 @@ class ResetPasswordScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 30),
                     CustomTextField(
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'كلمة المرور لا يمكن أن تكون فارغة';
-                        }
-                        if (value.length < 8) {
-                          return 'كلمة المرور يجب ألا تقل عن 8 أحرف';
-                        }
-                        if (!RegExp(r'[0-9]').hasMatch(value)) {
-                          return 'كلمة المرور يجب أن تحتوي على رقم واحد على الأقل';
-                        }
-                        if (!RegExp(r'[!@#\$&*~%^-_=+<>?]').hasMatch(value)) {
-                          return 'كلمة المرور يجب أن تحتوي على رمز مثل @ أو # أو !';
-                        }
-                        return null;
-                      },
+                      validator: authCubit.validatePassword,
                       controller: authCubit.passwordController,
                       labelText: 'password'.tr(),
                       hintText: 'enter_your_password'.tr(),
@@ -95,27 +77,14 @@ class ResetPasswordScreen extends StatelessWidget {
                           authCubit.togglePasswordVisibilityReset();
                         },
                       ),
-                      onChanged: (value) {
-                        passwordReset = value;
-                      },
+                      onChanged: (value) {},
                     ),
                     SizedBox(height: 20),
                     CustomTextField(
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'password_required'.tr();
-                        }
-                        if (value.length < 8) {
-                          return 'password_min_length'.tr();
-                        }
-                        if (!RegExp(r'[0-9]').hasMatch(value)) {
-                          return 'password_number_required'.tr();
-                        }
-                        if (!RegExp(r'[!@#\$&*~%^-_=+<>?]').hasMatch(value)) {
-                          return 'password_symbol_required'.tr();
-                        }
-                        return null;
-                      },
+                      validator: (value) => authCubit.validateConfirmPassword(
+                        value,
+                        authCubit.passwordController.text,
+                      ),
 
                       controller: authCubit.confirmPasswordController,
                       labelText: 'confirm_password'.tr(),
@@ -135,9 +104,7 @@ class ResetPasswordScreen extends StatelessWidget {
                           authCubit.togglePasswordVisibilityReset();
                         },
                       ),
-                      onChanged: (value) {
-                        passwordConfirmReset = value;
-                      },
+                      onChanged: (value) {},
                     ),
                     Spacer(),
                     SizedBox(height: 20),
@@ -145,25 +112,10 @@ class ResetPasswordScreen extends StatelessWidget {
                       child: GlobalElevatedButton(
                         label: "continue".tr(),
                         onPressed: () {
-                          final password =
-                              authCubit.passwordController.text.trim();
-                          final confirmPassword =
-                              authCubit.confirmPasswordController.text.trim();
+                          final password = authCubit.passwordController.text.trim();
+                          final confirmPassword = authCubit.confirmPasswordController.text.trim();
 
-                          if (authCubit.formKeyCompleteProfile.currentState!
-                              .validate()) {
-                            if (password != confirmPassword) {
-                              Fluttertoast.showToast(
-                                msg: "كلمة المرور وتأكيدها غير متطابقين",
-                                toastLength: Toast.LENGTH_LONG,
-                                gravity: ToastGravity.BOTTOM,
-                                backgroundColor: Colors.redAccent,
-                                textColor: Colors.white,
-                                fontSize: 16.0,
-                              );
-                              return;
-                            }
-
+                          if (authCubit.formKeyCompleteProfile.currentState!.validate()) {
                             authCubit.resetPassword(
                               password: password,
                               password_confirmation: confirmPassword,
@@ -173,14 +125,10 @@ class ResetPasswordScreen extends StatelessWidget {
                           }
                         },
                         backgroundColor: Color(0xffEDEEFF),
-                        textColor:
-                            authCubit.passwordController.text.isNotEmpty &&
-                                    authCubit
-                                        .confirmPasswordController
-                                        .text
-                                        .isNotEmpty
-                                ? AppColor.mainAppColor
-                                : AppColor.mainAppColor.withOpacity(0.5),
+                        textColor: authCubit.passwordController.text.isNotEmpty &&
+                                authCubit.confirmPasswordController.text.isNotEmpty
+                            ? AppColor.mainAppColor
+                            : AppColor.mainAppColor.withOpacity(0.5),
                         padding: EdgeInsets.symmetric(
                           horizontal: 20,
                           vertical: 12,
@@ -208,10 +156,9 @@ class ResetPasswordScreen extends StatelessWidget {
             );
           }
 
-          if (state is AuthSuccess) {
-            if (context.mounted) {
-              context.read<AuthCubit>().timer.cancel();
-            }
+          if (state is AuthResetPasswordSuccess) {
+            final authCubit = context.read<AuthCubit>();
+            authCubit.stopTimer();
 
             Future.microtask(() {
               if (context.mounted) {

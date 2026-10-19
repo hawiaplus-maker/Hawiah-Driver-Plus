@@ -11,6 +11,10 @@ class AppLocaleKey {
   static const String enterYourPassword = 'enterYourPassword';
   static const String validateConfirmPassword = 'validateConfirmPassword';
   static const String validateEmpty = 'validateEmpty';
+  static const String password_required = "password_required";
+  static const String password_min_length = "password_min_length";
+  static const String password_number_required = "password_number_required";
+  static const String password_symbol_required = "password_symbol_required";
   static const String mustEnterCoupon = 'mustEnterCoupon';
   static const String search = 'search';
   static const String ok = 'ok';
@@ -19,6 +23,17 @@ class AppLocaleKey {
   static const String pleaseLoginFirst = 'pleaseLoginFirst';
   static const String cancel = 'cancel';
   static const String login = 'login';
+  static const String unknownError = 'unknownError';
+  static const String anErrorOccurred = 'anErrorOccurred';
+  static const String updatedSuccessfully = 'updatedSuccessfully';
+  static const String failedToUpdateData = 'failedToUpdateData';
+  static const String errorDuringUpdate = 'errorDuringUpdate';
+  static const String noData = 'noData';
+  static const String mustAgreeToTerms = 'mustAgreeToTerms';
+  static const String incorrectLoginData = 'incorrectLoginData';
+  static const String noInternetConnection = 'noInternetConnection';
+  static const String verificationCodeResent = 'verificationCodeResent';
+  static const String errorDuringProcess = 'errorDuringProcess';
   static const String language = 'language';
   static const String city = 'city';
   static const String neighborhood = 'neighborhood';
@@ -104,7 +119,7 @@ class AppLocaleKey {
   static const String chooseAction = "Chooseaction";
   static const String viewInvoice = "Viewinvoice";
   static const String invoiceCannotBeDisplayed = "Invoicecannotbedisplayed";
-  static const String emptytheContainer = "Emptythecontainer";
+  static const String emptythecontainer = "emptythecontainer";
   static const String contactTheDriver = "Contactthedriver";
   static const String contactSupport = "ContactSupport";
   static const String representativewasuncooperative = "representativewasuncooperative";
@@ -283,4 +298,14 @@ class AppLocaleKey {
   static const String payXSar = 'payXSar';
   static const String orderReordered = 'orderReordered';
   static const String contactUser = 'contactUser';
+  static const String startAtDate = 'startAtDate';
+  static const String pleaseEnableLocation = 'pleaseEnableLocation';
+  static const String locationServiceDisabled = 'locationServiceDisabled';
+  static const String enterVerificationCode = 'enterVerificationCode';
+  static const String invalidOtp = 'invalidOtp';
+  static const String updateTitle = 'update_title';
+  static const String updateContent = 'update_content';
+  static const String updateLater = 'update_later';
+  static const String updateNow = 'update_now';
+  static const String imagesFromDeliveryLocation = 'imagesFromDeliveryLocation';
 }

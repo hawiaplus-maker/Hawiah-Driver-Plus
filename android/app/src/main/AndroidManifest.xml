@@ -6,6 +6,17 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
+    <!-- Remove broad media permissions to comply with Google Play Policy -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="remove" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" tools:node="remove" />
+
+
+
+
+
 
     <queries>
         <intent>
@@ -23,8 +34,10 @@
     </queries>
 
     <application
+
         android:label="@string/app_name"
         android:name="${applicationName}"
+        android:extractNativeLibs="false"
         android:icon="@mipmap/launcher_icon">
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -32,6 +45,9 @@
         <meta-data
               android:name="firebase_messaging_auto_initialization_enabled"
               android:value="false" />
+        <meta-data
+              android:name="com.google.firebase.messaging.default_notification_channel_id"
+              android:value="high_importance" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -56,6 +56,7 @@ class SettingModel {
   FeatureDescription? faqDescription;
   int? numberPoint;
   String? excelUserUploadExample;
+  String? support;
 
   SettingModel(
       {this.id,
@@ -114,7 +115,8 @@ class SettingModel {
       this.faqTitle,
       this.faqDescription,
       this.numberPoint,
-      this.excelUserUploadExample});
+      this.excelUserUploadExample,
+      this.support});
 
   SettingModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -122,8 +124,7 @@ class SettingModel {
     image = json['image'];
     email = json['email'];
     about = json['about'] != null ? new Title.fromJson(json['about']) : null;
-    address =
-        json['address'] != null ? new Title.fromJson(json['address']) : null;
+    address = json['address'] != null ? new Title.fromJson(json['address']) : null;
     phone = json['phone'];
     hotline = json['hotline'];
     whatsApp = json['whatsApp'];
@@ -138,11 +139,9 @@ class SettingModel {
     apiVersion = json['api_version'];
     googlePlay = json['googlePlay'];
     appStore = json['appStore'];
-    termsCondition = json['terms_condition'] != null
-        ? new Title.fromJson(json['terms_condition'])
-        : null;
-    privacy =
-        json['privacy'] != null ? new Title.fromJson(json['privacy']) : null;
+    termsCondition =
+        json['terms_condition'] != null ? new Title.fromJson(json['terms_condition']) : null;
+    privacy = json['privacy'] != null ? new Title.fromJson(json['privacy']) : null;
     if (json['mobile_onboard'] != null) {
       mobileOnboard = <MobileOnboard>[];
       json['mobile_onboard'].forEach((v) {
@@ -157,66 +156,44 @@ class SettingModel {
     }
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
-    subscribeTitle = json['subscribe_title'] != null
-        ? new Title.fromJson(json['subscribe_title'])
-        : null;
+    subscribeTitle =
+        json['subscribe_title'] != null ? new Title.fromJson(json['subscribe_title']) : null;
     subscribeDescription = json['subscribe_description'] != null
         ? new Title.fromJson(json['subscribe_description'])
         : null;
-    sliderImage = json['slider_image'] != null
-        ? new Title.fromJson(json['slider_image'])
-        : null;
+    sliderImage = json['slider_image'] != null ? new Title.fromJson(json['slider_image']) : null;
     headerLogo = json['header_logo'];
     footerLogo = json['footer_logo'];
-    appLinkImage = json['app_link_image'] != null
-        ? new Title.fromJson(json['app_link_image'])
-        : null;
-    howWorkImage = json['how_work_image'] != null
-        ? new Title.fromJson(json['how_work_image'])
-        : null;
-    getTouchImage = json['get_touch_image'] != null
-        ? new Title.fromJson(json['get_touch_image'])
-        : null;
-    faqImage = json['faq_image'] != null
-        ? new Title.fromJson(json['faq_image'])
-        : null;
-    subscribeImage = json['subscribe_image'] != null
-        ? new Title.fromJson(json['subscribe_image'])
-        : null;
-    sliderTitle = json['slider_title'] != null
-        ? new Title.fromJson(json['slider_title'])
-        : null;
-    sliderSubTitle = json['slider_sub_title'] != null
-        ? new Title.fromJson(json['slider_sub_title'])
-        : null;
-    sliderTag = json['slider_tag'] != null
-        ? new Title.fromJson(json['slider_tag'])
-        : null;
-    sliderDescription = json['slider_description'] != null
-        ? new Title.fromJson(json['slider_description'])
-        : null;
-    galleryTitle = json['gallery_title'] != null
-        ? new Title.fromJson(json['gallery_title'])
-        : null;
-    appLinkTitle = json['app_link_title'] != null
-        ? new Title.fromJson(json['app_link_title'])
-        : null;
+    appLinkImage =
+        json['app_link_image'] != null ? new Title.fromJson(json['app_link_image']) : null;
+    howWorkImage =
+        json['how_work_image'] != null ? new Title.fromJson(json['how_work_image']) : null;
+    getTouchImage =
+        json['get_touch_image'] != null ? new Title.fromJson(json['get_touch_image']) : null;
+    faqImage = json['faq_image'] != null ? new Title.fromJson(json['faq_image']) : null;
+    subscribeImage =
+        json['subscribe_image'] != null ? new Title.fromJson(json['subscribe_image']) : null;
+    sliderTitle = json['slider_title'] != null ? new Title.fromJson(json['slider_title']) : null;
+    sliderSubTitle =
+        json['slider_sub_title'] != null ? new Title.fromJson(json['slider_sub_title']) : null;
+    sliderTag = json['slider_tag'] != null ? new Title.fromJson(json['slider_tag']) : null;
+    sliderDescription =
+        json['slider_description'] != null ? new Title.fromJson(json['slider_description']) : null;
+    galleryTitle = json['gallery_title'] != null ? new Title.fromJson(json['gallery_title']) : null;
+    appLinkTitle =
+        json['app_link_title'] != null ? new Title.fromJson(json['app_link_title']) : null;
     appLinkDescription = json['app_link_description'] != null
         ? new Title.fromJson(json['app_link_description'])
         : null;
-    howWorkTitle = json['how_work_title'] != null
-        ? new Title.fromJson(json['how_work_title'])
-        : null;
+    howWorkTitle =
+        json['how_work_title'] != null ? new Title.fromJson(json['how_work_title']) : null;
     howWorkDescription = json['how_work_description'];
-    featureTitle = json['feature_title'] != null
-        ? new Title.fromJson(json['feature_title'])
-        : null;
+    featureTitle = json['feature_title'] != null ? new Title.fromJson(json['feature_title']) : null;
     featureDescription = json['feature_description'] != null
         ? new FeatureDescription.fromJson(json['feature_description'])
         : null;
-    getTouchTitle = json['get_touch_title'] != null
-        ? new Title.fromJson(json['get_touch_title'])
-        : null;
+    getTouchTitle =
+        json['get_touch_title'] != null ? new Title.fromJson(json['get_touch_title']) : null;
     getTouchDescription = json['get_touch_description'] != null
         ? new Title.fromJson(json['get_touch_description'])
         : null;
@@ -226,14 +203,13 @@ class SettingModel {
         ? new FeatureDescription.fromJson(json['footer_description'])
         : null;
     copyright = json['copyright'];
-    faqTitle = json['faq_title'] != null
-        ? new Title.fromJson(json['faq_title'])
-        : null;
+    faqTitle = json['faq_title'] != null ? new Title.fromJson(json['faq_title']) : null;
     faqDescription = json['faq_description'] != null
         ? new FeatureDescription.fromJson(json['faq_description'])
         : null;
     numberPoint = json['number_point'];
     excelUserUploadExample = json['excel_user_upload_example'];
+    support = json['support'];
   }
 
   Map<String, dynamic> toJson() {
@@ -273,12 +249,10 @@ class SettingModel {
       data['privacy'] = this.privacy!.toJson();
     }
     if (this.mobileOnboard != null) {
-      data['mobile_onboard'] =
-          this.mobileOnboard!.map((v) => v.toJson()).toList();
+      data['mobile_onboard'] = this.mobileOnboard!.map((v) => v.toJson()).toList();
     }
     if (this.mobileSlider != null) {
-      data['mobile_slider'] =
-          this.mobileSlider!.map((v) => v.toJson()).toList();
+      data['mobile_slider'] = this.mobileSlider!.map((v) => v.toJson()).toList();
     }
     data['created_at'] = this.createdAt;
     data['updated_at'] = this.updatedAt;
@@ -359,9 +333,10 @@ class SettingModel {
     }
     data['number_point'] = this.numberPoint;
     data['excel_user_upload_example'] = this.excelUserUploadExample;
+    data['support'] = this.support;
     return data;
   }
-} 
+}
 
 class Title {
   String? en;

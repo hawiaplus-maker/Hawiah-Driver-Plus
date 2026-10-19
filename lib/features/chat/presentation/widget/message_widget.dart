@@ -81,7 +81,7 @@ class MessageWidget extends StatelessWidget {
                           int.tryParse(message.senderId.toString()) == sl<ProfileCubit>().user!.id
                               ? BoxShadow()
                               : BoxShadow(
-                                  color: AppColor.lightGreyColor,
+                                  color: AppColor.lightGreyColor.withAlpha(50),
                                   spreadRadius: 5,
                                   blurRadius: 7,
                                   offset: const Offset(0, 3),

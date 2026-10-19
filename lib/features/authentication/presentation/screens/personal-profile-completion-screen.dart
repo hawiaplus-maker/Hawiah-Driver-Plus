@@ -140,6 +140,7 @@ class _PersonalProfileCompletionScreenState
                         // ),
                         SizedBox(height: 20.h),
                         CustomTextField(
+                          validator: authCubit.validatePassword,
                           controller:
                               authCubit.passwordControllerCompleteProfile,
                           labelText: 'password'.tr(),
@@ -147,14 +148,13 @@ class _PersonalProfileCompletionScreenState
                           // obscureText: !passwordVisibleCompleteProfile,
                           // hasSuffixIcon: true,
                           isPassword: true,
-                          onChanged: (value) {
-                            setState(() {
-                              authCubit.passwordController.text = value;
-                            });
-                          },
                         ),
                         SizedBox(height: 20),
                         CustomTextField(
+                          validator: (value) => authCubit.validateConfirmPassword(
+                            value,
+                            authCubit.passwordControllerCompleteProfile.text,
+                          ),
                           controller: authCubit
                               .confirmPasswordControllerCompleteProfile,
                           labelText: 'confirm_password'.tr(),
@@ -162,11 +162,6 @@ class _PersonalProfileCompletionScreenState
                           // obscureText: !passwordVisibleCompleteProfile,
                           // hasSuffixIcon: true,
                           isPassword: true,
-                          onChanged: (value) {
-                            setState(() {
-                              authCubit.confirmPasswordController.text = value;
-                            });
-                          },
                         ),
                         SizedBox(height: 0.30.sh),
                         GlobalElevatedButton(
@@ -201,7 +196,7 @@ class _PersonalProfileCompletionScreenState
           );
         },
         listener: (BuildContext context, AuthState state) {
-          if (state is AuthSuccess) {
+          if (state is AuthCompleteRegisterSuccess) {
             Fluttertoast.showToast(
               msg: state.message,
               toastLength: Toast.LENGTH_LONG,

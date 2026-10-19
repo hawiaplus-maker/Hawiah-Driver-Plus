@@ -1,6 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:hawiah_driver/core/images/app_images.dart';
@@ -10,8 +9,9 @@ import 'package:hawiah_driver/core/theme/app_text_style.dart';
 import 'package:hawiah_driver/core/utils/navigator_methods.dart';
 import 'package:hawiah_driver/core/utils/url_luncher_methods.dart';
 import 'package:hawiah_driver/features/chat/presentation/screens/single-chat-screen.dart';
-import 'package:hawiah_driver/features/order/presentation/model/orders_model.dart';
+import 'package:hawiah_driver/features/order/presentation/model/single_order_model.dart';
 import 'package:hawiah_driver/features/profile/presentation/cubit/cubit_profile.dart';
+import 'package:hawiah_driver/injection_container.dart';
 
 class UserCardWidget extends StatelessWidget {
   const UserCardWidget({
@@ -19,13 +19,16 @@ class UserCardWidget extends StatelessWidget {
     required this.ordersData,
   });
 
-  final SingleOrderData ordersData;
+  final SingleOrderModel ordersData;
 
   @override
   Widget build(BuildContext context) {
-    final vehicle = ordersData.vehicles?.isNotEmpty == true ? ordersData.vehicles!.first : null;
-    final driverName = ordersData.driver ?? '';
+    final user = sl<ProfileCubit>().user;
 
+    final driverName = user?.name ?? "";
+    if (ordersData.data?.orderStatus == 6) {
+      return SizedBox();
+    }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
       decoration: BoxDecoration(
@@ -37,13 +40,13 @@ class UserCardWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(AppLocaleKey.customerData.tr(), style: AppTextStyle.text16_700),
-          _buildDriverInfo(driverName, vehicle, context),
+          _buildDriverInfo(driverName, context),
         ],
       ),
     );
   }
 
-  Widget _buildDriverInfo(String driverName, dynamic vehicle, BuildContext context) {
+  Widget _buildDriverInfo(String driverName, BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -53,12 +56,12 @@ class UserCardWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${AppLocaleKey.name.tr()}: ${ordersData.user ?? ""}',
+                Text('${AppLocaleKey.name.tr()}: ${ordersData.data?.user}',
                     style: AppTextStyle.text16_400),
                 Gap(20.h),
                 GestureDetector(
                   onTap: () =>
-                      UrlLauncherMethods.launchURL(ordersData.userMobile, isWhatsapp: false),
+                      UrlLauncherMethods.makePhoneCall("+966${ordersData.data?.userMobile ?? ""}"),
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                     decoration: BoxDecoration(
@@ -70,7 +73,7 @@ class UserCardWidget extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Image.asset(AppImages.phoneSupport,
+                        Image.asset(AppImages.callImage,
                             height: 14.h, width: 14.w, fit: BoxFit.cover),
                         Gap(5.w),
                         Text(AppLocaleKey.contactUser.tr(),
@@ -85,8 +88,8 @@ class UserCardWidget extends StatelessWidget {
                   children: [
                     Expanded(
                       child: GestureDetector(
-                        onTap: () =>
-                            UrlLauncherMethods.launchURL(ordersData.userMobile, isWhatsapp: true),
+                        onTap: () => UrlLauncherMethods.launchWhatsApp(
+                            "+966${ordersData.data?.userMobile ?? ""}"),
                         child: Container(
                           height: 45.h,
                           decoration: BoxDecoration(
@@ -120,7 +123,7 @@ class UserCardWidget extends StatelessWidget {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Image.asset(AppImages.chats, height: 14.h, width: 14.w),
+                              Image.asset(AppImages.chatImage, height: 14.h, width: 14.w),
                               Gap(5.w),
                               Text(AppLocaleKey.chats.tr(),
                                   style: AppTextStyle.text16_600
@@ -142,19 +145,19 @@ class UserCardWidget extends StatelessWidget {
 
   ///  Navigation logic
   void _navigateToChat(BuildContext context, String driverName) {
-    final profileCubit = context.read<ProfileCubit>();
+    final driver = sl<ProfileCubit>().user;
 
     NavigatorMethods.pushNamed(
       context,
       SingleChatScreen.routeName,
       arguments: SingleChatScreenArgs(
-        receiverId: ordersData.userId.toString(),
+        receiverId: ordersData.data?.userId.toString() ?? "",
         receiverType: "user",
-        receiverName: ordersData.user ?? "",
-        receiverImage: ordersData.userImage ?? "",
-        senderId: context.read<ProfileCubit>().user?.id.toString() ?? "",
+        receiverName: ordersData.data?.user ?? "",
+        receiverImage: ordersData.data?.image ?? "",
+        senderId: driver?.id.toString() ?? "",
         senderType: "driver",
-        orderId: ordersData.id.toString(),
+        orderId: ordersData.data?.id.toString() ?? "",
         onMessageSent: () {},
       ),
     );

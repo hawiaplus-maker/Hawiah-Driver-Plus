@@ -12,12 +12,12 @@ class ConversationListTile extends StatelessWidget {
   const ConversationListTile({
     super.key,
     required this.chat,
-    required this.userId,
+    required this.driverId,
     required this.chatCubit,
   });
 
   final RecentChatModel chat;
-  final String userId;
+  final String driverId;
   final ChatCubit chatCubit;
 
   @override
@@ -77,16 +77,16 @@ class ConversationListTile extends StatelessWidget {
           SingleChatScreen.routeName,
           arguments: SingleChatScreenArgs(
             receiverId: chat.receiverId,
-            receiverType: 'driver',
+            receiverType: 'user',
             receiverName: chat.receiverName,
             receiverImage: chat.receiverImage,
-            senderId: userId,
-            senderType: 'user',
+            senderId: driverId,
+            senderType: 'driver',
             orderId: chat.orderId,
             onMessageSent: () {
               chatCubit.fetchRecentChats(
-                currentId: userId,
-                currentType: 'user',
+                currentId: driverId,
+                currentType: 'driver',
               );
             },
           ),

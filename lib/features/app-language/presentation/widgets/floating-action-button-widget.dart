@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:hawiah_driver/core/hive/hive_methods.dart';
 import 'package:hawiah_driver/core/theme/app_colors.dart';
-import 'package:hawiah_driver/features/on-boarding/presentation/screens/on-borading-screen.dart';
+import 'package:hawiah_driver/features/authentication/presentation/screens/login-screen.dart';
 
 class FloatingActionButtonWidget extends StatelessWidget {
   @override
@@ -10,11 +11,13 @@ class FloatingActionButtonWidget extends StatelessWidget {
       elevation: 0.0,
       backgroundColor: AppColor.mainAppColor,
       onPressed: () {
-        Navigator.push<void>(
+        HiveMethods.updateFirstTime();
+        Navigator.pushAndRemoveUntil<void>(
           context,
           MaterialPageRoute<void>(
-            builder: (BuildContext context) => const OnBoardingScreen(),
+            builder: (BuildContext context) => const LoginScreen(),
           ),
+          (route) => false,
         );
         // if (HiveMethods.isFirstTime()) {
 

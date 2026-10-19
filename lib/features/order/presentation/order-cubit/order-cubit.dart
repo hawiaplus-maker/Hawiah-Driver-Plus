@@ -11,11 +11,15 @@ import 'package:hawiah_driver/core/networking/api_helper.dart';
 import 'package:hawiah_driver/core/networking/urls.dart';
 import 'package:hawiah_driver/core/utils/common_methods.dart';
 import 'package:hawiah_driver/core/utils/navigator_methods.dart';
+import 'package:hawiah_driver/features/authentication/presentation/screens/login-screen.dart';
 import 'package:hawiah_driver/features/order/presentation/model/orders_model.dart';
+import 'package:hawiah_driver/features/order/presentation/model/single_order_model.dart'
+    hide SingleOrderData;
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import '../../../../core/routes/app_routers_import.dart';
 import 'order-state.dart';
 
 class OrderCubit extends Cubit<OrderState> {
@@ -78,55 +82,25 @@ class OrderCubit extends Cubit<OrderState> {
     }
 
     // =================== Prevent Re-fetching =====================
-    // التعديل هنا: لن يتم التوقف إذا كان isRefresh = true
-    if (!isLoadMore && !isRefresh) {
-      if (isCurrent && currentOrders.isNotEmpty) {
-        log("✔ Skipping fetch: current orders already loaded");
-        emit(OrderSuccess(
-          ordersModel: OrdersModel(
-            data: OrdersData(
-              data: currentOrders,
-              pagination: Pagination(
-                currentPage: currentPageCurrent,
-                lastPage: lastPageCurrent,
-              ),
-            ),
-          ),
-        ));
-        return;
-      }
-
-      if (!isCurrent && oldOrders.isNotEmpty) {
-        log("✔ Skipping fetch: old orders already loaded");
-        emit(OrderSuccess(
-          ordersModel: OrdersModel(
-            data: OrdersData(
-              data: oldOrders,
-              pagination: Pagination(
-                currentPage: currentPageOld,
-                lastPage: lastPageOld,
-              ),
-            ),
-          ),
-        ));
-        return;
-      }
-    }
+    // Removed to force reload every time
 
     // =================== Load =====================
     if (isLoadMore) {
-      if (isCurrent ? isLoadingMoreCurrent : isLoadingMoreOld) return;
       if (isCurrent) {
+        if (!canLoadMoreCurrent || isLoadingMoreCurrent) return;
         isLoadingMoreCurrent = true;
       } else {
+        if (!canLoadMoreOld || isLoadingMoreOld) return;
         isLoadingMoreOld = true;
       }
       emit(OrderPaginationLoading());
     } else {
       if (isCurrent) {
         isLoadingCurrent = true;
+        currentOrders = [];
       } else {
         isLoadingOld = true;
+        oldOrders = [];
       }
       // إذا كنت تريد أن يظهر Loading أثناء الرفرش اترك هذا السطر،
       // أما إذا كنت تستخدم RefreshIndicator في الواجهة وتريد اختفاء اللودينج القديم، يمكنك وضع شرط هنا.
@@ -137,45 +111,68 @@ class OrderCubit extends Cubit<OrderState> {
     final response = await ApiHelper.instance.get(
       Urls.orders(orderStatus),
       queryParameters: {
-        "order_status": orderStatus,
         "page": page,
       },
     );
 
     if (response.state == ResponseState.complete) {
-      final result = OrdersModel.fromJson(response.data);
-      final newOrders = result.data?.data ?? [];
-      final pagination = result.data?.pagination;
+      try {
+        final result = OrdersModel.fromJson(response.data);
+        final newOrders = result.data?.data ?? [];
+        final pagination = result.data?.pagination;
 
-      if (isCurrent) {
-        currentPageCurrent = pagination?.currentPage ?? 1;
-        lastPageCurrent = pagination?.lastPage ?? 1;
-      } else {
-        currentPageOld = pagination?.currentPage ?? 1;
-        lastPageOld = pagination?.lastPage ?? 1;
-      }
-
-      // داخل دالة getOrders في حالة النجاح
-      if (isLoadMore) {
         if (isCurrent) {
-          currentOrders.addAll(newOrders);
+          currentPageCurrent = pagination?.currentPage ?? 1;
+          lastPageCurrent = pagination?.lastPage ?? 1;
+        } else {
+          currentPageOld = pagination?.currentPage ?? 1;
+          lastPageOld = pagination?.lastPage ?? 1;
+        }
+
+        // داخل دالة getOrders في حالة النجاح
+        if (isLoadMore) {
+          if (isCurrent) {
+            currentOrders.addAll(newOrders);
+            isLoadingMoreCurrent = false;
+          } else {
+            oldOrders.addAll(newOrders);
+            isLoadingMoreOld = false;
+          }
+        } else {
+          if (isCurrent) {
+            currentOrders = newOrders; // استبدال القائمة بالكامل
+            isLoadingCurrent = false;
+          } else {
+            oldOrders = newOrders; // استبدال القائمة بالكامل
+            isLoadingOld = false;
+          }
+        }
+
+        // هام: إرسال الحالة بعد تحديث المتغيرات
+        emit(OrderSuccess(ordersModel: result));
+      } catch (e) {
+        log("Error parsing orders: $e");
+        if (isCurrent) {
+          isLoadingCurrent = false;
           isLoadingMoreCurrent = false;
         } else {
-          oldOrders.addAll(newOrders);
+          isLoadingOld = false;
           isLoadingMoreOld = false;
         }
-      } else {
-        if (isCurrent) {
-          currentOrders = newOrders; // استبدال القائمة بالكامل
-          isLoadingCurrent = false;
-        } else {
-          oldOrders = newOrders; // استبدال القائمة بالكامل
-          isLoadingOld = false;
-        }
-      }
 
-      // هام: إرسال الحالة بعد تحديث المتغيرات
-      emit(OrderSuccess(ordersModel: result));
+        // Use response.getMessage() or fallback to the exception message
+        final errorMsg = response.getMessage().isNotEmpty ? response.getMessage() : e.toString();
+        emit(OrderError(errorMsg));
+      }
+    } else if (response.state == ResponseState.unauthorized) {
+      if (isCurrent) {
+        isLoadingCurrent = false;
+        isLoadingMoreCurrent = false;
+      } else {
+        isLoadingOld = false;
+        isLoadingMoreOld = false;
+      }
+      emit(Unauthenticated());
     } else {
       if (isCurrent) {
         isLoadingCurrent = false;
@@ -184,24 +181,52 @@ class OrderCubit extends Cubit<OrderState> {
         isLoadingOld = false;
         isLoadingMoreOld = false;
       }
-      emit(OrderError());
+
+      final errorMsg =
+          response.getMessage().isNotEmpty ? response.getMessage() : "Failed to load orders";
+
+      emit(OrderError(errorMsg));
     }
   }
 
-  compressImage(File file) async {
-    final dir = await getTemporaryDirectory();
-    final targetPath = path.join(dir.absolute.path, 'compressed_${path.basename(file.path)}');
+  Future<File> compressImage(File file) async {
+    int sizeInBytes = file.lengthSync();
+    double sizeInKb = sizeInBytes / 1024;
 
-    final result = await FlutterImageCompress.compressAndGetFile(
+    if (sizeInKb < 500) {
+      return file;
+    }
+
+    final dir = await getTemporaryDirectory();
+    final targetPath =
+        path.join(dir.absolute.path, 'compressed_${DateTime.now().millisecondsSinceEpoch}.jpg');
+
+    var result = await FlutterImageCompress.compressAndGetFile(
       file.absolute.path,
       targetPath,
-      quality: 50, // Adjust quality (0-100)
-      format: CompressFormat.jpeg,
+      quality: 70,
+      minWidth: 1024,
+      minHeight: 1024,
     );
 
-    return result ?? file; // fallback to original if compression fails
+    int quality = 70;
+    while (result != null && await result.length() > 500 * 1024 && quality > 10) {
+      quality -= 10;
+      final newTargetPath = path.join(
+          dir.absolute.path, 'compressed_${DateTime.now().millisecondsSinceEpoch}_$quality.jpg');
+      result = await FlutterImageCompress.compressAndGetFile(
+        file.absolute.path,
+        newTargetPath,
+        quality: quality,
+        minWidth: 1024,
+        minHeight: 1024,
+      );
+    }
+
+    return result != null ? File(result.path) : file;
   }
 
+  //================== confirm order ====================
   ApiResponse _ordersResponse = ApiResponse(state: ResponseState.sleep, data: null);
   Future<void> confirmOrders({
     required int orderId,
@@ -210,7 +235,7 @@ class OrderCubit extends Cubit<OrderState> {
     required long,
     required File img,
   }) async {
-    XFile imageFile = await compressImage(File(img.path));
+    File imageFile = await compressImage(img);
     final data = <String, dynamic>{
       'otp': otp,
       'latitude': lat,
@@ -236,7 +261,50 @@ class OrderCubit extends Cubit<OrderState> {
     if (_ordersResponse.data['success'] == true) {
       emit(OrderConfirmed(success: _success));
     } else {
-      emit(OrderError());
+      emit(OrderError(_ordersResponse.getMessage().isNotEmpty
+          ? _ordersResponse.getMessage()
+          : tr(AppLocaleKey.unknownError)));
+    }
+  }
+
+  //========================== empty order ==========================
+  ApiResponse _emptyOrdersResponse = ApiResponse(state: ResponseState.sleep, data: null);
+  Future<void> confirmEmptyOrder({
+    required int orderId,
+    required lat,
+    required long,
+    required File img,
+    required VoidCallback onSuccess,
+  }) async {
+    File imageFile = await compressImage(img);
+    final data = <String, dynamic>{
+      'empty_latitude': lat,
+      'empty_longitude': long,
+    };
+    data['empty_image'] = await MultipartFile.fromFile(imageFile.path,
+        filename: "hawiah.jpg", contentType: DioMediaType('image', 'jpg'));
+
+    final formData = FormData.fromMap(data);
+
+    emit(OrderLoading());
+    _emptyOrdersResponse = ApiResponse(state: ResponseState.loading, data: null);
+    var _success = null;
+    emit(OrderLoading());
+    _emptyOrdersResponse = await ApiHelper.instance.post(
+      Urls.confirmEmptyOrders(orderId),
+      body: formData,
+      hasToken: true,
+      isMultipart: true,
+    );
+    emit(OrderChange());
+
+    if (_emptyOrdersResponse.data['success'] == true) {
+      emit(OrderConfirmed(success: _success));
+      onSuccess.call();
+    } else {
+      emit(OrderError(_emptyOrdersResponse.getMessage().isNotEmpty
+          ? _emptyOrdersResponse.getMessage()
+          : tr(AppLocaleKey.unknownError)));
     }
   }
 
@@ -260,15 +328,40 @@ class OrderCubit extends Cubit<OrderState> {
     if (response.state == ResponseState.complete) {
       onSuccess.call();
     } else if (response.state == ResponseState.unauthorized) {
-      CommonMethods.showAlertDialog(
-        message: tr(AppLocaleKey.youMustLogInFirst),
-      );
+      NavigatorMethods.pushNamedAndRemoveUntil(
+          AppRouters.navigatorKey.currentContext!, LoginScreen.routeName);
     } else {
       CommonMethods.showError(
-        message: response.data['message'] ?? 'حدث خطاء',
+        message: response.getMessage().isNotEmpty
+            ? response.getMessage()
+            : tr(AppLocaleKey.anErrorOccurred),
         apiResponse: response,
       );
     }
   }
-  //?================== create order ====================
+
+  //?================== singleOrder ====================
+  Future<void> singleOrder({required int orderId}) async {
+    emit(OrderLoading());
+
+    final response = await ApiHelper.instance.get(Urls.showOrder(orderId));
+
+    if (response.state == ResponseState.complete) {
+      if (response.data?['success'] == true && response.data?['data'] != null) {
+        final order = SingleOrderModel.fromJson(response.data);
+        emit(CurrentOrderLoaded(order));
+      } else {
+        emit(CurrentOrderError(response.getMessage().isNotEmpty
+            ? response.getMessage()
+            : tr(AppLocaleKey.anErrorOccurred)));
+      }
+    } else if (response.state == ResponseState.unauthorized) {
+      NavigatorMethods.pushNamedAndRemoveUntil(
+          AppRouters.navigatorKey.currentContext!, LoginScreen.routeName);
+    } else {
+      emit(CurrentOrderError(response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : tr(AppLocaleKey.anErrorOccurred)));
+    }
+  }
 }

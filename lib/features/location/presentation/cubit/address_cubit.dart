@@ -43,9 +43,20 @@ class AddressCubit extends Cubit<AddressState> {
     _neighborhoodsResponse = await ApiHelper.instance.get(
       Urls.neighborhoodsByCity(id),
     );
-    if (_neighborhoodsResponse.state == ResponseState.complete) {
-      Iterable iterable = _neighborhoodsResponse.data['message'];
-
+    if (_neighborhoodsResponse.state == ResponseState.complete && _neighborhoodsResponse.data != null) {
+      final dynamic messageData = _neighborhoodsResponse.data['message'];
+      if (messageData is Iterable) {
+        // Data is correctly an iterable, we can proceed
+        // (If there was a local list to populate, we'd do it here)
+      } else {
+        // API returned something else (likely a string error despite 'complete' state)
+        CommonMethods.showError(
+          message: _neighborhoodsResponse.getMessage().isNotEmpty 
+              ? _neighborhoodsResponse.getMessage() 
+              : tr(AppLocaleKey.anErrorOccurred),
+          apiResponse: _neighborhoodsResponse,
+        );
+      }
       emit(AddressUpdate());
     }
   }
@@ -70,7 +81,7 @@ class AddressCubit extends Cubit<AddressState> {
     );
     NavigatorMethods.loadingOff();
     if (response.state == ResponseState.complete) {
-      CommonMethods.showToast(message: 'تم حفظ العنوان بنجاح');
+      CommonMethods.showToast(message: tr(AppLocaleKey.saveChangesSuccess));
       onSuccess.call();
     } else if (response.state == ResponseState.unauthorized) {
       CommonMethods.showAlertDialog(
@@ -78,7 +89,7 @@ class AddressCubit extends Cubit<AddressState> {
       );
     } else {
       CommonMethods.showError(
-        message: response.data['message'] ?? 'حدث خطاء',
+        message: response.getMessage().isNotEmpty ? response.getMessage() : tr(AppLocaleKey.anErrorOccurred),
         apiResponse: response,
       );
     }
@@ -105,7 +116,7 @@ class AddressCubit extends Cubit<AddressState> {
     );
     NavigatorMethods.loadingOff();
     if (response.state == ResponseState.complete) {
-      CommonMethods.showToast(message: 'تم حفظ العنوان بنجاح');
+      CommonMethods.showToast(message: tr(AppLocaleKey.saveChangesSuccess));
       onSuccess.call();
     } else if (response.state == ResponseState.unauthorized) {
       CommonMethods.showAlertDialog(
@@ -113,7 +124,7 @@ class AddressCubit extends Cubit<AddressState> {
       );
     } else {
       CommonMethods.showError(
-        message: response.data['message'] ?? 'حدث خطاء',
+        message: response.getMessage().isNotEmpty ? response.getMessage() : tr(AppLocaleKey.anErrorOccurred),
         apiResponse: response,
       );
     }
@@ -144,8 +155,18 @@ class AddressCubit extends Cubit<AddressState> {
     _addressesResponse = await ApiHelper.instance.get(
       Urls.addresses,
     );
-    if (_addressesResponse.state == ResponseState.complete) {
-      Iterable iterable = _addressesResponse.data['message'];
+    if (_addressesResponse.state == ResponseState.complete && _addressesResponse.data != null) {
+      final dynamic messageData = _addressesResponse.data['message'];
+      if (messageData is Iterable) {
+         // Proceed with population if needed
+      } else {
+        CommonMethods.showError(
+          message: _addressesResponse.getMessage().isNotEmpty 
+              ? _addressesResponse.getMessage() 
+              : tr(AppLocaleKey.anErrorOccurred),
+          apiResponse: _addressesResponse,
+        );
+      }
       emit(AddressUpdate());
     }
   }

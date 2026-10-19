@@ -90,7 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
               fontSize: 16.0,
             );
           }
-          if (state is AuthSuccess) {
+          if (state is AuthLoginSuccess) {
             Fluttertoast.showToast(
               msg: state.message,
               toastLength: Toast.LENGTH_LONG,
@@ -106,15 +106,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 builder: (BuildContext context) => const LayoutScreen(),
               ),
               (route) => false,
-            );
-          } else if (state is AuthError) {
-            Fluttertoast.showToast(
-              msg: state.message,
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.BOTTOM,
-              backgroundColor: Colors.redAccent,
-              textColor: Colors.white,
-              fontSize: 16.0,
             );
           }
         },

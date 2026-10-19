@@ -15,6 +15,7 @@ import 'package:hawiah_driver/core/theme/app_colors.dart';
 import 'package:hawiah_driver/core/theme/app_text_style.dart';
 import 'package:hawiah_driver/core/utils/navigator_methods.dart';
 import 'package:hawiah_driver/features/authentication/presentation/dialog/unauthenticated_dialog.dart';
+import 'package:hawiah_driver/features/authentication/presentation/screens/login-screen.dart';
 import 'package:hawiah_driver/features/chat/cubit/chat_cubit.dart';
 import 'package:hawiah_driver/features/chat/model/chat_model.dart';
 import 'package:hawiah_driver/features/chat/presentation/widget/conversation_list_tile.dart';
@@ -30,7 +31,7 @@ class AllChatsScreen extends StatefulWidget {
 
 class _AllChatsScreenState extends State<AllChatsScreen> {
   late ChatCubit chatCubit;
-  late String userId;
+  late String driverId;
   final TextEditingController _searchController = TextEditingController();
   List<RecentChatModel> _allChats = [];
   List<RecentChatModel> _filteredChats = [];
@@ -51,13 +52,19 @@ class _AllChatsScreenState extends State<AllChatsScreen> {
       log(HiveMethods.getToken().toString());
       isVesetor = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        NavigatorMethods.showAppDialog(context, UnauthenticatedDialog());
+        Navigator.pushAndRemoveUntil<void>(
+          context,
+          MaterialPageRoute<void>(
+            builder: (BuildContext context) => const LoginScreen(),
+          ),
+          (route) => false,
+        );
       });
     } else {
-      userId = sl<ProfileCubit>().user!.id.toString();
+      driverId = sl<ProfileCubit>().user!.id.toString();
       chatCubit = ChatCubit();
       chatCubit.fetchRecentChats(
-        currentId: userId,
+        currentId: driverId,
         currentType: 'driver',
       );
     }
@@ -136,7 +143,7 @@ class _AllChatsScreenState extends State<AllChatsScreen> {
                           itemBuilder: (context, index) {
                             final chat = chats[index];
                             return ConversationListTile(
-                                chat: chat, userId: userId, chatCubit: chatCubit);
+                                chat: chat, driverId: driverId, chatCubit: chatCubit);
                           },
                         );
                       } else if (state is ChatEmpty) {

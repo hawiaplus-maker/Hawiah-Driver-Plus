@@ -19,6 +19,30 @@ class AuthSuccess extends AuthState {
   });
 }
 
+class AuthLoginSuccess extends AuthSuccess {
+  AuthLoginSuccess({required super.message, super.data});
+}
+
+class AuthRegisterSuccess extends AuthSuccess {
+  AuthRegisterSuccess({required super.message, super.data});
+}
+
+class AuthForgotPasswordSuccess extends AuthSuccess {
+  AuthForgotPasswordSuccess({required super.message, super.data});
+}
+
+class AuthOtpSuccess extends AuthSuccess {
+  AuthOtpSuccess({required super.message, super.data});
+}
+
+class AuthResetPasswordSuccess extends AuthSuccess {
+  AuthResetPasswordSuccess({required super.message, super.data});
+}
+
+class AuthCompleteRegisterSuccess extends AuthSuccess {
+  AuthCompleteRegisterSuccess({required super.message, super.data});
+}
+
 class AuthCodeResentLoading extends AuthState {}
 
 class AuthCodeResentSuccess extends AuthState {

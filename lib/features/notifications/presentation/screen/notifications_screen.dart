@@ -15,7 +15,7 @@ import 'package:hawiah_driver/features/notifications/presentation/widget/notific
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
-
+  static const routeName = '/notifications-screen';
   @override
   State<NotificationsScreen> createState() => _NotificationsScreenState();
 }

@@ -91,8 +91,8 @@ class SingleOrderData {
   String? totalPrice;
   String? fromDate;
   String? toDate;
-  int? discount;
-  int? discountValue;
+  num? discount;
+  num? discountValue;
   String? createdAt;
   String? product;
   String? image;
@@ -104,7 +104,7 @@ class SingleOrderData {
   List<VehicleModel>? vehicles;
   String? otp;
   String? user;
-  int? userId;
+  dynamic userId;
   String? userMobile;
   String? userImage;
   String? driverFcmToken;

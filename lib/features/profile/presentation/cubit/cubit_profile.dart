@@ -6,11 +6,13 @@ import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:hawiah_driver/core/hive/hive_methods.dart';
 import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/core/networking/api_helper.dart';
 import 'package:hawiah_driver/core/networking/urls.dart';
 import 'package:hawiah_driver/features/profile/presentation/cubit/state_profile.dart';
 import 'package:hawiah_driver/features/profile/presentation/screens/model/question_model.dart';
+import 'package:hawiah_driver/features/profile/presentation/screens/model/user_info_model.dart';
 import 'package:hawiah_driver/features/profile/presentation/screens/model/user_profile_model.dart';
 
 class ProfileCubit extends Cubit<ProfileState> {
@@ -18,6 +20,74 @@ class ProfileCubit extends Cubit<ProfileState> {
 
   UserProfileModel? _user;
   UserProfileModel? get user => _user;
+
+  UserInfoModel? _userInfo;
+  UserInfoModel? get userInfo => _userInfo;
+
+  /// Loads the session user via `GET /service-providers/user-info`.
+  ///
+  /// Used as the app-entry auth gate: persists the work-type flags
+  /// (order_work / project_work / cleaning_contract_work) to Hive and
+  /// reports unauthenticated responses through [onError] so the splash
+  /// screen can redirect to the login screen.
+  Future<void> fetchUserInfo({
+    VoidCallback? onSuccess,
+    VoidCallback? onError,
+  }) async {
+    log('============================= Fetch User Info ==============================');
+    emit(ProfileLoading());
+
+    try {
+      final response = await ApiHelper.instance.get(Urls.userInfo);
+
+      if (response.state == ResponseState.complete && response.data != null) {
+        final info = UserInfoModel.fromJson(response.data!);
+        if (info.data != null) {
+          // Keep the work-type flags in sync with the server on every app start.
+          HiveMethods.updateOrderWork(info.data!.orderWork);
+          HiveMethods.updateProjectWork(info.data!.projectWork);
+          HiveMethods.updateCleaningContractWork(info.data!.cleaningContractWork);
+        }
+        _userInfo = info;
+        // Populate the shared profile user if it wasn't fetched yet. The splash
+        // no longer calls fetchProfile, so screens reading `cubit.user` (e.g.
+        // chat, profile) would otherwise hit a null user.
+        _user ??= UserProfileModel(
+          id: info.data!.id,
+          name: info.data!.name,
+          username: '',
+          mobile: info.data!.mobile,
+          email: info.data!.email,
+          city: '',
+          nationalId: '',
+          walletLimit: '',
+          image: info.data!.image,
+        );
+        emit(ProfileUserInfoLoaded(info));
+        log('User info loaded: id=${info.data?.id}, name=${info.data?.name}');
+        onSuccess?.call();
+        return;
+      }
+
+      if (response.state == ResponseState.unauthorized) {
+        emit(ProfileUnAuthorized());
+        onError?.call();
+        return;
+      }
+
+      if (response.state == ResponseState.error) {
+        emit(ProfileError(response.getMessage().isNotEmpty
+            ? response.getMessage()
+            : "Failed to fetch user info"));
+        onError?.call();
+        return;
+      }
+    } catch (e, stackTrace) {
+      log("Exception in fetchUserInfo: $e", stackTrace: stackTrace);
+      emit(ProfileError("Failed to fetch user info: $e"));
+      onError?.call();
+    }
+  }
 
   Future<void> fetchProfile({VoidCallback? onSuccess, VoidCallback? onError}) async {
     emit(ProfileLoading());

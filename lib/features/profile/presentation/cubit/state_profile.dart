@@ -1,4 +1,5 @@
 import 'package:hawiah_driver/features/profile/presentation/screens/model/question_model.dart';
+import 'package:hawiah_driver/features/profile/presentation/screens/model/user_info_model.dart';
 import 'package:hawiah_driver/features/profile/presentation/screens/model/user_profile_model.dart';
 
 abstract class ProfileState {}
@@ -13,6 +14,11 @@ class ProfileLoaded extends ProfileState {
 }
 
 class ProfileUpdating extends ProfileState {}
+
+class ProfileUserInfoLoaded extends ProfileState {
+  final UserInfoModel userInfo;
+  ProfileUserInfoLoaded(this.userInfo);
+}
 
 class ProfileUnAuthorized extends ProfileState {}
 

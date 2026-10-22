@@ -404,5 +404,18 @@
   "noInternetConnection": "No internet connection",
   "verificationCodeResent": "Verification code has been resent",
   "errorDuringProcess": "An error occurred during the process",
-  "appName": "Hawiah"
+  "appName": "Hawiah",
+  "contractNumber": "Contract number",
+  "container": "Container",
+  "deliveryStatus": "Delivery status",
+  "product": "Service",
+  "createdAt": "Created at",
+  "dischargesTab": "Discharges",
+  "noDischarges": "No discharge records",
+  "referenceNumber": "Reference number",
+  "clientName": "Client",
+  "scheduledDate": "Scheduled date",
+  "discharges": "Discharges",
+  "completedPickupsLabel": "Completed pickups",
+  "clientNotes": "Client notes"
 }

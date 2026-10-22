@@ -45,6 +45,13 @@ class AuthCubit extends Cubit<AuthState> {
   // Receive notifications toggle
   bool receiveNotifications = false;
 
+  // Work type flags from the login response, persisted in Hive.
+  // AuthCubit is registered as a factory, so every sl<AuthCubit>() creates a
+  // new instance — reading from Hive is the only reliable way to access these.
+  bool get isOrderWork => HiveMethods.getOrderWork() == true;
+  bool get isProjectWork => HiveMethods.getProjectWork() == true;
+  bool get isCleaningContractWork => HiveMethods.getCleaningContractWork() == true;
+
   // Update the selected SMS or WhatsApp method
   void updateSelectedSmsOrWhatsApp(int index) {
     selectedSmsOrWhatsApp = index;
@@ -267,6 +274,9 @@ class AuthCubit extends Cubit<AuthState> {
 
       if (data != null) {
         HiveMethods.updateToken(data['api_token']);
+        HiveMethods.updateOrderWork(data['order_work']);
+        HiveMethods.updateProjectWork(data['project_work']);
+        HiveMethods.updateCleaningContractWork(data['cleaning_contract_work']);
         await sl<ProfileCubit>().fetchProfile();
         emit(AuthLoginSuccess(message: message));
       } else {
@@ -500,6 +510,7 @@ class AuthCubit extends Cubit<AuthState> {
       HiveMethods.deleteToken();
       HiveMethods.deleteUserId();
       HiveMethods.updateIsVisitor(true);
+      HiveMethods.deleteWorkTypes();
       
       emit(LogOutSuccess(message: message));
       CommonMethods.showToast(message: message);

@@ -69,4 +69,52 @@ class HiveMethods {
   static void updateIsVisitor(bool? isVisitor) {
     _box.put('isVisitor', isVisitor);
   }
+
+  // ===== Work type flags (order_work / project_work / cleaning_contract_work) =====
+  // Persisted in Hive because AuthCubit is registered as a factory, so instance
+  // fields don't survive; these flags must be readable anywhere (e.g. OrderCubit).
+  static bool? getOrderWork() {
+    final value = _box.get('order_work');
+    return value is bool ? value : null;
+  }
+
+  static void updateOrderWork(bool? value) {
+    if (value == null) {
+      _box.delete('order_work');
+    } else {
+      _box.put('order_work', value);
+    }
+  }
+
+  static bool? getProjectWork() {
+    final value = _box.get('project_work');
+    return value is bool ? value : null;
+  }
+
+  static void updateProjectWork(bool? value) {
+    if (value == null) {
+      _box.delete('project_work');
+    } else {
+      _box.put('project_work', value);
+    }
+  }
+
+  static bool? getCleaningContractWork() {
+    final value = _box.get('cleaning_contract_work');
+    return value is bool ? value : null;
+  }
+
+  static void updateCleaningContractWork(bool? value) {
+    if (value == null) {
+      _box.delete('cleaning_contract_work');
+    } else {
+      _box.put('cleaning_contract_work', value);
+    }
+  }
+
+  static void deleteWorkTypes() {
+    _box.delete('order_work');
+    _box.delete('project_work');
+    _box.delete('cleaning_contract_work');
+  }
 }

@@ -308,4 +308,17 @@ class AppLocaleKey {
   static const String updateLater = 'update_later';
   static const String updateNow = 'update_now';
   static const String imagesFromDeliveryLocation = 'imagesFromDeliveryLocation';
+  static const String contractNumber = 'contractNumber';
+  static const String container = 'container';
+  static const String deliveryStatus = 'deliveryStatus';
+  static const String product = 'product';
+  static const String createdAt = 'createdAt';
+  static const String dischargesTab = 'dischargesTab';
+  static const String noDischarges = 'noDischarges';
+  static const String referenceNumber = 'referenceNumber';
+  static const String clientName = 'clientName';
+  static const String scheduledDate = 'scheduledDate';
+  static const String discharges = 'discharges';
+  static const String completedPickupsLabel = 'completedPickupsLabel';
+  static const String clientNotes = 'clientNotes';
 }

@@ -17,6 +17,7 @@ class Urls {
   static const String baseUrl = 'https://hawiaplus.com/api/';
   // static const String baseUrl = 'https://testing.hawiaplus.com/api/';
   static const String login = '${baseUrl}service-providers/login';
+  static const String userInfo = '${baseUrl}service-providers/user-info';
   static const String validateMobile = '${baseUrl}validate-mobile';
   static const String companyRegister = '${baseUrl}company/register';
   static const String individualRegister = '${baseUrl}complete-register';
@@ -58,4 +59,10 @@ class Urls {
   static String applayCoupon = '${baseUrl}coupon/check';
   static String questions = '${baseUrl}faq';
   static String showOrder(int id) => '${baseUrl}drivers/orders/$id';
+  static const String cleaningContractsDeliveries =
+      '${baseUrl}v2/drivers/cleaning-contracts-deliveries';
+  static const String cleaningContractsDischarges =
+      '${baseUrl}v2/drivers/cleaning-contracts-discharges';
+  static const String projectDischarges =
+      '${baseUrl}drivers/project-discharges';
 }

@@ -7,12 +7,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:hawiah_driver/core/locale/app_locale_key.dart';
+import 'package:hawiah_driver/core/hive/hive_methods.dart';
 import 'package:hawiah_driver/core/networking/api_helper.dart';
 import 'package:hawiah_driver/core/networking/urls.dart';
 import 'package:hawiah_driver/core/utils/common_methods.dart';
 import 'package:hawiah_driver/core/utils/navigator_methods.dart';
 import 'package:hawiah_driver/features/authentication/presentation/screens/login-screen.dart';
+import 'package:hawiah_driver/features/order/presentation/model/cleaning_contract_delivery_model.dart';
 import 'package:hawiah_driver/features/order/presentation/model/orders_model.dart';
+import 'package:hawiah_driver/features/order/presentation/model/project_discharge_model.dart';
 import 'package:hawiah_driver/features/order/presentation/model/single_order_model.dart'
     hide SingleOrderData;
 import 'package:path/path.dart' as path;
@@ -61,9 +64,217 @@ class OrderCubit extends Cubit<OrderState> {
   bool isLoadingOld = false;
   bool isLoadingMoreOld = false;
 
+// cleaning contracts deliveries
+  List<CleaningContractDeliveryItem> cleaningContractDeliveries = [];
+  List<CleaningContractDeliveryItem> cleaningCurrentOrders = [];
+  List<CleaningContractDeliveryItem> cleaningOldOrders = [];
+  int cleaningCurrentPage = 1;
+  int cleaningLastPage = 1;
+  bool isLoadingCleaningContract = false;
+  bool isLoadingMoreCleaningContract = false;
+
+// cleaning contracts discharges (third tab, cleaning contract mode only)
+  List<CleaningContractDeliveryItem> cleaningDischarges = [];
+  int dischargeCurrentPage = 1;
+  int dischargeLastPage = 1;
+  bool isLoadingDischarges = false;
+  bool isLoadingMoreDischarges = false;
+  bool dischargeLoadedOnce = false;
+
 // Helpers
   bool get canLoadMoreCurrent => currentPageCurrent < lastPageCurrent;
   bool get canLoadMoreOld => currentPageOld < lastPageOld;
+
+  /// When the driver has cleaning_contract_work enabled (and order_work is
+  /// not the active default), serve cleaning contract deliveries instead of
+  /// regular orders.  order_work takes priority per the requirement.
+  ///
+  /// The flags are read from Hive (saved at login) because AuthCubit is
+  /// registered as a factory — every sl<AuthCubit>() creates a fresh instance
+  /// with null flags, which caused the cleaning flow to never trigger.
+  /// NOTE: the profile API (work_types.orders/enabled work types) reflects
+  /// *allowed* capabilities, not the active session flags, so it must NOT
+  /// override the login values.
+  bool get isCleaningContractMode =>
+      HiveMethods.getCleaningContractWork() == true &&
+      HiveMethods.getOrderWork() != true;
+
+// project work (project pickups / discharges)
+  List<ProjectDischargeItem> projectDischarges = [];
+  List<ProjectDischargeItem> projectCurrentOrders = [];
+  List<ProjectDischargeItem> projectOldOrders = [];
+  int projectCurrentPage = 1;
+  int projectLastPage = 1;
+  bool isLoadingProject = false;
+  bool isLoadingMoreProject = false;
+
+  /// Project-discharges mode: project_work is on and none of the higher
+  /// priority work types are active (order_work > cleaning > projects).
+  bool get isProjectWorkMode =>
+      HiveMethods.getProjectWork() == true &&
+      HiveMethods.getOrderWork() != true &&
+      HiveMethods.getCleaningContractWork() != true;
+
+  bool get canLoadMoreProject => projectCurrentPage < projectLastPage;
+
+  /// Fetches project pickups (project discharges) and splits them into
+  /// current (not completed) and old (completed) lists.
+  Future<void> getProjectDischarges({
+    required int orderStatus, // 0 = current, 1 = old (drives nothing server-side;
+    // the endpoint is fetched once and split client-side, like deliveries)
+    int page = 1,
+    bool isLoadMore = false,
+    bool isRefresh = false,
+  }) async {
+    log(
+        "**************************** getProjectDischarges($orderStatus, page: $page) *************************");
+
+    if (isRefresh) {
+      page = 1;
+    }
+
+    if (isLoadMore) {
+      if (!canLoadMoreProject || isLoadingMoreProject) return;
+      isLoadingMoreProject = true;
+      emit(OrderPaginationLoading());
+    } else {
+      isLoadingProject = true;
+      emit(OrderLoading());
+    }
+
+    final response = await ApiHelper.instance.get(
+      Urls.projectDischarges,
+      queryParameters: {"page": page},
+    );
+
+    if (response.state == ResponseState.complete) {
+      try {
+        final result = ProjectDischargeModel.fromJson(response.data);
+        final newItems = result.data?.data ?? [];
+        final pagination = result.data?.pagination;
+
+        projectCurrentPage = pagination?.currentPage ?? 1;
+        projectLastPage = pagination?.lastPage ?? 1;
+
+        final List<ProjectDischargeItem> allItems;
+        if (isLoadMore) {
+          projectDischarges.addAll(newItems);
+          allItems = projectDischarges;
+        } else {
+          projectDischarges = newItems;
+          allItems = newItems;
+        }
+
+        projectCurrentOrders = allItems.where((e) => !e.isCompleted).toList();
+        projectOldOrders = allItems.where((e) => e.isCompleted).toList();
+
+        if (isLoadMore) {
+          isLoadingMoreProject = false;
+        } else {
+          isLoadingProject = false;
+        }
+
+        emit(OrderSuccess(ordersModel: null));
+      } catch (e) {
+        log("Error parsing project discharges: $e");
+        isLoadingProject = false;
+        isLoadingMoreProject = false;
+        final errorMsg = response.getMessage().isNotEmpty
+            ? response.getMessage()
+            : e.toString();
+        emit(OrderError(errorMsg));
+      }
+    } else if (response.state == ResponseState.unauthorized) {
+      isLoadingProject = false;
+      isLoadingMoreProject = false;
+      emit(Unauthenticated());
+    } else {
+      isLoadingProject = false;
+      isLoadingMoreProject = false;
+      final errorMsg = response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : "Failed to load project discharges";
+      emit(OrderError(errorMsg));
+    }
+  }
+
+  bool get canLoadMoreCleaningContract =>
+      cleaningCurrentPage < cleaningLastPage;
+
+  bool get canLoadMoreDischarges =>
+      dischargeCurrentPage < dischargeLastPage;
+
+  /// Fetches container discharge (emptying) records for the third tab.
+  Future<void> getCleaningContractDischarges({
+    int page = 1,
+    bool isLoadMore = false,
+    bool isRefresh = false,
+  }) async {
+    log(
+        "**************************** getCleaningContractDischarges($page) *************************");
+
+    if (isRefresh) {
+      page = 1;
+      dischargeLoadedOnce = false;
+    }
+
+    if (isLoadMore) {
+      if (!canLoadMoreDischarges || isLoadingMoreDischarges) return;
+      isLoadingMoreDischarges = true;
+      emit(OrderPaginationLoading());
+    } else {
+      isLoadingDischarges = true;
+      if (!isRefresh) {
+        // Pull-to-refresh keeps existing data visible until the new page lands.
+        cleaningDischarges = [];
+        emit(OrderLoading());
+      }
+    }
+
+    final response = await ApiHelper.instance.get(
+      Urls.cleaningContractsDischarges,
+      queryParameters: {"page": page},
+    );
+
+    if (response.state == ResponseState.complete) {
+      try {
+        final result = CleaningContractDeliveryModel.fromJson(response.data);
+        final newItems = result.data?.data ?? [];
+        final pagination = result.data?.pagination;
+
+        dischargeCurrentPage = pagination?.currentPage ?? 1;
+        dischargeLastPage = pagination?.lastPage ?? 1;
+
+        if (isLoadMore) {
+          cleaningDischarges.addAll(newItems);
+          isLoadingMoreDischarges = false;
+        } else {
+          cleaningDischarges = newItems;
+          isLoadingDischarges = false;
+        }
+
+        dischargeLoadedOnce = true;
+        emit(OrderSuccess(ordersModel: null));
+      } catch (e) {
+        log("Error parsing cleaning contract discharges: $e");
+        isLoadingDischarges = false;
+        isLoadingMoreDischarges = false;
+        emit(OrderError(response.getMessage().isNotEmpty
+            ? response.getMessage()
+            : e.toString()));
+      }
+    } else if (response.state == ResponseState.unauthorized) {
+      isLoadingDischarges = false;
+      isLoadingMoreDischarges = false;
+      emit(Unauthenticated());
+    } else {
+      isLoadingDischarges = false;
+      isLoadingMoreDischarges = false;
+      emit(OrderError(response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : "Failed to load cleaning contract discharges"));
+    }
+  }
 
 // =================== Main API Function ====================// =================== Main API Function ====================
   Future<void> getOrders({
@@ -73,6 +284,28 @@ class OrderCubit extends Cubit<OrderState> {
     bool isRefresh = false,
   }) async {
     log("**************************** getOrders($orderStatus) *************************");
+
+    // When cleaning contract work is enabled, serve cleaning contract deliveries.
+    if (isCleaningContractMode) {
+      await getCleaningContractDeliveries(
+        orderStatus: orderStatus,
+        page: page,
+        isLoadMore: isLoadMore,
+        isRefresh: isRefresh,
+      );
+      return;
+    }
+
+    // When project work is enabled, serve project pickups (discharges).
+    if (isProjectWorkMode) {
+      await getProjectDischarges(
+        orderStatus: orderStatus,
+        page: page,
+        isLoadMore: isLoadMore,
+        isRefresh: isRefresh,
+      );
+      return;
+    }
 
     final bool isCurrent = orderStatus == 0;
 
@@ -185,6 +418,88 @@ class OrderCubit extends Cubit<OrderState> {
       final errorMsg =
           response.getMessage().isNotEmpty ? response.getMessage() : "Failed to load orders";
 
+      emit(OrderError(errorMsg));
+    }
+  }
+
+  // =================== Cleaning Contract Deliveries ====================
+  Future<void> getCleaningContractDeliveries({
+    required int orderStatus, // 0 = current, 1 = old
+    int page = 1,
+    bool isLoadMore = false,
+    bool isRefresh = false,
+  }) async {
+    log(
+        "**************************** getCleaningContractDeliveries($orderStatus) *************************");
+
+    if (isRefresh) {
+      page = 1;
+    }
+
+    if (isLoadMore) {
+      if (!canLoadMoreCleaningContract || isLoadingMoreCleaningContract) return;
+      isLoadingMoreCleaningContract = true;
+      emit(OrderPaginationLoading());
+    } else {
+      isLoadingCleaningContract = true;
+      cleaningContractDeliveries = [];
+      cleaningCurrentOrders = [];
+      cleaningOldOrders = [];
+      emit(OrderLoading());
+    }
+
+    final response = await ApiHelper.instance.get(
+      Urls.cleaningContractsDeliveries,
+      queryParameters: {"page": page},
+    );
+
+    if (response.state == ResponseState.complete) {
+      try {
+        final result = CleaningContractDeliveryModel.fromJson(response.data);
+        final newItems = result.data?.data ?? [];
+        final pagination = result.data?.pagination;
+
+        cleaningCurrentPage = pagination?.currentPage ?? 1;
+        cleaningLastPage = pagination?.lastPage ?? 1;
+
+        final allItems = isLoadMore
+            ? [...cleaningContractDeliveries, ...newItems]
+            : newItems;
+        cleaningContractDeliveries = allItems;
+
+        cleaningCurrentOrders = allItems
+            .where((e) => e.deliveryStatus?.toLowerCase() != 'delivered')
+            .toList();
+        cleaningOldOrders = allItems
+            .where((e) => e.deliveryStatus?.toLowerCase() == 'delivered')
+            .toList();
+
+        if (isLoadMore) {
+          isLoadingMoreCleaningContract = false;
+        } else {
+          isLoadingCleaningContract = false;
+        }
+
+        emit(OrderSuccess(ordersModel: null));
+      } catch (e) {
+        log("Error parsing cleaning contracts: $e");
+        isLoadingCleaningContract = false;
+        isLoadingMoreCleaningContract = false;
+        final errorMsg = response.getMessage().isNotEmpty
+            ? response.getMessage()
+            : e.toString();
+        emit(OrderError(errorMsg));
+      }
+    } else if (response.state == ResponseState.unauthorized) {
+      isLoadingCleaningContract = false;
+      isLoadingMoreCleaningContract = false;
+      emit(Unauthenticated());
+    } else {
+      isLoadingCleaningContract = false;
+      isLoadingMoreCleaningContract = false;
+      final errorMsg = response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : "Failed to load cleaning contract deliveries";
       emit(OrderError(errorMsg));
     }
   }

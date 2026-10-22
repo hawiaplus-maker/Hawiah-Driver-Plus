@@ -1,25 +1,56 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gap/gap.dart';
 import 'package:hawiah_driver/core/custom_widgets/custom_app_bar/custom_app_bar.dart';
 import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/core/theme/app_text_style.dart';
+import 'package:hawiah_driver/features/order/presentation/model/cleaning_contract_delivery_model.dart';
 import 'package:hawiah_driver/features/order/presentation/model/orders_model.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:hawiah_driver/features/order/presentation/model/project_discharge_model.dart';
+import 'package:hawiah_driver/features/order/presentation/widget/cleaning_contract_details.dart';
+import 'package:hawiah_driver/features/order/presentation/widget/project_pickup_details.dart';
 
 class OldOrderScreen extends StatefulWidget {
   const OldOrderScreen({Key? key, required this.ordersDate}) : super(key: key);
-  @override
-  final SingleOrderData ordersDate;
+
+  /// A regular [SingleOrderData], a [CleaningContractDeliveryItem] or a
+  /// [ProjectDischargeItem].
+  final dynamic ordersDate;
 
   @override
   State<OldOrderScreen> createState() => _OldOrderScreenState();
 }
 
 class _OldOrderScreenState extends State<OldOrderScreen> {
+  bool get _isCleaningContract => widget.ordersDate is CleaningContractDeliveryItem;
+  bool get _isProjectPickup => widget.ordersDate is ProjectDischargeItem;
+
+  CleaningContractDeliveryItem? get _cleaning =>
+      widget.ordersDate is CleaningContractDeliveryItem
+          ? widget.ordersDate
+          : null;
+
+  ProjectDischargeItem? get _pickup =>
+      widget.ordersDate is ProjectDischargeItem ? widget.ordersDate : null;
+
+  SingleOrderData? get _order =>
+      widget.ordersDate is SingleOrderData ? widget.ordersDate : null;
+
+  @override
   Widget build(BuildContext context) {
-    final double totalPrice = double.tryParse(widget.ordersDate.totalPrice ?? "0") ?? 0;
+    final double totalPrice = _isCleaningContract || _isProjectPickup
+        ? 0.0
+        : (double.tryParse(_order?.totalPrice ?? "0") ?? 0);
     final double vat = totalPrice * 0.15;
     final double netTotal = totalPrice + vat;
+
+    final reference = _isCleaningContract
+        ? _cleaning?.contractNumber
+        : _isProjectPickup
+            ? _pickup?.referenceNumber
+            : _order?.referenceNumber;
+
     return Scaffold(
       appBar: CustomAppBar(
         context,
@@ -39,314 +70,120 @@ class _OldOrderScreenState extends State<OldOrderScreen> {
             height: 5,
           ),
           Text(
-            widget.ordersDate.referenceNumber ?? "",
+            reference ?? "",
             style: AppTextStyle.text16_400,
           )
         ]),
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            //HawiahDetails(ordersDate: widget.ordersDate),
-            // Container(
-            //   decoration: BoxDecoration(
-            //     borderRadius: BorderRadius.circular(8.0),
-            //   ),
-            //   child: Column(
-            //     children: [
-            //       Padding(
-            //         padding: const EdgeInsets.all(8.0),
-            //         child: Row(
-            //           children: [
-            //             Expanded(
-            //               child: Row(
-            //                 children: [
-            //                   // Vehicle Image
-            //                   CustomNetworkImage(
-            //                     imageUrl: ordersDate.image ?? "",
-            //                     fit: BoxFit.fill,
-            //                     height: 60.h,
-            //                     width: 60.w,
-            //                   ),
-            //                   SizedBox(width: 10),
-            //                   Column(
-            //                     crossAxisAlignment: CrossAxisAlignment.start,
-            //                     children: [
-            //                       Text(
-            //                         ordersDate.product ?? "",
-            //                         style: AppTextStyle.text16_700,
-            //                       ),
-            //                       SizedBox(height: 5.h),
-            //                       RichText(
-            //                         text: TextSpan(
-            //                           children: [
-            //                             TextSpan(
-            //                               text: AppLocaleKey.orderNumber.tr(),
-            //                               style: AppTextStyle.text16_600.copyWith(
-            //                                 color: AppColor.blackColor.withValues(alpha: 0.7),
-            //                               ),
-            //                             ),
-            //                             TextSpan(
-            //                               text: ordersDate.referenceNumber ?? '',
-            //                               style: AppTextStyle.text16_500.copyWith(
-            //                                 color: AppColor.blackColor.withValues(alpha: 0.7),
-            //                               ),
-            //                             ),
-            //                           ],
-            //                         ),
-            //                       ),
-            //                       SizedBox(height: 5.h),
-            //                       Text(
-            //                         DateMethods.formatToFullData(
-            //                           DateTime.tryParse(
-            //                                 ordersDate.createdAt ?? "",
-            //                               ) ??
-            //                               DateTime.now(),
-            //                         ),
-            //                         style: AppTextStyle.text16_600.copyWith(
-            //                           color: AppColor.blackColor.withValues(
-            //                             alpha: 0.3,
-            //                           ),
-            //                         ),
-            //                       ),
-            //                     ],
-            //                   ),
-            //                 ],
-            //               ),
-            //             ),
-            //           ],
-            //         ),
-            //       ),
-            //     ],
-            //   ),
-            // ),
-            SizedBox(height: 16.0),
-
-            SizedBox(height: 20.0),
-            // UserCardWidget(ordersData: widget.ordersDate),
-            // Container(
-            //   padding: const EdgeInsets.all(12.0),
-            //   decoration: BoxDecoration(
-            //     color: Colors.grey.shade50,
-            //     borderRadius: BorderRadius.circular(12.0),
-            //   ),
-            //   child: Column(
-            //     children: [
-            //       Row(
-            //         crossAxisAlignment: CrossAxisAlignment.start,
-            //         children: [
-            //           Expanded(
-            //             child: Row(
-            //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //               crossAxisAlignment: CrossAxisAlignment.start,
-            //               children: [
-            //                 SizedBox(height: 10.h),
-            //                 Text(
-            //                   AppLocaleKey.customerData.tr(),
-            //                   style: AppTextStyle.text16_700,
-            //                 ),
-            //                 Text(
-            //                   widget.ordersDate.user ?? "",
-            //                   style: AppTextStyle.text16_700,
-            //                 ),
-            //                 SizedBox(height: 10.h),
-            //               ],
-            //             ),
-            //           ),
-            //         ],
-            //       ),
-            //       SizedBox(height: 40.h),
-            //       GestureDetector(
-            //         onTap: () {
-            //           NavigatorMethods.pushNamed(
-            //             context,
-            //             SingleChatScreen.routeName,
-            //             arguments: SingleChatScreenArgs(
-            //               receiverId: widget.ordersDate.userId.toString(),
-            //               receiverType: "user",
-            //               receiverName: widget.ordersDate.user ?? "",
-            //               receiverImage: widget.ordersDate.userImage ?? "",
-            //               senderId: context.read<ProfileCubit>().user.id.toString(),
-            //               senderType: "driver",
-            //               orderId: widget.ordersDate.id.toString(),
-            //               onMessageSent: () {},
-            //             ),
-            //           );
-            //         },
-            //         child: Container(
-            //           height: 50.h,
-            //           padding: EdgeInsets.symmetric(
-            //             horizontal: 10,
-            //             vertical: 5,
-            //           ),
-            //           decoration: BoxDecoration(
-            //             color: Color(0xffEEEEEE),
-            //             borderRadius: BorderRadius.circular(10),
-            //           ),
-            //           child: Row(
-            //             mainAxisSize: MainAxisSize.min,
-            //             children: [
-            //               Text(
-            //                 AppLocaleKey.sendMessage.tr(),
-            //                 style: AppTextStyle.text14_500,
-            //               ),
-            //               SizedBox(width: 15),
-            //               Image.asset(
-            //                 AppImages.send,
-            //                 height: 30.h,
-            //                 width: 30.w,
-            //               ),
-            //             ],
-            //           ),
-            //         ),
-            //       ),
-            //       SizedBox(height: 50.h),
-            //       BlocBuilder<SettingCubit, SettingState>(
-            //         builder: (context, state) {
-            //           final setting = context.read<SettingCubit>().setting;
-            //           return Row(
-            //             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            //             children: [
-            //               Column(
-            //                 children: [
-            //                   GestureDetector(
-            //                     onTap: () {
-            //                       _launchURL(
-            //                         widget.ordersDate.userMobile ?? "",
-            //                         isPhoneCall: true,
-            //                       );
-            //                     },
-            //                     child: Container(
-            //                       margin: EdgeInsets.symmetric(horizontal: 10),
-            //                       padding: EdgeInsets.all(10),
-            //                       decoration: BoxDecoration(
-            //                         color: Color(0xffD9D9D9),
-            //                         shape: BoxShape.circle,
-            //                       ),
-            //                       child: Image.asset(
-            //                         AppImages.phone,
-            //                         height: 30.h,
-            //                         width: 30.w,
-            //                       ),
-            //                     ),
-            //                   ),
-            //                   SizedBox(height: 5),
-            //                   Text(
-            //                     AppLocaleKey.contactCustomer.tr(),
-            //                     style: AppTextStyle.text16_500,
-            //                   ),
-            //                 ],
-            //               ),
-            //               Column(
-            //                 children: [
-            //                   GestureDetector(
-            //                     onTap: () {
-            //                       _launchURL(
-            //                         setting?.phone ?? "",
-            //                         isPhoneCall: true,
-            //                       );
-            //                     },
-            //                     child: Container(
-            //                       margin: EdgeInsets.symmetric(horizontal: 10),
-            //                       padding: EdgeInsets.all(10),
-            //                       decoration: BoxDecoration(
-            //                         color: Color(0xffD9D9D9),
-            //                         shape: BoxShape.circle,
-            //                       ),
-            //                       child: Image.asset(
-            //                         AppImages.support,
-            //                         height: 30.h,
-            //                         width: 30.w,
-            //                       ),
-            //                     ),
-            //                   ),
-            //                   SizedBox(height: 5),
-            //                   Text(
-            //                     AppLocaleKey.support.tr(),
-            //                     style: AppTextStyle.text16_500,
-            //                   ),
-            //                 ],
-            //               ),
-            //               Column(
-            //                 children: [
-            //                   GestureDetector(
-            //                     onTap: () {
-            //                       openMap(
-            //                         widget.ordersDate.latitude.toString(),
-            //                         widget.ordersDate.longitude.toString(),
-            //                       );
-            //                     },
-            //                     child: Container(
-            //                       margin: EdgeInsets.symmetric(horizontal: 10),
-            //                       padding: EdgeInsets.all(10),
-            //                       decoration: BoxDecoration(
-            //                         color: Color(0xffD9D9D9),
-            //                         shape: BoxShape.circle,
-            //                       ),
-            //                       child: Image.asset(
-            //                         'assets/images/pin.png',
-            //                         height: 30.h,
-            //                         width: 30.w,
-            //                       ),
-            //                     ),
-            //                   ),
-            //                   SizedBox(height: 5),
-            //                   Text(
-            //                     AppLocaleKey.viewWebsite.tr(),
-            //                     style: AppTextStyle.text16_500,
-            //                   ),
-            //                 ],
-            //               ),
-            //             ],
-            //           );
-            //         },
-            //       ),
-            //       SizedBox(height: 10.h),
-            //     ],
-            //   ),
-            // ),
-          ],
-        ),
+        child: _isCleaningContract
+            ? _buildCleaningContractBody()
+            : _isProjectPickup
+                ? _buildProjectPickupBody()
+                : _buildRegularOrderBody(
+                    totalPrice: totalPrice,
+                    vat: vat,
+                    netTotal: netTotal,
+                  ),
       ),
     );
   }
 
-  Future<void> _launchURL(
-    String? url, {
-    bool isWhatsapp = false,
-    bool isEmail = false,
-    bool isPhoneCall = false,
-  }) async {
-    if (url == null || url.isEmpty) return;
-
-    Uri uri;
-
-    if (isWhatsapp) {
-      uri = Uri.parse(
-        "https://wa.me/${url.replaceAll('+', '').replaceAll(' ', '')}",
-      );
-    } else if (isEmail) {
-      uri = Uri.parse("mailto:$url");
-    } else if (isPhoneCall) {
-      uri = Uri.parse("tel:$url");
-    } else {
-      uri = Uri.parse(url);
-    }
-
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      throw 'Could not launch $uri';
-    }
+  /// Project-pickup body (completed) — typical structure: details card
+  /// (with completed status badge and completion date), client card, images.
+  Widget _buildProjectPickupBody() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ProjectPickupDetails(pickup: _pickup!),
+        Gap(16.h),
+        ProjectPickupClientCard(pickup: _pickup!),
+        Gap(16.h),
+        ProjectPickupImages(pickup: _pickup!),
+      ],
+    );
   }
 
-  void openMap(String lat, String lng) async {
-    final Uri googleMapUrl = Uri.parse(
-      "https://www.google.com/maps/search/?api=1&query=$lat,$lng",
+  /// Cleaning-contract body — same structure as the typical old order details:
+  /// details card (with delivered status badge and delivery date),
+  /// customer/company card and delivery images.
+  Widget _buildCleaningContractBody() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CleaningContractDetails(order: _cleaning!),
+        Gap(16.h),
+        CleaningContractCompanyCard(order: _cleaning!),
+        Gap(16.h),
+        CleaningContractDeliveryImages(order: _cleaning!),
+      ],
     );
+  }
 
-    if (!await launchUrl(googleMapUrl, mode: LaunchMode.externalApplication)) {
-      throw 'Could not launch map';
-    }
+  /// Regular order body.
+  Widget _buildRegularOrderBody({
+    required double totalPrice,
+    required double vat,
+    required double netTotal,
+  }) {
+    final o = _order;
+    if (o == null) return SizedBox.shrink();
+    final statusText = o.status?['en'] ?? '';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '${AppLocaleKey.name.tr()} ${o.user ?? ""}',
+          style: AppTextStyle.text16_700,
+        ),
+        Gap(20.h),
+        if (o.product != null) ...[
+          Text(
+            AppLocaleKey.product.tr(),
+            style: AppTextStyle.text16_700,
+          ),
+          Gap(8.h),
+          Text(o.product ?? '', style: AppTextStyle.text16_400),
+          Gap(16.h),
+        ],
+        if (o.address != null) ...[
+          Text(
+            AppLocaleKey.address.tr(),
+            style: AppTextStyle.text16_700,
+          ),
+          Gap(8.h),
+          Text(o.address ?? '', style: AppTextStyle.text16_400),
+          Gap(16.h),
+        ],
+        if (o.createdAt != null) ...[
+          Text(
+            AppLocaleKey.createdAt.tr(),
+            style: AppTextStyle.text16_700,
+          ),
+          Gap(8.h),
+          Text(o.createdAt ?? '', style: AppTextStyle.text16_400),
+          Gap(16.h),
+        ],
+        Text(
+          '${AppLocaleKey.totalPrice.tr()} ${totalPrice.toStringAsFixed(2)}',
+          style: AppTextStyle.text16_700,
+        ),
+        Text(
+          '${AppLocaleKey.tax.tr()} ${vat.toStringAsFixed(2)}',
+          style: AppTextStyle.text16_500,
+        ),
+        Text(
+          '${AppLocaleKey.netTotal.tr()} ${netTotal.toStringAsFixed(2)}',
+          style: AppTextStyle.text16_700,
+        ),
+        if (statusText.isNotEmpty) ...[
+          Text(
+            '${AppLocaleKey.deliveryStatus.tr()}: $statusText',
+            style: AppTextStyle.text16_500,
+          ),
+        ],
+      ],
+    );
   }
 }

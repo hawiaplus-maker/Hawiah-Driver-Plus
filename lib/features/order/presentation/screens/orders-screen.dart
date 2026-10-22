@@ -7,8 +7,6 @@ import 'package:hawiah_driver/core/custom_widgets/no_data_widget.dart';
 import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/core/theme/app_colors.dart';
 import 'package:hawiah_driver/core/theme/app_text_style.dart';
-import 'package:hawiah_driver/core/utils/navigator_methods.dart';
-import 'package:hawiah_driver/features/authentication/presentation/dialog/unauthenticated_dialog.dart';
 import 'package:hawiah_driver/features/authentication/presentation/screens/login-screen.dart';
 import 'package:hawiah_driver/features/order/presentation/widget/order_tap_list.dart';
 import 'package:hawiah_driver/injection_container.dart';
@@ -25,26 +23,27 @@ class OrdersScreen extends StatefulWidget {
 
 class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  bool _isDialogOpen = false;
+  bool _cleaningMode = false;
 
   @override
   void initState() {
     super.initState();
-    super.initState();
-    // if (HiveMethods.isVisitor() || HiveMethods.getToken() == null) {
-    //   isVesetor = true;
-    //   WidgetsBinding.instance.addPostFrameCallback((_) {
-    //     NavigatorMethods.showAppDialog(context, UnauthenticatedDialog());
-    //   });
-    // }
     final cubit = sl<OrderCubit>();
+    _cleaningMode = cubit.isCleaningContractMode;
 
-    cubit.getOrders(orderStatus: 0, isRefresh: widget.isRefreshOrders);
-    cubit.getOrders(orderStatus: 1, isRefresh: widget.isRefreshOrders);
-    _tabController = TabController(length: 2, vsync: this);
+    if (_cleaningMode) {
+      cubit.getCleaningContractDeliveries(orderStatus: 0,
+          isRefresh: widget.isRefreshOrders);
+      cubit.getCleaningContractDeliveries(orderStatus: 1,
+          isRefresh: widget.isRefreshOrders);
+      cubit.getCleaningContractDischarges(isRefresh: widget.isRefreshOrders);
+      _tabController = TabController(length: 3, vsync: this);
+    } else {
+      cubit.getOrders(orderStatus: 0, isRefresh: widget.isRefreshOrders);
+      cubit.getOrders(orderStatus: 1, isRefresh: widget.isRefreshOrders);
+      _tabController = TabController(length: 2, vsync: this);
+    }
   }
-
-  bool isVesetor = false;
 
   @override
   Widget build(BuildContext context) {
@@ -84,13 +83,30 @@ class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderSt
                           .copyWith(fontSize: 18, fontWeight: FontWeight.w400),
                     ),
                   ),
+                  if (_cleaningMode)
+                    Tab(
+                      iconMargin: EdgeInsets.all(0),
+                      child: CustomButton(
+                        radius: 5,
+                        color: _tabController.index == 1
+                            ? AppColor.mainAppColor
+                            : AppColor.secondAppColor,
+                        text: AppLocaleKey.dischargesTab.tr(),
+                        style: AppTextStyle.buttonStyle
+                            .copyWith(fontSize: 18, fontWeight: FontWeight.w400),
+                      ),
+                    ),
                   Tab(
                     iconMargin: EdgeInsets.all(0),
                     child: CustomButton(
                       radius: 5,
-                      color: _tabController.index == 1
-                          ? AppColor.mainAppColor
-                          : AppColor.secondAppColor,
+                      color: _cleaningMode
+                          ? _tabController.index == 2
+                              ? AppColor.mainAppColor
+                              : AppColor.secondAppColor
+                          : _tabController.index == 1
+                              ? AppColor.mainAppColor
+                              : AppColor.secondAppColor,
                       text: AppLocaleKey.end.tr(),
                       style: AppTextStyle.buttonStyle
                           .copyWith(fontSize: 18, fontWeight: FontWeight.w400),
@@ -123,14 +139,27 @@ class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderSt
                   return TabBarView(
                     controller: _tabController,
                     physics: BouncingScrollPhysics(),
-                    children: [
-                      OrderTapList(
-                        isCurrent: true,
-                      ),
-                      OrderTapList(
-                        isCurrent: false,
-                      ),
-                    ],
+                    children: _cleaningMode
+                        ? [
+                            OrderTapList(
+                              isCurrent: true,
+                            ),
+                            OrderTapList(
+                              isCurrent: false,
+                              isDischarges: true,
+                            ),
+                            OrderTapList(
+                              isCurrent: false,
+                            ),
+                          ]
+                        : [
+                            OrderTapList(
+                              isCurrent: true,
+                            ),
+                            OrderTapList(
+                              isCurrent: false,
+                            ),
+                          ],
                   );
                 },
               ),

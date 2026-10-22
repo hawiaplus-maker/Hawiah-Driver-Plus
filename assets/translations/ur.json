@@ -390,5 +390,18 @@
   "update_title": "نئی اپ ڈیٹ دستیاب ہے",
   "update_content": "ایک نیا ورژن دستیاب ہے ({store_version}).\nآپ فی الحال ({local_version}) استعمال کر رہے ہیں۔ براہ کرم اپ ڈیٹ کریں۔",
   "update_later": "بعد میں",
-  "update_now": "اپ ڈیٹ کریں"
+  "update_now": "اپ ڈیٹ کریں",
+  "contractNumber": "معاہدہ نمبر",
+  "container": "کنٹینر",
+  "deliveryStatus": "ڈیلیوری کی صورتحال",
+  "product": "سروس",
+  "createdAt": "تاریخ تخلیق",
+  "dischargesTab": "خارج شدہ",
+  "noDischarges": "کوئی خارج شدہ ریکارڈ نہیں",
+  "referenceNumber": "ریفرنس نمبر",
+  "clientName": "کلائنٹ",
+  "scheduledDate": "مقررہ تاریخ",
+  "discharges": "خارج شدہ",
+  "completedPickupsLabel": "مکمل پک اپ",
+  "clientNotes": "کلائنٹ کے نوٹس"
 }

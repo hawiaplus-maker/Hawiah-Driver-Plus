@@ -43,7 +43,7 @@ class _SplashScreenState extends State<SplashScreen> {
       );
     } else {
       if (HiveMethods.getToken() != null) {
-        await cubit.fetchProfile(
+        await cubit.fetchUserInfo(
           onSuccess: () async {
             log("Navigation to LayoutScreen");
             if (!mounted) return;

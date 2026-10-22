@@ -14,8 +14,11 @@ import 'package:hawiah_driver/features/order/presentation/model/cleaning_contrac
 import 'package:hawiah_driver/features/order/presentation/model/orders_model.dart';
 import 'package:hawiah_driver/features/order/presentation/model/project_discharge_model.dart';
 import 'package:hawiah_driver/features/order/presentation/order-cubit/order-cubit.dart';
+import 'package:hawiah_driver/features/order/presentation/order-cubit/order-state.dart';
 import 'package:hawiah_driver/features/order/presentation/screens/order-otp-screen.dart';
 import 'package:hawiah_driver/features/order/presentation/widget/cleaning_contract_details.dart';
+import 'package:hawiah_driver/features/order/presentation/widget/discharge_action_widget.dart';
+import 'package:hawiah_driver/features/order/presentation/widget/project_discharge_action_widget.dart';
 import 'package:hawiah_driver/features/order/presentation/widget/project_pickup_details.dart';
 import 'package:hawiah_driver/features/order/presentation/widget/support_card_widget.dart';
 import 'package:hawiah_driver/features/setting/cubit/setting_cubit.dart';
@@ -78,7 +81,10 @@ class _CurrentOrderScreenState extends State<CurrentOrderScreen> {
         ),
         title: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
           Text(
-            AppLocaleKey.orderDetails.tr(),
+            // In the project (worker) flow it's a project pickup, not an order.
+            _isProjectPickup
+                ? AppLocaleKey.projectDetails.tr()
+                : AppLocaleKey.orderDetails.tr(),
             style: AppTextStyle.text16_700,
           ),
           const SizedBox(
@@ -90,29 +96,108 @@ class _CurrentOrderScreenState extends State<CurrentOrderScreen> {
           )
         ]),
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
-        child: _isCleaningContract
-            ? _buildCleaningContractBody()
-            : _isProjectPickup
-                ? _buildProjectPickupBody()
-                : _buildRegularOrderBody(),
-      ),
+      body: _isProjectPickup
+          // The cubit refreshes the project pickups after every action, so the
+          // screen listens to it to keep the status (and the action button)
+          // in sync — assigned -> in_trans -> completed.
+          ? BlocBuilder<OrderCubit, OrderState>(
+              builder: (context, state) => _scrollBody(
+                _buildProjectPickupBody(_latestPickup() ?? _pickup!),
+              ),
+            )
+          : _isCleaningContract
+              // Same for the cleaning contracts: the discharge button has to
+              // disappear once the record is discharged.
+              ? BlocBuilder<OrderCubit, OrderState>(
+                  builder: (context, state) => _scrollBody(
+                    _buildCleaningContractBody(
+                      _latestCleaningContract() ?? _cleaning!,
+                    ),
+                  ),
+                )
+              : _scrollBody(_buildRegularOrderBody()),
     );
+  }
+
+  Widget _scrollBody(Widget child) => SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: child,
+      );
+
+  /// The freshest version of the pickup held by the cubit — after an action
+  /// the orders are refreshed, so the screen shows the new status.
+  ProjectDischargeItem? _latestPickup() {
+    final id = _pickup?.id;
+    if (id == null) return _pickup;
+
+    final cubit = context.read<OrderCubit>();
+    for (final item in cubit.projectCurrentOrders) {
+      if (item.id == id) return item;
+    }
+    for (final item in cubit.projectOldOrders) {
+      if (item.id == id) return item;
+    }
+    return _pickup;
+  }
+
+  /// The freshest version of the cleaning contract held by the cubit — after a
+  /// discharge the list is refreshed, so the screen shows the new status.
+  CleaningContractDeliveryItem? _latestCleaningContract() {
+    final id = _cleaning?.id;
+    if (id == null) return _cleaning;
+
+    final cubit = context.read<OrderCubit>();
+    for (final item in cubit.cleaningDischarges) {
+      if (item.id == id) return item;
+    }
+    for (final item in cubit.cleaningCurrentOrders) {
+      if (item.id == id) return item;
+    }
+    for (final item in cubit.cleaningOldOrders) {
+      if (item.id == id) return item;
+    }
+    return _cleaning;
   }
 
   /// Project-pickup body — same structure as the typical order details:
   /// details card, client card, pickup images, support card.
-  Widget _buildProjectPickupBody() {
+  ///
+  /// The action button (Handle / Complete Discharging) follows the pickup
+  /// status and drives the whole assigned -> in_trans -> completed cycle.
+  Widget _buildProjectPickupBody(ProjectDischargeItem pickup) {
     final support = sl<SettingCubit>().setting?.support ?? "";
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ProjectPickupDetails(pickup: _pickup!),
+        ProjectPickupDetails(pickup: pickup),
         Gap(16.h),
-        ProjectPickupClientCard(pickup: _pickup!),
+        ProjectPickupClientCard(pickup: pickup),
         Gap(16.h),
-        ProjectPickupImages(pickup: _pickup!),
+        ProjectPickupImages(pickup: pickup),
+        Gap(16.h),
+        // Assigned -> capture the "before" photo and start the trip.
+        ProjectStartTripActionWidget(pickup: pickup, isFullWidth: true),
+        // In transit -> capture the "after" photo and complete the discharge.
+        if (pickup.id != null)
+          DischargeActionWidget(
+            dischargeId: pickup.id!,
+            isVisible: pickup.isInTransit,
+            label: AppLocaleKey.completeDischarging.tr(),
+            isFullWidth: true,
+            onComplete: ({
+              required image,
+              required latitude,
+              required longitude,
+              required driverNotes,
+            }) =>
+                context.read<OrderCubit>().completeProjectDischarge(
+              pickupId: pickup.id!,
+              image: image,
+              latitude: latitude,
+              longitude: longitude,
+              driverNotes: driverNotes,
+            ),
+          ),
         Gap(16.h),
         if (support.isNotEmpty) SuppprtCardWidget(support: support),
       ],
@@ -121,16 +206,41 @@ class _CurrentOrderScreenState extends State<CurrentOrderScreen> {
 
   /// Cleaning-contract body — same structure as the typical order details:
   /// details card, customer/company card, delivery images, support card.
-  Widget _buildCleaningContractBody() {
+  ///
+  /// An assigned discharge gets the "Complete Discharging" button: it
+  /// captures the "after" photo, attaches the position and the notes and
+  /// sends them to the discharges endpoint.
+  Widget _buildCleaningContractBody(CleaningContractDeliveryItem order) {
     final support = sl<SettingCubit>().setting?.support ?? "";
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        CleaningContractDetails(order: _cleaning!),
+        CleaningContractDetails(order: order),
         Gap(16.h),
-        CleaningContractCompanyCard(order: _cleaning!),
+        CleaningContractCompanyCard(order: order),
         Gap(16.h),
-        CleaningContractDeliveryImages(order: _cleaning!),
+        CleaningContractDeliveryImages(order: order),
+        Gap(16.h),
+        if (order.id != null)
+          DischargeActionWidget(
+            dischargeId: order.id!,
+            isVisible: order.isAssigned,
+            label: AppLocaleKey.completeDischarging.tr(),
+            isFullWidth: true,
+            onComplete: ({
+              required image,
+              required latitude,
+              required longitude,
+              required driverNotes,
+            }) =>
+                context.read<OrderCubit>().completeCleaningContractDischarge(
+              dischargeId: order.id!,
+              image: image,
+              latitude: latitude,
+              longitude: longitude,
+              driverNotes: driverNotes,
+            ),
+          ),
         Gap(16.h),
         if (support.isNotEmpty) SuppprtCardWidget(support: support),
       ],

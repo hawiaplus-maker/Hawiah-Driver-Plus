@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:hawiah_driver/core/images/image_compressor.dart';
 import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/core/hive/hive_methods.dart';
 import 'package:hawiah_driver/core/networking/api_helper.dart';
@@ -18,8 +18,6 @@ import 'package:hawiah_driver/features/order/presentation/model/orders_model.dar
 import 'package:hawiah_driver/features/order/presentation/model/project_discharge_model.dart';
 import 'package:hawiah_driver/features/order/presentation/model/single_order_model.dart'
     hide SingleOrderData;
-import 'package:path/path.dart' as path;
-import 'package:path_provider/path_provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../../../../core/routes/app_routers_import.dart';
@@ -139,7 +137,11 @@ class OrderCubit extends Cubit<OrderState> {
       emit(OrderPaginationLoading());
     } else {
       isLoadingProject = true;
-      emit(OrderLoading());
+      // A refresh keeps the current list visible until the new data lands,
+      // so the cards don't flash a loading shimmer while acting on a pickup.
+      if (!isRefresh) {
+        emit(OrderLoading());
+      }
     }
 
     final response = await ApiHelper.instance.get(
@@ -203,6 +205,220 @@ class OrderCubit extends Cubit<OrderState> {
 
   bool get canLoadMoreDischarges =>
       dischargeCurrentPage < dischargeLastPage;
+
+  // =================== Project pickup actions ====================
+
+  /// Starts the trip of an assigned project pickup.
+  ///
+  /// POST `{{baseUrl}}drivers/project-discharges/{pickupId}/start-trip`
+  /// body: `image_before` (multipart).
+  ///
+  /// On success the pickup status becomes `in_trans` and the orders list is
+  /// refreshed so the action button turns into "Complete Discharging".
+  Future<void> startProjectTrip({
+    required int pickupId,
+    required File image,
+  }) async {
+    log("**************************** startProjectTrip($pickupId) *************************");
+    if (isClosed) return;
+    emit(DischargeActionLoading(pickupId));
+
+    try {
+      final imageFile = await compressImage(image);
+      final formData = FormData.fromMap({
+        'image_before': await MultipartFile.fromFile(
+          imageFile.path,
+          filename: "image_before.jpg",
+          contentType: DioMediaType('image', 'jpg'),
+        ),
+      });
+
+      final response = await ApiHelper.instance.post(
+        Urls.startProjectTrip(pickupId),
+        body: formData,
+        hasToken: true,
+        isMultipart: true,
+      );
+
+      if (isClosed) return;
+
+      if (response.state == ResponseState.unauthorized) {
+        emit(Unauthenticated());
+        return;
+      }
+
+      if (response.state == ResponseState.complete && _isSuccessResponse(response)) {
+        emit(DischargeActionSuccess(pickupId, tr(AppLocaleKey.startTripSuccess)));
+        await _refreshProjectDischarges();
+        return;
+      }
+
+      emit(DischargeActionError(
+        pickupId,
+        response.getMessage().isNotEmpty
+            ? response.getMessage()
+            : tr(AppLocaleKey.anErrorOccurred),
+      ));
+    } catch (e) {
+      log("Error starting project trip: $e");
+      if (isClosed) return;
+      emit(DischargeActionError(pickupId, tr(AppLocaleKey.anErrorOccurred)));
+    }
+  }
+
+  /// Completes a project pickup discharge.
+  ///
+  /// POST `{{baseUrl}}drivers/project-discharges/{pickupId}/complete`
+  /// body: `image_after` (multipart), `latitude`, `longitude`, `driver_notes`.
+  ///
+  /// On success the pickup is marked as completed and the orders list is
+  /// refreshed so the pickup moves to the "End" tab.
+  Future<void> completeProjectDischarge({
+    required int pickupId,
+    required File image,
+    required double latitude,
+    required double longitude,
+    String? driverNotes,
+  }) async {
+    log("**************************** completeProjectDischarge($pickupId) *************************");
+    if (isClosed) return;
+    emit(DischargeActionLoading(pickupId));
+
+    try {
+      final imageFile = await compressImage(image);
+      final formData = FormData.fromMap({
+        'image_after': await MultipartFile.fromFile(
+          imageFile.path,
+          filename: "image_after.jpg",
+          contentType: DioMediaType('image', 'jpg'),
+        ),
+        'latitude': latitude,
+        'longitude': longitude,
+        'driver_notes': (driverNotes ?? '').trim(),
+      });
+
+      final response = await ApiHelper.instance.post(
+        Urls.completeProjectDischarge(pickupId),
+        body: formData,
+        hasToken: true,
+        isMultipart: true,
+      );
+
+      if (isClosed) return;
+
+      if (response.state == ResponseState.unauthorized) {
+        emit(Unauthenticated());
+        return;
+      }
+
+      if (response.state == ResponseState.complete && _isSuccessResponse(response)) {
+        emit(DischargeActionSuccess(
+            pickupId, tr(AppLocaleKey.completeDischargeSuccess)));
+        await _refreshProjectDischarges();
+        return;
+      }
+
+      emit(DischargeActionError(
+        pickupId,
+        response.getMessage().isNotEmpty
+            ? response.getMessage()
+            : tr(AppLocaleKey.anErrorOccurred),
+      ));
+    } catch (e) {
+      log("Error completing project discharge: $e");
+      if (isClosed) return;
+      emit(DischargeActionError(pickupId, tr(AppLocaleKey.anErrorOccurred)));
+    }
+  }
+
+  /// Completes a cleaning contract discharge.
+  ///
+  /// POST `{{baseUrl}}v2/drivers/cleaning-contracts-discharges/{id}/complete`
+  /// body: `image_after` (multipart), `latitude`, `longitude`, `driver_notes`.
+  ///
+  /// On success the record is marked as discharged and the list is refreshed
+  /// so the button disappears.
+  Future<void> completeCleaningContractDischarge({
+    required int dischargeId,
+    required File image,
+    required double latitude,
+    required double longitude,
+    String? driverNotes,
+  }) async {
+    log("**************************** completeCleaningContractDischarge($dischargeId) *************************");
+    if (isClosed) return;
+    emit(DischargeActionLoading(dischargeId));
+
+    try {
+      final imageFile = await compressImage(image);
+      final formData = FormData.fromMap({
+        'image_after': await MultipartFile.fromFile(
+          imageFile.path,
+          filename: "image_after.jpg",
+          contentType: DioMediaType('image', 'jpg'),
+        ),
+        'latitude': latitude,
+        'longitude': longitude,
+        'driver_notes': (driverNotes ?? '').trim(),
+      });
+
+      final response = await ApiHelper.instance.post(
+        Urls.completeCleaningContractDischarge(dischargeId),
+        body: formData,
+        hasToken: true,
+        isMultipart: true,
+      );
+
+      if (isClosed) return;
+
+      if (response.state == ResponseState.unauthorized) {
+        emit(Unauthenticated());
+        return;
+      }
+
+      if (response.state == ResponseState.complete && _isSuccessResponse(response)) {
+        emit(DischargeActionSuccess(
+            dischargeId, tr(AppLocaleKey.completeDischargeSuccess)));
+        await _refreshCleaningContractDischarges();
+        return;
+      }
+
+      emit(DischargeActionError(
+        dischargeId,
+        response.getMessage().isNotEmpty
+            ? response.getMessage()
+            : tr(AppLocaleKey.anErrorOccurred),
+      ));
+    } catch (e) {
+      log("Error completing the cleaning contract discharge: $e");
+      if (isClosed) return;
+      emit(DischargeActionError(dischargeId, tr(AppLocaleKey.anErrorOccurred)));
+    }
+  }
+
+  /// Reloads the project pickups after an action so the cards show the new
+  /// status (assigned -> in_trans -> completed).
+  Future<void> _refreshProjectDischarges() async {
+    if (isClosed) return;
+    await getProjectDischarges(orderStatus: 0, isRefresh: true);
+  }
+
+  /// Reloads the cleaning contract discharges after an action so the records
+  /// show the new status.
+  Future<void> _refreshCleaningContractDischarges() async {
+    if (isClosed) return;
+    await getCleaningContractDischarges(isRefresh: true);
+  }
+
+  /// The API wraps every payload in `{success, message, data}` — a response
+  /// without an explicit `success: false` is treated as a success.
+  bool _isSuccessResponse(ApiResponse response) {
+    final data = response.data;
+    if (data is Map) {
+      return data['success'] != false;
+    }
+    return true;
+  }
 
   /// Fetches container discharge (emptying) records for the third tab.
   Future<void> getCleaningContractDischarges({
@@ -504,42 +720,13 @@ class OrderCubit extends Cubit<OrderState> {
     }
   }
 
-  Future<File> compressImage(File file) async {
-    int sizeInBytes = file.lengthSync();
-    double sizeInKb = sizeInBytes / 1024;
-
-    if (sizeInKb < 500) {
-      return file;
-    }
-
-    final dir = await getTemporaryDirectory();
-    final targetPath =
-        path.join(dir.absolute.path, 'compressed_${DateTime.now().millisecondsSinceEpoch}.jpg');
-
-    var result = await FlutterImageCompress.compressAndGetFile(
-      file.absolute.path,
-      targetPath,
-      quality: 70,
-      minWidth: 1024,
-      minHeight: 1024,
-    );
-
-    int quality = 70;
-    while (result != null && await result.length() > 500 * 1024 && quality > 10) {
-      quality -= 10;
-      final newTargetPath = path.join(
-          dir.absolute.path, 'compressed_${DateTime.now().millisecondsSinceEpoch}_$quality.jpg');
-      result = await FlutterImageCompress.compressAndGetFile(
-        file.absolute.path,
-        newTargetPath,
-        quality: quality,
-        minWidth: 1024,
-        minHeight: 1024,
-      );
-    }
-
-    return result != null ? File(result.path) : file;
-  }
+  /// Compresses the photo before it is uploaded.
+  ///
+  /// A camera photo weighs 3-8 MB — the proof only has to show the container,
+  /// so the image is scaled down and re-encoded before it is sent. See
+  /// [ImageCompressor] for the details.
+  Future<File> compressImage(File file) async =>
+      ImageCompressor.compress(file, prefix: 'upload');
 
   //================== confirm order ====================
   ApiResponse _ordersResponse = ApiResponse(state: ResponseState.sleep, data: null);

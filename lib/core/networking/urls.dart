@@ -65,4 +65,19 @@ class Urls {
       '${baseUrl}v2/drivers/cleaning-contracts-discharges';
   static const String projectDischarges =
       '${baseUrl}drivers/project-discharges';
+
+  /// Starts the trip of an assigned project pickup.
+  /// Body: `image_before` (multipart).
+  static String startProjectTrip(int pickupId) =>
+      '${baseUrl}drivers/project-discharges/$pickupId/start-trip';
+
+  /// Completes a project pickup discharge.
+  /// Body: `image_after` (multipart), `latitude`, `longitude`, `driver_notes`.
+  static String completeProjectDischarge(int pickupId) =>
+      '${baseUrl}drivers/project-discharges/$pickupId/complete';
+
+  /// Completes a cleaning contract discharge.
+  /// Body: `image_after` (multipart), `latitude`, `longitude`, `driver_notes`.
+  static String completeCleaningContractDischarge(int dischargeId) =>
+      '${baseUrl}v2/drivers/cleaning-contracts-discharges/$dischargeId/complete';
 }

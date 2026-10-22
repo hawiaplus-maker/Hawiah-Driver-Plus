@@ -79,28 +79,39 @@ class NavigatorMethods {
     Color? backgroundColor,
     Color? loadingColor,
   }) {
-    FocusScope.of(
-      AppRouters.navigatorKey.currentContext!,
-    ).requestFocus(FocusNode());
-    BotToast.showCustomLoading(
-      toastBuilder: (cancelFunc) => Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: backgroundColor ?? AppColor.scaffoldColor,
-          borderRadius: BorderRadius.circular(radius),
-        ),
-        child: Center(
-          child: CustomLoading(
-            color: loadingColor ?? AppColor.mainAppColor,
-            size: loadingSize,
+    try {
+      // The navigator context is not ready while the app is starting — the
+      // loader is only a feedback, it must never break the action itself.
+      final context = AppRouters.navigatorKey.currentContext;
+      if (context != null) {
+        FocusScope.of(context).requestFocus(FocusNode());
+      }
+      BotToast.showCustomLoading(
+        toastBuilder: (cancelFunc) => Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            color: backgroundColor ?? AppColor.scaffoldColor,
+            borderRadius: BorderRadius.circular(radius),
+          ),
+          child: Center(
+            child: CustomLoading(
+              color: loadingColor ?? AppColor.mainAppColor,
+              size: loadingSize,
+            ),
           ),
         ),
-      ),
-    );
+      );
+    } catch (_) {
+      // The toast system isn't ready yet — the action keeps going.
+    }
   }
 
   static void loadingOff() {
-    BotToast.closeAllLoading();
+    try {
+      BotToast.closeAllLoading();
+    } catch (_) {
+      // Nothing was shown, nothing has to be closed.
+    }
   }
 }

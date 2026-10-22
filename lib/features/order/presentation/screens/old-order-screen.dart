@@ -63,7 +63,10 @@ class _OldOrderScreenState extends State<OldOrderScreen> {
         ),
         title: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
           Text(
-            AppLocaleKey.orderDetails.tr(),
+            // In the project (worker) flow it's a project pickup, not an order.
+            _isProjectPickup
+                ? AppLocaleKey.projectDetails.tr()
+                : AppLocaleKey.orderDetails.tr(),
             style: AppTextStyle.text16_700,
           ),
           const SizedBox(

@@ -194,13 +194,28 @@ class CleaningContractDeliveryItem {
   }
 
   /// Whether this delivery is considered "current" (not yet delivered).
-  bool get isCurrent => deliveryStatus?.toLowerCase() != 'delivered';
+  bool get isCurrent => !isCompleted;
 
   /// Short display label for the card.
   String get displayLabel => contractNumber ?? '---';
 
   String get deliveryStatusDisplay =>
       deliveryStatusLabel ?? deliveryStatus ?? '';
+
+  /// Normalized status: lower-cased, `_` separated (`in transit` -> `in_trans`).
+  String get _normalizedStatus => (deliveryStatus ?? '')
+      .trim()
+      .toLowerCase()
+      .replaceAll('-', '_')
+      .replaceAll(' ', '_');
+
+  /// The record is assigned to the driver but the job isn't done yet — the
+  /// driver has to complete the discharge.
+  bool get isAssigned => _normalizedStatus == 'assigned';
+
+  /// The record is finished — the container was delivered or discharged.
+  bool get isCompleted =>
+      _normalizedStatus == 'delivered' || _normalizedStatus == 'discharged';
 }
 
 class Pagination {

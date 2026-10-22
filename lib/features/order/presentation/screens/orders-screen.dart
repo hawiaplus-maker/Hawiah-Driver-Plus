@@ -25,6 +25,10 @@ class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderSt
   late TabController _tabController;
   bool _cleaningMode = false;
 
+  /// In the project (worker) flow the list holds project pickups, so it's
+  /// called "Projects" instead of "Orders".
+  bool get _projectMode => sl<OrderCubit>().isProjectWorkMode;
+
   @override
   void initState() {
     super.initState();
@@ -52,7 +56,9 @@ class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderSt
       child: Scaffold(
         appBar: CustomAppBar(
           context,
-          titleText: AppLocaleKey.orders.tr(),
+          titleText: _projectMode
+              ? AppLocaleKey.projects.tr()
+              : AppLocaleKey.orders.tr(),
         ),
         body: Column(
           children: [

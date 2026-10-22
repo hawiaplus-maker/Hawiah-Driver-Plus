@@ -9,8 +9,10 @@ import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/core/theme/app_colors.dart';
 import 'package:hawiah_driver/features/chat/presentation/screens/chat-screen.dart';
 import 'package:hawiah_driver/features/layout/presentation/widget/update_checker.dart';
+import 'package:hawiah_driver/features/order/presentation/order-cubit/order-cubit.dart';
 import 'package:hawiah_driver/features/order/presentation/screens/orders-screen.dart';
 import 'package:hawiah_driver/features/profile/presentation/screens/profile-screen.dart';
+import 'package:hawiah_driver/injection_container.dart';
 
 class LayoutScreen extends StatefulWidget {
   static const routeName = '/layout-screen';
@@ -68,7 +70,10 @@ class _LayoutScreenState extends State<LayoutScreen> {
                 height: 24.h,
                 width: 24.w,
                 color: selectedIndex == 1 ? AppColor.mainAppColor : AppColor.greyColor),
-            label: AppLocaleKey.ordersPage.tr(),
+            // In the project (worker) flow the tab holds project pickups.
+            label: sl<OrderCubit>().isProjectWorkMode
+                ? AppLocaleKey.projects.tr()
+                : AppLocaleKey.ordersPage.tr(),
           ),
           BottomNavigationBarItem(
             icon: SvgPicture.asset(AppImages.userSvg,

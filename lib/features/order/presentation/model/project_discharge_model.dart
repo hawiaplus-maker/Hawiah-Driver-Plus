@@ -188,7 +188,23 @@ class ProjectDischargeItem {
   }
 
   /// Completed pickups go to the Old tab; everything else is current.
-  bool get isCompleted => status?.toLowerCase() == 'completed';
+  bool get isCompleted => _normalizedStatus == 'completed';
+
+  /// The pickup is assigned to the driver but the trip has not started yet —
+  /// the driver has to capture `image_before` and call the start-trip endpoint.
+  bool get isAssigned => _normalizedStatus == 'assigned';
+
+  /// The trip already started — the API reports it as `in_transit` (older
+  /// payloads used `in_trans`) — the driver has to capture `image_after` and
+  /// call the complete endpoint.
+  bool get isInTransit => _normalizedStatus.contains('trans');
+
+  /// Normalized status: lower-cased, `_` separated (`in transit` -> `in_trans`).
+  String get _normalizedStatus => (status ?? '')
+      .trim()
+      .toLowerCase()
+      .replaceAll('-', '_')
+      .replaceAll(' ', '_');
 
   String get statusDisplay => statusLabel ?? status ?? '';
 }

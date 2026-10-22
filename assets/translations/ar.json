@@ -410,5 +410,20 @@
   "scheduledDate": "التاريخ المحدد",
   "discharges": "التفريغات",
   "completedPickupsLabel": "التفريغات المكتملة",
-  "clientNotes": "ملاحظات العميل"
+  "clientNotes": "ملاحظات العميل",
+  "handlePickup": "بداية الافراغ",
+  "completeDischarging": "انهاء الافراغ",
+  "driverNotes": "ملاحظات السائق",
+  "driverNotesHint": "أضف ملاحظات (اختياري)",
+  "captureAndComplete": "التقط الصورة وأنهِ الافراغ",
+  "startTripSuccess": "تم بدء الرحلة بنجاح",
+  "completeDischargeSuccess": "تم إتمام التفريغ بنجاح",
+  "cameraNotAvailable": "الكاميرا غير متاحة",
+  "projects": "المشاريع",
+  "projectDetails": "تفاصيل المشروع",
+  "hawiahImageBefore": "صورة هاوية قبل الافراغ",
+  "hawiahImageAfter": "صورة هاوية بعد الافراغ",
+  "hawiahProofImage": "صورة هاوية اثبات الاستلام",
+  "pleaseEnableLocation": "يرجى تفعيل الموقع للمتابعة",
+  "locationUnavailable": "تعذر تحديد موقعك. تأكد من تشغيل تحديد الموقع وحاول مرة أخرى."
 }

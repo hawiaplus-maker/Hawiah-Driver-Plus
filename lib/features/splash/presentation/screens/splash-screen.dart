@@ -7,6 +7,7 @@ import 'package:hawiah_driver/core/utils/navigator_methods.dart';
 import 'package:hawiah_driver/features/app-language/presentation/screens/app-language-screen.dart';
 import 'package:hawiah_driver/features/authentication/presentation/screens/login-screen.dart';
 import 'package:hawiah_driver/features/layout/presentation/screens/layout-screen.dart';
+import 'package:hawiah_driver/features/location/service/location_service.dart';
 import 'package:hawiah_driver/features/profile/presentation/cubit/cubit_profile.dart';
 import 'package:hawiah_driver/features/setting/cubit/setting_cubit.dart';
 import 'package:hawiah_driver/injection_container.dart';
@@ -31,6 +32,13 @@ class _SplashScreenState extends State<SplashScreen> {
     settingCubit.getsetting();
     log("is first time ${HiveMethods.isFirstTime()}");
     final cubit = sl<ProfileCubit>();
+
+    // Ask for the location permission as soon as the app opens: the discharge
+    // flow attaches the driver position, so it has to be granted before the
+    // driver starts working. The position is then kept fresh by the service so
+    // an action never waits for a GPS fix.
+    await sl<LocationService>().initLocationTracking();
+    if (!mounted) return;
 
     await Future.delayed(const Duration(seconds: 2));
 

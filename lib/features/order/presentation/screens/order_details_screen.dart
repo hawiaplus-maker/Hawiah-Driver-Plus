@@ -218,7 +218,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
   void _handleActionWithLocationAndImage({
     required Function(File image, double? lat, double? long) onProcessed,
   }) async {
-    final locationService = LocationService();
+    // The shared service holds the position detected when the app opened.
+    final locationService = sl<LocationService>();
 
     // 0. Check if location service is enabled first
     bool isLocationServiceEnabled = await locationService.checkAndRequestLocationService();
@@ -240,8 +241,9 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     }
 
     // 1. Start fetching location immediately (async)
-    // We use the raw getLocation to avoid redundant service checks
-    final locationFuture = locationService.getLocation();
+    // The position detected when the app opened is reused when it is still
+    // fresh, so the action doesn't wait for a new GPS fix.
+    final locationFuture = locationService.getLocationForAction();
 
     // 2. Pick Image
     ImageMethods.pickImage(
@@ -258,6 +260,18 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
           final location = await locationFuture;
 
           if (mounted) Navigator.pop(context); // Pop loading dialog
+
+          if (location == null) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(AppLocaleKey.locationUnavailable.tr()),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+            return;
+          }
 
           if (mounted) {
             onProcessed(image, location.latitude, location.longitude);

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hawiah_driver/core/theme/app_colors.dart';
+import 'package:hawiah_driver/core/theme/app_text_style.dart';
 
 class AppBottomSheet extends StatelessWidget {
   const AppBottomSheet(
@@ -42,6 +43,16 @@ class AppBottomSheet extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
+                const SizedBox(height: 15),
+                // The title tells the driver what the sheet is about — without
+                // it the sheet is just a form and gets dismissed by mistake.
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: AppTextStyle.text16_700.copyWith(
+                    color: isDark == true ? AppColor.whiteColor : AppColor.blackColor,
+                  ),
+                ),
                 const SizedBox(height: 15),
                 ...children
               ],

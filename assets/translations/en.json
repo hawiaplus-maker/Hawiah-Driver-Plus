@@ -393,6 +393,9 @@
   "update_later": "Later",
   "update_now": "Update Now",
   "imagesFromDeliveryLocation": "Images from delivery location",
+  "hawiahImageBefore": "Hawiah Image Before",
+  "hawiahImageAfter": "Hawiah Image After",
+  "hawiahProofImage": "Hawiah Proof Image",
   "unknownError": "Unknown error",
   "anErrorOccurred": "An error occurred",
   "updatedSuccessfully": "Updated successfully",
@@ -417,5 +420,17 @@
   "scheduledDate": "Scheduled date",
   "discharges": "Discharges",
   "completedPickupsLabel": "Completed pickups",
-  "clientNotes": "Client notes"
+  "clientNotes": "Client notes",
+  "handlePickup": "Start Discharging",
+  "completeDischarging": "End Discharging",
+  "driverNotes": "Driver notes",
+  "driverNotesHint": "Add notes (optional)",
+  "captureAndComplete": "Capture photo & finish",
+  "startTripSuccess": "Trip started successfully",
+  "completeDischargeSuccess": "Discharge completed successfully",
+  "cameraNotAvailable": "Camera is not available",
+  "projects": "Projects",
+  "projectDetails": "Project details",
+  "pleaseEnableLocation": "Please enable location to continue",
+  "locationUnavailable": "Couldn't detect your location. Make sure GPS is on and try again."
 }

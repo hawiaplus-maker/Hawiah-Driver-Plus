@@ -403,5 +403,21 @@
   "scheduledDate": "مقررہ تاریخ",
   "discharges": "خارج شدہ",
   "completedPickupsLabel": "مکمل پک اپ",
-  "clientNotes": "کلائنٹ کے نوٹس"
+  "clientNotes": "کلائنٹ کے نوٹس",
+  "handlePickup": "خالی کرنا شروع کریں",
+  "completeDischarging": "خالی کرنا ختم کریں",
+  "driverNotes": "ڈرائیور نوٹس",
+  "driverNotesHint": "نوٹس شامل کریں (اختیاری)",
+  "captureAndComplete": "تصویر لے کر خالی کرنا ختم کریں",
+  "startTripSuccess": "روانہ کامیابی سے شروع ہو گیا",
+  "completeDischargeSuccess": "خالی کرنا کامیابی سے مکمل ہو گیا",
+  "cameraNotAvailable": "کیمرہ دستیاب نہیں",
+  "projects": "پروجیکٹس",
+  "projectDetails": "پروجیکٹ کی تفصیلات",
+  "hawiahImageBefore": "ہاویہ کی تصویر (پہلے)",
+  "hawiahImageAfter": "ہاویہ کی تصویر (بعد)",
+  "hawiahProofImage": "ہاویہ کی تصویر (تصدیق)",
+  "pleaseEnableLocation": "جاری رکھنے کے لیے لوکیشن فعال کریں",
+  "locationUnavailable": "آپ کی لوکیشن معلوم نہیں ہو سکی۔ یقینی بنائیں کہ GPS آن ہے اور دوبارہ کوشش کریں۔",
+  "anErrorOccurred": "ایک خرابی پیش آگئی"
 }

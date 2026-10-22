@@ -18,6 +18,19 @@ class ImageMethods {
     }
   }
 
+  /// Picks an image and returns it.
+  ///
+  /// `null` is returned when the driver cancelled the picker — the caller can
+  /// then stop the flow instead of waiting for a callback that never comes.
+  static Future<File?> pickImageAndReturn({
+    required ImageSource source,
+  }) async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? pickedImage = await picker.pickImage(source: source);
+    if (pickedImage == null) return null;
+    return File(pickedImage.path);
+  }
+
   static Future<void> pickMultiImage({
     required void Function(List<File>) onSuccess,
   }) async {

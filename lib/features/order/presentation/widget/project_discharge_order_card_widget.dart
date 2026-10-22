@@ -36,15 +36,62 @@ class ProjectDischargeOrderCardWidget extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // NOTE: no flex child here — this Column lives in an
+                  // unbounded-height context (card is inside a ListView), so a
+                  // Flexible/Expanded child would throw
+                  // "RenderFlex children have non-zero flex but incoming height
+                  // constraints are unbounded". The width is already bounded by
+                  // the outer Expanded, so the ellipsis is enough.
                   Text("#${pickup.referenceNumber ?? '---'}",
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyle.text16_500),
-                  Text(
-                    pickup.projectName ?? '---',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyle.text14_400,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Flexible so the name shrinks/ellipsizes instead of
+                      // overflowing the row when the badge is present.
+                      Expanded(
+                        child: Text(
+                          pickup.projectName ?? '---',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyle.text14_400,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 140),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                color: _statusColor(_isCompleted).withAlpha(50),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  child: Text(
+                                    pickup.statusDisplay,
+                                    textAlign: TextAlign.center,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: AppTextStyle.text14_400.copyWith(
+                                      color: _statusColor(_isCompleted),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 5),
                   Text(
@@ -78,21 +125,20 @@ class ProjectDischargeOrderCardWidget extends StatelessWidget {
                     ),
                     const SizedBox(height: 5),
                   ],
-                  Text(
-                    '${AppLocaleKey.completedPickupsLabel.tr()} '
-                    '${pickup.completedPickups ?? 0}/${pickup.totalPickups ?? 0}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyle.text14_400.copyWith(
-                      color: AppColor.mainAppColor,
-                    ),
-                  ),
-                  const SizedBox(height: 5),
+                  // Text(
+                  //   '${AppLocaleKey.completedPickupsLabel.tr()} '
+                  //   '${pickup.completedPickups ?? 0}/${pickup.totalPickups ?? 0}',
+                  //   maxLines: 1,
+                  //   overflow: TextOverflow.ellipsis,
+                  //   style: AppTextStyle.text14_400.copyWith(
+                  //     color: AppColor.mainAppColor,
+                  //   ),
+                  // ),
+                  // const SizedBox(height: 5),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Icon(Icons.remove_red_eye_outlined,
-                          color: AppColor.lightGreyColor, size: 15),
+                      Icon(Icons.remove_red_eye_outlined, color: AppColor.lightGreyColor, size: 15),
                       const SizedBox(width: 5),
                       Text(
                         AppLocaleKey.showDetails.tr(),
@@ -108,37 +154,6 @@ class ProjectDischargeOrderCardWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 140),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: _statusColor(_isCompleted).withAlpha(50),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        child: Text(
-                          pickup.statusDisplay,
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyle.text14_400.copyWith(
-                            color: _statusColor(_isCompleted),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ],
         ),
       ),
@@ -158,7 +173,10 @@ class ProjectDischargeOrderCardWidget extends StatelessWidget {
   }
 
   Color _statusColor(bool isCompleted) {
-    return isCompleted ? AppColor.mainAppColor : AppColor.textGrayColor;
+    if (isCompleted) return AppColor.mainAppColor;
+    // The trip is running — the driver still has to finish the discharge.
+    if (pickup.isInTransit) return AppColor.orangeColor;
+    return AppColor.textGrayColor;
   }
 
   void _onTap(BuildContext context) {

@@ -321,7 +321,9 @@ class ProjectPickupClientCard extends StatelessWidget {
   }
 }
 
-/// Pickup images section — proof / before / after grid.
+/// Pickup images section — every shot is separated and titled on its own:
+/// the container picture taken before the trip, the one taken after the
+/// discharge and the delivery proof.
 class ProjectPickupImages extends StatelessWidget {
   const ProjectPickupImages({super.key, required this.pickup});
 
@@ -329,37 +331,74 @@ class ProjectPickupImages extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final images = [
-      pickup.imageBefore,
-      pickup.imageAfter,
-      pickup.proofImage,
-    ].whereType<String>().where((e) => e.isNotEmpty).toList();
+    final before = _validUrl(pickup.imageBefore);
+    final after = _validUrl(pickup.imageAfter);
+    final proof = _validUrl(pickup.proofImage);
 
-    if (images.isEmpty) return const SizedBox.shrink();
+    if (before == null && after == null && proof == null) {
+      return const SizedBox.shrink();
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(AppLocaleKey.imagesFromDeliveryLocation.tr(), style: AppTextStyle.text16_700),
-        Gap(16.h),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: images.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: images.length >= 3 ? 3 : images.length,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-            childAspectRatio: 1,
-          ),
-          itemBuilder: (context, index) => CustomNetworkImage(
-            imageUrl: images[index],
-            radius: 5,
-            hasZoom: true,
-            fit: BoxFit.cover,
-          ),
-        ),
+        if (before != null) ...[
+          Text(AppLocaleKey.hawiahImageBefore.tr(),
+              style: AppTextStyle.text16_700),
+          Gap(16.h),
+          _PickupImage(url: before),
+        ],
+        if (after != null) ...[
+          Gap(20.h),
+          Text(AppLocaleKey.hawiahImageAfter.tr(),
+              style: AppTextStyle.text16_700),
+          Gap(16.h),
+          _PickupImage(url: after),
+        ],
+        if (proof != null) ...[
+          Gap(20.h),
+          Text(AppLocaleKey.hawiahProofImage.tr(),
+              style: AppTextStyle.text16_700),
+          Gap(16.h),
+          _PickupImage(url: proof),
+        ],
       ],
+    );
+  }
+
+  /// Returns the url when it carries a real value, `null` otherwise.
+  String? _validUrl(String? url) {
+    if (url == null || url.trim().isEmpty) return null;
+    return url;
+  }
+}
+
+/// A single pickup shot — bordered and zoomable.
+class _PickupImage extends StatelessWidget {
+  const _PickupImage({required this.url});
+
+  final String url;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: 200.h,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(5),
+        border: Border.all(color: AppColor.mainAppColor),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(5),
+        child: CustomNetworkImage(
+          imageUrl: url,
+          width: double.infinity,
+          height: 200.h,
+          radius: 5,
+          hasZoom: true,
+          fit: BoxFit.cover,
+        ),
+      ),
     );
   }
 }

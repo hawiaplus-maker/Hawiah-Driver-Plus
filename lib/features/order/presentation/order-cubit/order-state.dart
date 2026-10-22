@@ -43,3 +43,23 @@ class CurrentOrderError extends OrderState {
 }
 
 class CurrentOrderLoading extends OrderState {}
+
+/// A discharge action (project pickup / cleaning contract) is in flight.
+class DischargeActionLoading extends OrderState {
+  final int dischargeId;
+  DischargeActionLoading(this.dischargeId);
+}
+
+/// A discharge action finished successfully — the list is refreshed.
+class DischargeActionSuccess extends OrderState {
+  final int dischargeId;
+  final String message;
+  DischargeActionSuccess(this.dischargeId, this.message);
+}
+
+/// A discharge action failed.
+class DischargeActionError extends OrderState {
+  final int dischargeId;
+  final String message;
+  DischargeActionError(this.dischargeId, this.message);
+}

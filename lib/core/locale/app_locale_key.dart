@@ -308,6 +308,9 @@ class AppLocaleKey {
   static const String updateLater = 'update_later';
   static const String updateNow = 'update_now';
   static const String imagesFromDeliveryLocation = 'imagesFromDeliveryLocation';
+  static const String hawiahImageBefore = 'hawiahImageBefore';
+  static const String hawiahImageAfter = 'hawiahImageAfter';
+  static const String hawiahProofImage = 'hawiahProofImage';
   static const String contractNumber = 'contractNumber';
   static const String container = 'container';
   static const String deliveryStatus = 'deliveryStatus';
@@ -321,4 +324,15 @@ class AppLocaleKey {
   static const String discharges = 'discharges';
   static const String completedPickupsLabel = 'completedPickupsLabel';
   static const String clientNotes = 'clientNotes';
+  static const String handlePickup = 'handlePickup';
+  static const String completeDischarging = 'completeDischarging';
+  static const String driverNotes = 'driverNotes';
+  static const String driverNotesHint = 'driverNotesHint';
+  static const String captureAndComplete = 'captureAndComplete';
+  static const String startTripSuccess = 'startTripSuccess';
+  static const String completeDischargeSuccess = 'completeDischargeSuccess';
+  static const String cameraNotAvailable = 'cameraNotAvailable';
+  static const String locationUnavailable = 'locationUnavailable';
+  static const String projects = 'projects';
+  static const String projectDetails = 'projectDetails';
 }

@@ -209,7 +209,8 @@ class _CurrentOrderScreenState extends State<CurrentOrderScreen> {
   ///
   /// An assigned discharge gets the "Complete Discharging" button: it
   /// captures the "after" photo, attaches the position and the notes and
-  /// sends them to the discharges endpoint.
+  /// sends them to the discharges endpoint. The list is refreshed afterwards,
+  /// so the card moves to the completed tab.
   Widget _buildCleaningContractBody(CleaningContractDeliveryItem order) {
     final support = sl<SettingCubit>().setting?.support ?? "";
     return Column(

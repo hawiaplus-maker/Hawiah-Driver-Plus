@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:hawiah_driver/core/hive/hive_methods.dart';
 import 'package:hawiah_driver/core/images/app_images.dart';
+import 'package:hawiah_driver/core/utils/common_methods.dart';
 import 'package:hawiah_driver/core/utils/navigator_methods.dart';
 import 'package:hawiah_driver/features/app-language/presentation/screens/app-language-screen.dart';
 import 'package:hawiah_driver/features/authentication/presentation/screens/login-screen.dart';
@@ -50,6 +51,10 @@ class _SplashScreenState extends State<SplashScreen> {
         MaterialPageRoute(builder: (context) => const AppLanguageScreen()),
       );
     } else {
+      // A token alone is not proof that the account can still use the app:
+      // the account may have been deactivated while the token is still valid.
+      // Every app start therefore validates the session through user-info and
+      // only opens the app when the server confirms the account is active.
       if (HiveMethods.getToken() != null) {
         await cubit.fetchUserInfo(
           onSuccess: () async {
@@ -60,29 +65,32 @@ class _SplashScreenState extends State<SplashScreen> {
               LayoutScreen.routeName,
             );
           },
-          onError: () {
-            log("Navigation to LoginScreen (Error)");
+          onDenied: (message) {
+            log("Access denied: $message");
             if (!mounted) return;
-            Navigator.pushAndRemoveUntil<void>(
-              context,
-              MaterialPageRoute<void>(
-                builder: (BuildContext context) => const LoginScreen(),
-              ),
-              (route) => false,
-            );
+            CommonMethods.showError(message: message);
+            _goToLogin();
+          },
+          onError: (message) {
+            log("Navigation to LoginScreen (Error): $message");
+            _goToLogin();
           },
         );
       } else {
-        if (!mounted) return;
-        Navigator.pushAndRemoveUntil<void>(
-          context,
-          MaterialPageRoute<void>(
-            builder: (BuildContext context) => const LoginScreen(),
-          ),
-          (route) => false,
-        );
+        _goToLogin();
       }
     }
+  }
+
+  void _goToLogin() {
+    if (!mounted) return;
+    Navigator.pushAndRemoveUntil<void>(
+      context,
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) => const LoginScreen(),
+      ),
+      (route) => false,
+    );
   }
 
   @override

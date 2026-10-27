@@ -10,10 +10,8 @@ import 'package:hawiah_driver/features/authentication/presentation/controllers/a
 
 class RegisterButtonWidget extends StatelessWidget {
   final GlobalKey<FormState> formKey;
-  final String type;
-  const RegisterButtonWidget(
-      {Key? key, required this.formKey, required this.type})
-      : super(key: key);
+
+  const RegisterButtonWidget({super.key, required this.formKey});
 
   @override
   Widget build(BuildContext context) {
@@ -41,15 +39,15 @@ class RegisterButtonWidget extends StatelessWidget {
                     return;
                   }
 
-                  if (formKey.currentState!.validate()) {
-                    final cleanedPhone =
-                        authCubit.formatPhoneNumber(authCubit.phoneNumber);
+                  if (formKey.currentState?.validate() != true) return;
 
-                    authCubit.register(
-                      phoneNumber: authCubit.phoneControllerRegister.text,
-                      type: type,
-                    );
-                  }
+                  authCubit.register(
+                    name: authCubit.nameControllerRegister.text.trim(),
+                    phoneNumber: authCubit.formatPhoneNumber(
+                      authCubit.phoneControllerRegister.text.trim(),
+                    ),
+                    password: authCubit.passwordControllerRegister.text,
+                  );
                 },
           backgroundColor: AppColor.selectedLightBlueColor,
           textColor: AppColor.mainAppColor,

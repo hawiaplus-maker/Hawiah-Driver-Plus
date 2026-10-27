@@ -13,6 +13,7 @@ import 'package:hawiah_driver/features/order/presentation/model/single_order_mod
 import 'package:hawiah_driver/features/profile/presentation/cubit/cubit_profile.dart';
 import 'package:hawiah_driver/injection_container.dart';
 
+/// Customer data card — same layout as the project pickup client card.
 class UserCardWidget extends StatelessWidget {
   const UserCardWidget({
     super.key,
@@ -23,12 +24,12 @@ class UserCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = sl<ProfileCubit>().user;
-
-    final driverName = user?.name ?? "";
     if (ordersData.data?.orderStatus == 6) {
-      return SizedBox();
+      return const SizedBox.shrink();
     }
+
+    final mobile = _fullPhone(ordersData.data?.userMobile);
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
       decoration: BoxDecoration(
@@ -40,111 +41,58 @@ class UserCardWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(AppLocaleKey.customerData.tr(), style: AppTextStyle.text16_700),
-          _buildDriverInfo(driverName, context),
+          Gap(10.h),
+          Text(
+            '${AppLocaleKey.name.tr()}: ${ordersData.data?.user ?? ''}',
+            style: AppTextStyle.text16_400,
+          ),
+          Gap(20.h),
+          Row(
+            children: [
+              Expanded(
+                child: _ActionButton(
+                  label: AppLocaleKey.contactUser.tr(),
+                  icon: AppImages.callImage,
+                  background: AppColor.mainAppColor,
+                  foreground: AppColor.whiteColor,
+                  onTap: () => UrlLauncherMethods.makePhoneCall(mobile),
+                ),
+              ),
+              Gap(10.w),
+              Expanded(
+                child: _ActionButton(
+                  label: AppLocaleKey.whatsab.tr(),
+                  icon: AppImages.whatsappSupport,
+                  background: AppColor.secondAppColor,
+                  foreground: AppColor.mainAppColor,
+                  borderColor: AppColor.mainAppColor,
+                  onTap: () => UrlLauncherMethods.launchWhatsApp(mobile),
+                ),
+              ),
+            ],
+          ),
+          Gap(10.h),
+          _ActionButton(
+            label: AppLocaleKey.chats.tr(),
+            icon: AppImages.chatImage,
+            background: AppColor.whiteColor,
+            foreground: AppColor.mainAppColor,
+            borderColor: AppColor.mainAppColor,
+            onTap: () => _navigateToChat(context),
+            fullWidth: true,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildDriverInfo(String driverName, BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Padding(
-            padding: EdgeInsets.only(top: 10.h),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('${AppLocaleKey.name.tr()}: ${ordersData.data?.user}',
-                    style: AppTextStyle.text16_400),
-                Gap(20.h),
-                GestureDetector(
-                  onTap: () =>
-                      UrlLauncherMethods.makePhoneCall("+966${ordersData.data?.userMobile ?? ""}"),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: AppColor.mainAppColor,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Image.asset(AppImages.callImage,
-                            height: 14.h, width: 14.w, fit: BoxFit.cover),
-                        Gap(5.w),
-                        Text(AppLocaleKey.contactUser.tr(),
-                            style: AppTextStyle.text14_500.copyWith(color: AppColor.whiteColor)),
-                      ],
-                    ),
-                  ),
-                ),
-                Gap(10.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => UrlLauncherMethods.launchWhatsApp(
-                            "+966${ordersData.data?.userMobile ?? ""}"),
-                        child: Container(
-                          height: 45.h,
-                          decoration: BoxDecoration(
-                            color: AppColor.secondAppColor,
-                            border: Border.all(color: AppColor.mainAppColor, width: 1.5),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset(AppImages.whatsappSupport, height: 14.h, width: 14.w),
-                              Gap(5.w),
-                              Text(AppLocaleKey.whatsab.tr(),
-                                  style: AppTextStyle.text16_600
-                                      .copyWith(color: AppColor.mainAppColor)),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    Gap(10.w),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => _navigateToChat(context, driverName),
-                        child: Container(
-                          height: 45.h,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: AppColor.mainAppColor, width: 1.5),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset(AppImages.chatImage, height: 14.h, width: 14.w),
-                              Gap(5.w),
-                              Text(AppLocaleKey.chats.tr(),
-                                  style: AppTextStyle.text16_600
-                                      .copyWith(color: AppColor.mainAppColor)),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
+  String _fullPhone(String? mobile) {
+    if (mobile == null || mobile.isEmpty) return '';
+    return mobile.startsWith('+') ? mobile : '+966$mobile';
   }
 
-  ///  Navigation logic
-  void _navigateToChat(BuildContext context, String driverName) {
+  /// Navigation logic
+  void _navigateToChat(BuildContext context) {
     final driver = sl<ProfileCubit>().user;
 
     NavigatorMethods.pushNamed(
@@ -159,6 +107,60 @@ class UserCardWidget extends StatelessWidget {
         senderType: "driver",
         orderId: ordersData.data?.id.toString() ?? "",
         onMessageSent: () {},
+      ),
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  const _ActionButton({
+    required this.label,
+    required this.icon,
+    required this.background,
+    required this.foreground,
+    required this.onTap,
+    this.borderColor,
+    this.fullWidth = false,
+  });
+
+  final String label;
+  final String icon;
+  final Color background;
+  final Color foreground;
+  final Color? borderColor;
+  final VoidCallback onTap;
+  final bool fullWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: fullWidth ? double.infinity : null,
+        height: 45.h,
+        decoration: BoxDecoration(
+          color: background,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: borderColor ?? Colors.transparent,
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(icon, height: 14.h, width: 14.w),
+            Gap(5.w),
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyle.text14_500.copyWith(color: foreground),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

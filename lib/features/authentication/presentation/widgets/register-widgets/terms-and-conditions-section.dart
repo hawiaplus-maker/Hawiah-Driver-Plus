@@ -12,7 +12,7 @@ class TermsAndConditionsSection extends StatefulWidget {
   final bool checkedValueTerms;
   final Function(bool?) onCheckboxChanged;
 
-  TermsAndConditionsSection({ 
+  TermsAndConditionsSection({
     required this.checkedValueTerms,
     required this.onCheckboxChanged,
   });

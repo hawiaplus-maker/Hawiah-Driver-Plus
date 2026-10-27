@@ -21,7 +21,8 @@ class OrdersScreen extends StatefulWidget {
   State<OrdersScreen> createState() => _OrdersScreenState();
 }
 
-class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderStateMixin {
+class _OrdersScreenState extends State<OrdersScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   bool _cleaningMode = false;
 
@@ -36,12 +37,17 @@ class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderSt
     _cleaningMode = cubit.isCleaningContractMode;
 
     if (_cleaningMode) {
-      cubit.getCleaningContractDeliveries(orderStatus: 0,
-          isRefresh: widget.isRefreshOrders);
-      cubit.getCleaningContractDeliveries(orderStatus: 1,
-          isRefresh: widget.isRefreshOrders);
+      // Cleaning contracts: the discharges are the current work. One request
+      // fills both tabs (current = not discharged yet, end = completed).
       cubit.getCleaningContractDischarges(isRefresh: widget.isRefreshOrders);
-      _tabController = TabController(length: 3, vsync: this);
+      _tabController = TabController(length: 2, vsync: this);
+    } else if (_projectMode) {
+      // Project pickups: one request fills current + end.
+      cubit.getProjectDischarges(
+        orderStatus: 0,
+        isRefresh: widget.isRefreshOrders,
+      );
+      _tabController = TabController(length: 2, vsync: this);
     } else {
       cubit.getOrders(orderStatus: 0, isRefresh: widget.isRefreshOrders);
       cubit.getOrders(orderStatus: 1, isRefresh: widget.isRefreshOrders);
@@ -68,7 +74,8 @@ class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderSt
               child: TabBar(
                 controller: _tabController,
                 labelColor: AppColor.whiteColor,
-                labelStyle: AppTextStyle.text20_700.copyWith(fontFamily: "DINNextLTArabic"),
+                labelStyle: AppTextStyle.text20_700
+                    .copyWith(fontFamily: "DINNextLTArabic"),
                 indicatorColor: Colors.transparent,
                 dividerHeight: 0,
                 labelPadding: const EdgeInsets.symmetric(horizontal: 3),
@@ -89,30 +96,13 @@ class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderSt
                           .copyWith(fontSize: 18, fontWeight: FontWeight.w400),
                     ),
                   ),
-                  if (_cleaningMode)
-                    Tab(
-                      iconMargin: EdgeInsets.all(0),
-                      child: CustomButton(
-                        radius: 5,
-                        color: _tabController.index == 1
-                            ? AppColor.mainAppColor
-                            : AppColor.secondAppColor,
-                        text: AppLocaleKey.dischargesTab.tr(),
-                        style: AppTextStyle.buttonStyle
-                            .copyWith(fontSize: 18, fontWeight: FontWeight.w400),
-                      ),
-                    ),
                   Tab(
                     iconMargin: EdgeInsets.all(0),
                     child: CustomButton(
                       radius: 5,
-                      color: _cleaningMode
-                          ? _tabController.index == 2
-                              ? AppColor.mainAppColor
-                              : AppColor.secondAppColor
-                          : _tabController.index == 1
-                              ? AppColor.mainAppColor
-                              : AppColor.secondAppColor,
+                      color: _tabController.index == 1
+                          ? AppColor.mainAppColor
+                          : AppColor.secondAppColor,
                       text: AppLocaleKey.end.tr(),
                       style: AppTextStyle.buttonStyle
                           .copyWith(fontSize: 18, fontWeight: FontWeight.w400),
@@ -145,27 +135,16 @@ class _OrdersScreenState extends State<OrdersScreen> with SingleTickerProviderSt
                   return TabBarView(
                     controller: _tabController,
                     physics: BouncingScrollPhysics(),
-                    children: _cleaningMode
-                        ? [
-                            OrderTapList(
-                              isCurrent: true,
-                            ),
-                            OrderTapList(
-                              isCurrent: false,
-                              isDischarges: true,
-                            ),
-                            OrderTapList(
-                              isCurrent: false,
-                            ),
-                          ]
-                        : [
-                            OrderTapList(
-                              isCurrent: true,
-                            ),
-                            OrderTapList(
-                              isCurrent: false,
-                            ),
-                          ],
+                    children: [
+                      OrderTapList(
+                        isCurrent: true,
+                        isDischarges: _cleaningMode,
+                      ),
+                      OrderTapList(
+                        isCurrent: false,
+                        isDischarges: _cleaningMode,
+                      ),
+                    ],
                   );
                 },
               ),

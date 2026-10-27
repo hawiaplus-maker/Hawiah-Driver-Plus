@@ -1,3 +1,12 @@
+/// Reads a boolean flag that the API may send as `true`/`false`, `1`/`0` or
+/// `"true"`/`"false"`.
+bool _flag(dynamic value) {
+  if (value is bool) return value;
+  if (value is num) return value != 0;
+  final normalized = value?.toString().trim().toLowerCase();
+  return normalized == 'true' || normalized == '1';
+}
+
 /// Model for `GET {{base_url}}/service-providers/user-info`
 /// Shape:
 /// {
@@ -32,13 +41,19 @@ class UserInfoModel {
   factory UserInfoModel.fromJson(Map<String, dynamic> json) {
     final raw = json['data'];
     return UserInfoModel(
-      success: json['success'] is bool
-          ? json['success'] as bool
-          : json['success']?.toString() == 'true',
+      success: _flag(json['success']),
       message: json['message']?.toString() ?? '',
       data: raw is Map<String, dynamic> ? UserInfoData.fromJson(raw) : null,
     );
   }
+
+  /// Whether the server currently allows this account to use the app.
+  ///
+  /// A stored token only proves that a session was created at some point; the
+  /// account may have been deactivated since then. `user-info` is the source
+  /// of truth, so entry is allowed only when the call succeeds and the user is
+  /// marked as active.
+  bool get canUseApp => success && (data?.active ?? false);
 }
 
 class UserInfoData {
@@ -80,10 +95,10 @@ class UserInfoData {
       image: json['image']?.toString() ?? '',
       apiToken: json['api_token']?.toString() ?? '',
       fcmToken: json['fcm_token']?.toString() ?? '',
-      active: json['active']?.toString() == '1' || json['active'] == true || json['active'] == 1,
-      orderWork: json['order_work']?.toString() == 'true',
-      projectWork: json['project_work']?.toString() == 'true',
-      cleaningContractWork: json['cleaning_contract_work']?.toString() == 'true',
+      active: _flag(json['active']),
+      orderWork: _flag(json['order_work']),
+      projectWork: _flag(json['project_work']),
+      cleaningContractWork: _flag(json['cleaning_contract_work']),
     );
   }
 }

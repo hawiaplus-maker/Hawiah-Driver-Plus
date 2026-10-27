@@ -31,6 +31,18 @@ class HiveMethods {
     _box.delete('token');
   }
 
+  /// Clears everything that belongs to the current session.
+  ///
+  /// Used on logout and whenever the server reports that the account may no
+  /// longer use the app, so a stale token or work mode can't leak into the
+  /// next session.
+  static void clearSession() {
+    deleteToken();
+    deleteUserId();
+    deleteWorkTypes();
+    updateIsVisitor(true);
+  }
+
   static int? getUserId() {
     return _box.get('userId');
   }
@@ -73,42 +85,57 @@ class HiveMethods {
   // ===== Work type flags (order_work / project_work / cleaning_contract_work) =====
   // Persisted in Hive because AuthCubit is registered as a factory, so instance
   // fields don't survive; these flags must be readable anywhere (e.g. OrderCubit).
-  static bool? getOrderWork() {
-    final value = _box.get('order_work');
-    return value is bool ? value : null;
+  //
+  // The API sometimes sends them as `true`/`false`, sometimes as `1`/`0` or
+  // `"true"`/`"false"`. Normalizing here keeps a raw value from silently
+  // switching the driver back to the regular orders flow.
+  static bool? _toBool(dynamic value) {
+    if (value is bool) return value;
+    if (value is num) return value != 0;
+    if (value == null) return null;
+    switch (value.toString().trim().toLowerCase()) {
+      case 'true':
+      case '1':
+        return true;
+      case 'false':
+      case '0':
+        return false;
+      default:
+        return null;
+    }
   }
 
-  static void updateOrderWork(bool? value) {
-    if (value == null) {
+  static bool? getOrderWork() => _toBool(_box.get('order_work'));
+
+  static void updateOrderWork(dynamic value) {
+    final parsed = _toBool(value);
+    if (parsed == null) {
       _box.delete('order_work');
     } else {
-      _box.put('order_work', value);
+      _box.put('order_work', parsed);
     }
   }
 
-  static bool? getProjectWork() {
-    final value = _box.get('project_work');
-    return value is bool ? value : null;
-  }
+  static bool? getProjectWork() => _toBool(_box.get('project_work'));
 
-  static void updateProjectWork(bool? value) {
-    if (value == null) {
+  static void updateProjectWork(dynamic value) {
+    final parsed = _toBool(value);
+    if (parsed == null) {
       _box.delete('project_work');
     } else {
-      _box.put('project_work', value);
+      _box.put('project_work', parsed);
     }
   }
 
-  static bool? getCleaningContractWork() {
-    final value = _box.get('cleaning_contract_work');
-    return value is bool ? value : null;
-  }
+  static bool? getCleaningContractWork() =>
+      _toBool(_box.get('cleaning_contract_work'));
 
-  static void updateCleaningContractWork(bool? value) {
-    if (value == null) {
+  static void updateCleaningContractWork(dynamic value) {
+    final parsed = _toBool(value);
+    if (parsed == null) {
       _box.delete('cleaning_contract_work');
     } else {
-      _box.put('cleaning_contract_work', value);
+      _box.put('cleaning_contract_work', parsed);
     }
   }
 

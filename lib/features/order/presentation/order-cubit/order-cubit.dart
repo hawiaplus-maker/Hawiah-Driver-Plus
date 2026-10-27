@@ -71,8 +71,10 @@ class OrderCubit extends Cubit<OrderState> {
   bool isLoadingCleaningContract = false;
   bool isLoadingMoreCleaningContract = false;
 
-// cleaning contracts discharges (third tab, cleaning contract mode only)
+// cleaning contracts discharges (cleaning contract mode: the two tabs)
   List<CleaningContractDeliveryItem> cleaningDischarges = [];
+  List<CleaningContractDeliveryItem> cleaningCurrentDischarges = [];
+  List<CleaningContractDeliveryItem> cleaningOldDischarges = [];
   int dischargeCurrentPage = 1;
   int dischargeLastPage = 1;
   bool isLoadingDischarges = false;
@@ -83,9 +85,8 @@ class OrderCubit extends Cubit<OrderState> {
   bool get canLoadMoreCurrent => currentPageCurrent < lastPageCurrent;
   bool get canLoadMoreOld => currentPageOld < lastPageOld;
 
-  /// When the driver has cleaning_contract_work enabled (and order_work is
-  /// not the active default), serve cleaning contract deliveries instead of
-  /// regular orders.  order_work takes priority per the requirement.
+  /// When the driver has cleaning_contract_work enabled, serve cleaning
+  /// contract deliveries instead of regular orders.
   ///
   /// The flags are read from Hive (saved at login) because AuthCubit is
   /// registered as a factory — every sl<AuthCubit>() creates a fresh instance
@@ -93,9 +94,12 @@ class OrderCubit extends Cubit<OrderState> {
   /// NOTE: the profile API (work_types.orders/enabled work types) reflects
   /// *allowed* capabilities, not the active session flags, so it must NOT
   /// override the login values.
+  ///
+  /// `cleaning_contract_work` describes the driver's active work type, so it
+  /// wins over `order_work` (the account may keep its regular-orders
+  /// capability flag while the cleaning contract flow is the active one).
   bool get isCleaningContractMode =>
-      HiveMethods.getCleaningContractWork() == true &&
-      HiveMethods.getOrderWork() != true;
+      HiveMethods.getCleaningContractWork() == true;
 
 // project work (project pickups / discharges)
   List<ProjectDischargeItem> projectDischarges = [];
@@ -118,14 +122,14 @@ class OrderCubit extends Cubit<OrderState> {
   /// Fetches project pickups (project discharges) and splits them into
   /// current (not completed) and old (completed) lists.
   Future<void> getProjectDischarges({
-    required int orderStatus, // 0 = current, 1 = old (drives nothing server-side;
+    required int
+        orderStatus, // 0 = current, 1 = old (drives nothing server-side;
     // the endpoint is fetched once and split client-side, like deliveries)
     int page = 1,
     bool isLoadMore = false,
     bool isRefresh = false,
   }) async {
-    log(
-        "**************************** getProjectDischarges($orderStatus, page: $page) *************************");
+    log("**************************** getProjectDischarges($orderStatus, page: $page) *************************");
 
     if (isRefresh) {
       page = 1;
@@ -203,8 +207,7 @@ class OrderCubit extends Cubit<OrderState> {
   bool get canLoadMoreCleaningContract =>
       cleaningCurrentPage < cleaningLastPage;
 
-  bool get canLoadMoreDischarges =>
-      dischargeCurrentPage < dischargeLastPage;
+  bool get canLoadMoreDischarges => dischargeCurrentPage < dischargeLastPage;
 
   // =================== Project pickup actions ====================
 
@@ -247,8 +250,10 @@ class OrderCubit extends Cubit<OrderState> {
         return;
       }
 
-      if (response.state == ResponseState.complete && _isSuccessResponse(response)) {
-        emit(DischargeActionSuccess(pickupId, tr(AppLocaleKey.startTripSuccess)));
+      if (response.state == ResponseState.complete &&
+          _isSuccessResponse(response)) {
+        emit(DischargeActionSuccess(
+            pickupId, tr(AppLocaleKey.startTripSuccess)));
         await _refreshProjectDischarges();
         return;
       }
@@ -311,7 +316,8 @@ class OrderCubit extends Cubit<OrderState> {
         return;
       }
 
-      if (response.state == ResponseState.complete && _isSuccessResponse(response)) {
+      if (response.state == ResponseState.complete &&
+          _isSuccessResponse(response)) {
         emit(DischargeActionSuccess(
             pickupId, tr(AppLocaleKey.completeDischargeSuccess)));
         await _refreshProjectDischarges();
@@ -376,7 +382,8 @@ class OrderCubit extends Cubit<OrderState> {
         return;
       }
 
-      if (response.state == ResponseState.complete && _isSuccessResponse(response)) {
+      if (response.state == ResponseState.complete &&
+          _isSuccessResponse(response)) {
         emit(DischargeActionSuccess(
             dischargeId, tr(AppLocaleKey.completeDischargeSuccess)));
         await _refreshCleaningContractDischarges();
@@ -403,8 +410,8 @@ class OrderCubit extends Cubit<OrderState> {
     await getProjectDischarges(orderStatus: 0, isRefresh: true);
   }
 
-  /// Reloads the cleaning contract discharges after an action so the records
-  /// show the new status.
+  /// Reloads the cleaning contract discharges after an action so the cards
+  /// move from the current tab to the completed one.
   Future<void> _refreshCleaningContractDischarges() async {
     if (isClosed) return;
     await getCleaningContractDischarges(isRefresh: true);
@@ -426,8 +433,7 @@ class OrderCubit extends Cubit<OrderState> {
     bool isLoadMore = false,
     bool isRefresh = false,
   }) async {
-    log(
-        "**************************** getCleaningContractDischarges($page) *************************");
+    log("**************************** getCleaningContractDischarges($page) *************************");
 
     if (isRefresh) {
       page = 1;
@@ -469,6 +475,13 @@ class OrderCubit extends Cubit<OrderState> {
           isLoadingDischarges = false;
         }
 
+        // The cleaning screen has two tabs fed by this single endpoint:
+        // current (not discharged yet) and end (completed).
+        cleaningCurrentDischarges =
+            cleaningDischarges.where((e) => !e.isCompleted).toList();
+        cleaningOldDischarges =
+            cleaningDischarges.where((e) => e.isCompleted).toList();
+
         dischargeLoadedOnce = true;
         emit(OrderSuccess(ordersModel: null));
       } catch (e) {
@@ -501,10 +514,10 @@ class OrderCubit extends Cubit<OrderState> {
   }) async {
     log("**************************** getOrders($orderStatus) *************************");
 
-    // When cleaning contract work is enabled, serve cleaning contract deliveries.
+    // When cleaning contract work is enabled, the discharges are the work
+    // list. Both tabs split it client-side by completion state.
     if (isCleaningContractMode) {
-      await getCleaningContractDeliveries(
-        orderStatus: orderStatus,
+      await getCleaningContractDischarges(
         page: page,
         isLoadMore: isLoadMore,
         isRefresh: isRefresh,
@@ -610,7 +623,9 @@ class OrderCubit extends Cubit<OrderState> {
         }
 
         // Use response.getMessage() or fallback to the exception message
-        final errorMsg = response.getMessage().isNotEmpty ? response.getMessage() : e.toString();
+        final errorMsg = response.getMessage().isNotEmpty
+            ? response.getMessage()
+            : e.toString();
         emit(OrderError(errorMsg));
       }
     } else if (response.state == ResponseState.unauthorized) {
@@ -631,22 +646,31 @@ class OrderCubit extends Cubit<OrderState> {
         isLoadingMoreOld = false;
       }
 
-      final errorMsg =
-          response.getMessage().isNotEmpty ? response.getMessage() : "Failed to load orders";
+      final errorMsg = response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : "Failed to load orders";
 
       emit(OrderError(errorMsg));
     }
   }
 
   // =================== Cleaning Contract Deliveries ====================
+  /// Fetches the cleaning contract deliveries and splits them into current
+  /// (not completed) and old (completed) lists — exactly like
+  /// [getProjectDischarges] does for project pickups.
+  ///
+  /// GET `{{baseUrl}}v2/drivers/cleaning-contracts-deliveries?page=1`
+  ///
+  /// The endpoint returns every delivery of the driver; [orderStatus] does not
+  /// filter anything server-side, it only tells the caller which tab asked
+  /// (kept so both flows share the same signature).
   Future<void> getCleaningContractDeliveries({
-    required int orderStatus, // 0 = current, 1 = old
+    required int orderStatus, // 0 = current, 1 = old (no server-side filter)
     int page = 1,
     bool isLoadMore = false,
     bool isRefresh = false,
   }) async {
-    log(
-        "**************************** getCleaningContractDeliveries($orderStatus) *************************");
+    log("**************************** getCleaningContractDeliveries($orderStatus, page: $page) *************************");
 
     if (isRefresh) {
       page = 1;
@@ -658,10 +682,11 @@ class OrderCubit extends Cubit<OrderState> {
       emit(OrderPaginationLoading());
     } else {
       isLoadingCleaningContract = true;
-      cleaningContractDeliveries = [];
-      cleaningCurrentOrders = [];
-      cleaningOldOrders = [];
-      emit(OrderLoading());
+      // A refresh keeps the current list visible until the new data lands,
+      // so the cards don't flash a loading shimmer while acting on a delivery.
+      if (!isRefresh) {
+        emit(OrderLoading());
+      }
     }
 
     final response = await ApiHelper.instance.get(
@@ -678,17 +703,17 @@ class OrderCubit extends Cubit<OrderState> {
         cleaningCurrentPage = pagination?.currentPage ?? 1;
         cleaningLastPage = pagination?.lastPage ?? 1;
 
-        final allItems = isLoadMore
-            ? [...cleaningContractDeliveries, ...newItems]
-            : newItems;
-        cleaningContractDeliveries = allItems;
+        final List<CleaningContractDeliveryItem> allItems;
+        if (isLoadMore) {
+          cleaningContractDeliveries.addAll(newItems);
+          allItems = cleaningContractDeliveries;
+        } else {
+          cleaningContractDeliveries = newItems;
+          allItems = newItems;
+        }
 
-        cleaningCurrentOrders = allItems
-            .where((e) => e.deliveryStatus?.toLowerCase() != 'delivered')
-            .toList();
-        cleaningOldOrders = allItems
-            .where((e) => e.deliveryStatus?.toLowerCase() == 'delivered')
-            .toList();
+        cleaningCurrentOrders = allItems.where((e) => !e.isCompleted).toList();
+        cleaningOldOrders = allItems.where((e) => e.isCompleted).toList();
 
         if (isLoadMore) {
           isLoadingMoreCleaningContract = false;
@@ -729,7 +754,8 @@ class OrderCubit extends Cubit<OrderState> {
       ImageCompressor.compress(file, prefix: 'upload');
 
   //================== confirm order ====================
-  ApiResponse _ordersResponse = ApiResponse(state: ResponseState.sleep, data: null);
+  ApiResponse _ordersResponse =
+      ApiResponse(state: ResponseState.sleep, data: null);
   Future<void> confirmOrders({
     required int orderId,
     required otp,
@@ -770,7 +796,8 @@ class OrderCubit extends Cubit<OrderState> {
   }
 
   //========================== empty order ==========================
-  ApiResponse _emptyOrdersResponse = ApiResponse(state: ResponseState.sleep, data: null);
+  ApiResponse _emptyOrdersResponse =
+      ApiResponse(state: ResponseState.sleep, data: null);
   Future<void> confirmEmptyOrder({
     required int orderId,
     required lat,
@@ -789,7 +816,8 @@ class OrderCubit extends Cubit<OrderState> {
     final formData = FormData.fromMap(data);
 
     emit(OrderLoading());
-    _emptyOrdersResponse = ApiResponse(state: ResponseState.loading, data: null);
+    _emptyOrdersResponse =
+        ApiResponse(state: ResponseState.loading, data: null);
     var _success = null;
     emit(OrderLoading());
     _emptyOrdersResponse = await ApiHelper.instance.post(

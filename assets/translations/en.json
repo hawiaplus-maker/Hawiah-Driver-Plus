@@ -432,5 +432,7 @@
   "projects": "Projects",
   "projectDetails": "Project details",
   "pleaseEnableLocation": "Please enable location to continue",
-  "locationUnavailable": "Couldn't detect your location. Make sure GPS is on and try again."
+  "locationUnavailable": "Couldn't detect your location. Make sure GPS is on and try again.",
+  "accountInactive": "Your account is inactive. Please contact support.",
+  "sessionExpired": "Your session has expired. Please login again."
 }

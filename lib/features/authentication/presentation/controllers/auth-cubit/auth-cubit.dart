@@ -50,7 +50,8 @@ class AuthCubit extends Cubit<AuthState> {
   // new instance — reading from Hive is the only reliable way to access these.
   bool get isOrderWork => HiveMethods.getOrderWork() == true;
   bool get isProjectWork => HiveMethods.getProjectWork() == true;
-  bool get isCleaningContractWork => HiveMethods.getCleaningContractWork() == true;
+  bool get isCleaningContractWork =>
+      HiveMethods.getCleaningContractWork() == true;
 
   // Update the selected SMS or WhatsApp method
   void updateSelectedSmsOrWhatsApp(int index) {
@@ -186,10 +187,15 @@ class AuthCubit extends Cubit<AuthState> {
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController usernameController = TextEditingController();
-  TextEditingController passwordControllerCompleteProfile = TextEditingController();
-  TextEditingController confirmPasswordControllerCompleteProfile = TextEditingController();
+  TextEditingController passwordControllerCompleteProfile =
+      TextEditingController();
+  TextEditingController confirmPasswordControllerCompleteProfile =
+      TextEditingController();
   TextEditingController PhoneController = TextEditingController();
   TextEditingController phoneControllerRegister = TextEditingController();
+  final TextEditingController nameControllerRegister = TextEditingController();
+  final TextEditingController passwordControllerRegister =
+      TextEditingController();
   String nameCompleteProfile = '';
   String emailCompleteProfile = '';
   String usernameCompleteProfile = '';
@@ -268,70 +274,156 @@ class AuthCubit extends Cubit<AuthState> {
       hasToken: false,
     );
 
-    if (response.state == ResponseState.complete && response.data['success'] == true) {
+    if (response.state == ResponseState.complete &&
+        response.data['success'] == true) {
       final data = response.data['data'];
-      final message = response.getMessage().isNotEmpty ? response.getMessage() : 'Login completed';
+      final message = response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : 'Login completed';
 
       if (data != null) {
         HiveMethods.updateToken(data['api_token']);
         HiveMethods.updateOrderWork(data['order_work']);
         HiveMethods.updateProjectWork(data['project_work']);
         HiveMethods.updateCleaningContractWork(data['cleaning_contract_work']);
+
+        // Valid credentials don't guarantee that the account can use the app.
+        // `user-info` is the source of truth for the work-type flags and for
+        // the account's active status, so check it before opening the app.
+        String? deniedMessage;
+        String? checkErrorMessage;
+        await sl<ProfileCubit>().fetchUserInfo(
+          onDenied: (message) => deniedMessage = message,
+          onError: (message) => checkErrorMessage = message,
+        );
+        if (deniedMessage != null) {
+          emit(AuthError(deniedMessage!));
+          return;
+        }
+        // `fetchUserInfo` clears the session on an unauthorized response; an
+        // offline/network failure keeps the token, so the login can continue.
+        if (HiveMethods.getToken() == null) {
+          emit(AuthError(checkErrorMessage ?? tr(AppLocaleKey.sessionExpired)));
+          return;
+        }
+
         await sl<ProfileCubit>().fetchProfile();
         emit(AuthLoginSuccess(message: message));
       } else {
         emit(AuthError(message));
       }
     } else if (response.state == ResponseState.unauthorized) {
-      emit(AuthError(response.getMessage().isNotEmpty ? response.getMessage() : tr(AppLocaleKey.incorrectLoginData)));
+      emit(AuthError(response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : tr(AppLocaleKey.incorrectLoginData)));
     } else if (response.state == ResponseState.error) {
-      emit(AuthError(response.getMessage().isNotEmpty ? response.getMessage() : tr(AppLocaleKey.errorDuringProcess)));
+      emit(AuthError(response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : tr(AppLocaleKey.errorDuringProcess)));
     } else if (response.state == ResponseState.offline) {
       emit(AuthError(tr(AppLocaleKey.noInternetConnection)));
     } else {
-      emit(AuthError(response.getMessage().isNotEmpty ? response.getMessage() : tr(AppLocaleKey.errorDuringProcess)));
+      emit(AuthError(response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : tr(AppLocaleKey.errorDuringProcess)));
     }
   }
 
   ///******************Register*********************** */
   ///
+  /// Creates a driver account through `POST /drivers/register`.
+  ///
+  /// Some responses include a session token (the driver is signed in right
+  /// away); others only confirm the account creation and require a normal
+  /// login afterwards. Both outcomes are reported as [AuthRegisterSuccess] and
+  /// distinguished by [AuthRegisterSuccess.isAuthenticated].
   Future<void> register({
+    required String? name,
     required String? phoneNumber,
-    required String? type,
+    required String? password,
   }) async {
     emit(AuthLoading());
 
-    final body = FormData.fromMap({'type': type, 'mobile': phoneNumber});
+    final body = <String, dynamic>{
+      'name': name,
+      'mobile': phoneNumber,
+      'password': password,
+    };
 
     final response = await ApiHelper.instance.post(
-      Urls.register,
+      Urls.driverRegister,
       body: body,
       hasToken: false,
     );
 
-    if (response.state == ResponseState.complete && response.data['success'] == true) {
-      final data = response.data['data'];
-      final message = response.getMessage().isNotEmpty ? response.getMessage() : 'Login completed';
+    if (response.state == ResponseState.complete &&
+        response.data is Map &&
+        response.data['success'] == true) {
+      final rawData = response.data['data'];
+      final data = rawData is Map ? Map<String, dynamic>.from(rawData) : null;
+      final message = response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : tr('account_created_successfully');
 
-      if (data != null) {
-        emit(
-          AuthRegisterSuccess(
-            message: message,
-            data: response.data['data'] as Map<String, dynamic>,
-          ),
-        );
-      } else {
-        emit(AuthError(message));
+      final token = data == null ? null : _extractToken(data);
+      if (token != null && data != null) {
+        HiveMethods.updateToken(token);
+        HiveMethods.updateIsVisitor(false);
+        if (data.containsKey('order_work')) {
+          HiveMethods.updateOrderWork(data['order_work']);
+        }
+        if (data.containsKey('project_work')) {
+          HiveMethods.updateProjectWork(data['project_work']);
+        }
+        if (data.containsKey('cleaning_contract_work')) {
+          HiveMethods.updateCleaningContractWork(
+              data['cleaning_contract_work']);
+        }
       }
+
+      nameControllerRegister.clear();
+      phoneControllerRegister.clear();
+      passwordControllerRegister.clear();
+
+      emit(
+        AuthRegisterSuccess(
+          message: message,
+          data: data,
+          isAuthenticated: token != null,
+        ),
+      );
     } else if (response.state == ResponseState.unauthorized) {
-      emit(AuthError(response.getMessage().isNotEmpty ? response.getMessage() : tr(AppLocaleKey.incorrectLoginData)));
+      emit(AuthError(response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : tr(AppLocaleKey.incorrectLoginData)));
     } else if (response.state == ResponseState.error) {
-      emit(AuthError(response.getMessage().isNotEmpty ? response.getMessage() : tr(AppLocaleKey.errorDuringProcess)));
+      emit(AuthError(response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : tr(AppLocaleKey.errorDuringProcess)));
     } else if (response.state == ResponseState.offline) {
       emit(AuthError(tr(AppLocaleKey.noInternetConnection)));
     } else {
-      emit(AuthError(response.getMessage().isNotEmpty ? response.getMessage() : tr(AppLocaleKey.errorDuringProcess)));
+      emit(AuthError(response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : tr(AppLocaleKey.errorDuringProcess)));
     }
+  }
+
+  /// Tokens may come back at the root of `data`, inside a `user` object, or
+  /// under a different key depending on the API version.
+  String? _extractToken(Map<String, dynamic> data) {
+    final user = data['user'];
+    final candidates = <dynamic>[
+      data['api_token'],
+      data['token'],
+      data['access_token'],
+      if (user is Map) user['api_token'],
+    ];
+
+    for (final candidate in candidates) {
+      if (candidate is String && candidate.isNotEmpty) return candidate;
+    }
+    return null;
   }
 
   ///**************************************otp*********************** */
@@ -346,9 +438,12 @@ class AuthCubit extends Cubit<AuthState> {
       hasToken: false,
     );
 
-    if (response.state == ResponseState.complete && response.data['success'] == true) {
+    if (response.state == ResponseState.complete &&
+        response.data['success'] == true) {
       final data = response.data['data'];
-      final message = response.getMessage().isNotEmpty ? response.getMessage() : 'Login completed';
+      final message = response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : 'Login completed';
 
       if (data != null) {
         HiveMethods.updateToken(data['user']['api_token']);
@@ -357,13 +452,19 @@ class AuthCubit extends Cubit<AuthState> {
         emit(AuthError(message));
       }
     } else if (response.state == ResponseState.unauthorized) {
-      emit(AuthError(response.getMessage().isNotEmpty ? response.getMessage() : tr(AppLocaleKey.incorrectLoginData)));
+      emit(AuthError(response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : tr(AppLocaleKey.incorrectLoginData)));
     } else if (response.state == ResponseState.error) {
-      emit(AuthError(response.getMessage().isNotEmpty ? response.getMessage() : tr(AppLocaleKey.errorDuringProcess)));
+      emit(AuthError(response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : tr(AppLocaleKey.errorDuringProcess)));
     } else if (response.state == ResponseState.offline) {
       emit(AuthError(tr(AppLocaleKey.noInternetConnection)));
     } else {
-      emit(AuthError(response.getMessage().isNotEmpty ? response.getMessage() : tr(AppLocaleKey.errorDuringProcess)));
+      emit(AuthError(response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : tr(AppLocaleKey.errorDuringProcess)));
     }
   }
 
@@ -379,8 +480,11 @@ class AuthCubit extends Cubit<AuthState> {
       hasToken: false,
     );
 
-    if (response.state == ResponseState.complete && response.data['success'] == true) {
-      final message = response.getMessage().isNotEmpty ? response.getMessage() : tr(AppLocaleKey.verificationCodeResent);
+    if (response.state == ResponseState.complete &&
+        response.data['success'] == true) {
+      final message = response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : tr(AppLocaleKey.verificationCodeResent);
 
       Fluttertoast.showToast(
         msg: message,
@@ -395,19 +499,25 @@ class AuthCubit extends Cubit<AuthState> {
     } else if (response.state == ResponseState.unauthorized) {
       emit(
         AuthCodeResentError(
-          message: response.getMessage().isNotEmpty ? response.getMessage() : "بيانات غير صحيحة",
+          message: response.getMessage().isNotEmpty
+              ? response.getMessage()
+              : "بيانات غير صحيحة",
         ),
       );
     } else if (response.state == ResponseState.error) {
       emit(
         AuthCodeResentError(
-          message: response.getMessage().isNotEmpty ? response.getMessage() : "حدث خطأ أثناء العملية",
+          message: response.getMessage().isNotEmpty
+              ? response.getMessage()
+              : "حدث خطأ أثناء العملية",
         ),
       );
     } else if (response.state == ResponseState.offline) {
       emit(AuthCodeResentError(message: "لا يوجد اتصال بالإنترنت"));
     } else {
-      emit(AuthError(response.getMessage().isNotEmpty ? response.getMessage() : "حدث خطأ أثناء العملية"));
+      emit(AuthError(response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : "حدث خطأ أثناء العملية"));
     }
   }
 
@@ -423,8 +533,11 @@ class AuthCubit extends Cubit<AuthState> {
       hasToken: false,
     );
 
-    if (response.state == ResponseState.complete && response.data['success'] == true) {
-      final message = response.getMessage().isNotEmpty ? response.getMessage() : tr(AppLocaleKey.verificationCodeResent);
+    if (response.state == ResponseState.complete &&
+        response.data['success'] == true) {
+      final message = response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : tr(AppLocaleKey.verificationCodeResent);
       final data = response.data['data'];
 
       Fluttertoast.showToast(
@@ -438,13 +551,19 @@ class AuthCubit extends Cubit<AuthState> {
 
       emit(AuthForgotPasswordSuccess(message: message, data: data));
     } else if (response.state == ResponseState.unauthorized) {
-      emit(AuthError(response.getMessage().isNotEmpty ? response.getMessage() : "بيانات غير صحيحة"));
+      emit(AuthError(response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : "بيانات غير صحيحة"));
     } else if (response.state == ResponseState.error) {
-      emit(AuthError(response.getMessage().isNotEmpty ? response.getMessage() : "حدث خطأ أثناء العملية"));
+      emit(AuthError(response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : "حدث خطأ أثناء العملية"));
     } else if (response.state == ResponseState.offline) {
       emit(AuthError("لا يوجد اتصال بالإنترنت"));
     } else {
-      emit(AuthError(response.getMessage().isNotEmpty ? response.getMessage() : "حدث خطأ أثناء العملية"));
+      emit(AuthError(response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : "حدث خطأ أثناء العملية"));
     }
   }
 
@@ -467,8 +586,11 @@ class AuthCubit extends Cubit<AuthState> {
       body: body,
       hasToken: false,
     );
-    if (response.state == ResponseState.complete && response.data['success'] == true) {
-      final message = response.getMessage().isNotEmpty ? response.getMessage() : tr(AppLocaleKey.verificationCodeResent);
+    if (response.state == ResponseState.complete &&
+        response.data['success'] == true) {
+      final message = response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : tr(AppLocaleKey.verificationCodeResent);
 
       Fluttertoast.showToast(
         msg: message,
@@ -481,13 +603,19 @@ class AuthCubit extends Cubit<AuthState> {
 
       emit(AuthResetPasswordSuccess(message: message));
     } else if (response.state == ResponseState.unauthorized) {
-      emit(AuthError(response.getMessage().isNotEmpty ? response.getMessage() : tr(AppLocaleKey.incorrectLoginData)));
+      emit(AuthError(response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : tr(AppLocaleKey.incorrectLoginData)));
     } else if (response.state == ResponseState.error) {
-      emit(AuthError(response.getMessage().isNotEmpty ? response.getMessage() : tr(AppLocaleKey.errorDuringProcess)));
+      emit(AuthError(response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : tr(AppLocaleKey.errorDuringProcess)));
     } else if (response.state == ResponseState.offline) {
       emit(AuthError(tr(AppLocaleKey.noInternetConnection)));
     } else {
-      emit(AuthError(response.getMessage().isNotEmpty ? response.getMessage() : tr(AppLocaleKey.incorrectLoginData)));
+      emit(AuthError(response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : tr(AppLocaleKey.incorrectLoginData)));
     }
   }
 
@@ -497,25 +625,27 @@ class AuthCubit extends Cubit<AuthState> {
     NavigatorMethods.loading();
 
     final response = await ApiHelper.instance.post(Urls.logout, hasToken: true);
-    
+
     // Ensure loading indicator is off, regardless of response
     NavigatorMethods.loadingOff();
 
-    if (response.state == ResponseState.complete || response.state == ResponseState.unauthorized) {
-      final message = response.getMessage().isNotEmpty ? response.getMessage() : 'Logout completed';
-      
+    if (response.state == ResponseState.complete ||
+        response.state == ResponseState.unauthorized) {
+      final message = response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : 'Logout completed';
+
       onSuccess?.call();
-      
+
       // Clear all local data
-      HiveMethods.deleteToken();
-      HiveMethods.deleteUserId();
-      HiveMethods.updateIsVisitor(true);
-      HiveMethods.deleteWorkTypes();
-      
+      HiveMethods.clearSession();
+
       emit(LogOutSuccess(message: message));
       CommonMethods.showToast(message: message);
     } else {
-      emit(AuthError(response.getMessage().isNotEmpty ? response.getMessage() : "حدث خطأ أثناء العملية"));
+      emit(AuthError(response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : "حدث خطأ أثناء العملية"));
     }
   }
 
@@ -542,7 +672,9 @@ class AuthCubit extends Cubit<AuthState> {
     );
 
     if (response.state == ResponseState.complete) {
-      final message = response.getMessage().isNotEmpty ? response.getMessage() : 'Complete register completed';
+      final message = response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : 'Complete register completed';
       final data = response.data['data'];
 
       if (data != null) {
@@ -556,13 +688,19 @@ class AuthCubit extends Cubit<AuthState> {
         emit(AuthError(message));
       }
     } else if (response.state == ResponseState.unauthorized) {
-      emit(AuthError(response.getMessage().isNotEmpty ? response.getMessage() : tr(AppLocaleKey.incorrectLoginData)));
+      emit(AuthError(response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : tr(AppLocaleKey.incorrectLoginData)));
     } else if (response.state == ResponseState.error) {
-      emit(AuthError(response.getMessage().isNotEmpty ? response.getMessage() : tr(AppLocaleKey.errorDuringProcess)));
+      emit(AuthError(response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : tr(AppLocaleKey.errorDuringProcess)));
     } else if (response.state == ResponseState.offline) {
       emit(AuthError(tr(AppLocaleKey.noInternetConnection)));
     } else {
-      emit(AuthError(response.getMessage().isNotEmpty ? response.getMessage() : tr(AppLocaleKey.errorDuringProcess)));
+      emit(AuthError(response.getMessage().isNotEmpty
+          ? response.getMessage()
+          : tr(AppLocaleKey.errorDuringProcess)));
     }
   }
 }

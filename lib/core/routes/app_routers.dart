@@ -6,6 +6,10 @@ class AppRouters {
     dynamic args;
     if (settings.arguments != null) args = settings.arguments;
     switch (settings.name) {
+      // ApiHelper redirects here when the server rejects the session; without
+      // this case the default branch would open the layout screen instead.
+      case LoginScreen.routeName:
+        return MaterialPageRoute(builder: (_) => const LoginScreen());
       case ZoomImageScreen.routeName:
         return MaterialPageRoute(builder: (_) => ZoomImageScreen(args: args));
       case SingleChatScreen.routeName:

@@ -3,7 +3,8 @@ class Urls {
       'https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg?cs=srgb&amp;dl=pexels-mike-b-170811.jpg&amp;fm=jpg';
   static const String testWhiteCarImage =
       'https://images.pexels.com/photos/116675/pexels-photo-116675.jpeg?cs=srgb&amp;dl=pexels-mike-b-116675.jpg&amp;fm=jpg';
-  static const String testCarLogoImage = 'https://cdn.worldvectorlogo.com/logos/bmw-logo.svg';
+  static const String testCarLogoImage =
+      'https://cdn.worldvectorlogo.com/logos/bmw-logo.svg';
   static const String testUserImage =
       'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLlsHCzHU2GndYsMJQscyixYSlDVggHDzbXtXSuEmLAc309Z-6e1TUhHJFCLCw40Kicw0';
   static const String testAppleLogo =
@@ -25,6 +26,9 @@ class Urls {
 
   static const String logout = '${baseUrl}logout';
   static const String register = '${baseUrl}register';
+
+  /// Driver self-registration. Body: `name`, `mobile`, `password`.
+  static const String driverRegister = '${baseUrl}drivers/register';
   static const String verify = '${baseUrl}verify-otp';
   static const String resend = '${baseUrl}resend-otp';
   static const String forgetPassword = '${baseUrl}forget-password';
@@ -40,8 +44,10 @@ class Urls {
   static const String createOrder = '${baseUrl}users/orders';
   static const String onBoarding = '${baseUrl}on-boarding';
   static String orders(int id) => '${baseUrl}drivers/orders?order_status=$id';
-  static String confirmOrders(int id) => '${baseUrl}drivers/orders/confirm-order/$id';
-  static String confirmEmptyOrders(int id) => '${baseUrl}drivers/orders/empty-order-and-finish/$id';
+  static String confirmOrders(int id) =>
+      '${baseUrl}drivers/orders/confirm-order/$id';
+  static String confirmEmptyOrders(int id) =>
+      '${baseUrl}drivers/orders/empty-order-and-finish/$id';
   static const String cities = '${baseUrl}cities';
   static const String addresses = '${baseUrl}user-addresses';
   static const String storeAddress = '${baseUrl}user-addresses';

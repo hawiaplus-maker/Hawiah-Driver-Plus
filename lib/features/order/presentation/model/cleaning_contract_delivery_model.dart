@@ -6,12 +6,29 @@ class CleaningContractDeliveryModel {
   CleaningContractDeliveryModel({this.success, this.message, this.data});
 
   factory CleaningContractDeliveryModel.fromJson(Map<String, dynamic> json) {
+    final raw = json['data'];
+    CleaningContractDeliveryData? data;
+    if (raw is Map<String, dynamic>) {
+      data = CleaningContractDeliveryData.fromJson(raw);
+    } else if (raw is List) {
+      // Some deployments return the page directly inside `data` without the
+      // `{data, pagination}` wrapper — accept both shapes.
+      data = CleaningContractDeliveryData(
+        data: raw
+            .whereType<Map<String, dynamic>>()
+            .map(CleaningContractDeliveryItem.fromJson)
+            .toList(),
+        pagination: json['pagination'] is Map<String, dynamic>
+            ? Pagination.fromJson(json['pagination'])
+            : null,
+      );
+    }
     return CleaningContractDeliveryModel(
-      success: json['success'],
-      message: json['message'],
-      data: json['data'] != null
-          ? CleaningContractDeliveryData.fromJson(json['data'])
-          : null,
+      success: json['success'] is bool
+          ? json['success'] as bool
+          : json['success']?.toString() == 'true',
+      message: json['message']?.toString(),
+      data: data,
     );
   }
 
@@ -31,11 +48,15 @@ class CleaningContractDeliveryData {
   CleaningContractDeliveryData({this.data, this.pagination});
 
   factory CleaningContractDeliveryData.fromJson(Map<String, dynamic> json) {
+    final list = json['data'];
     return CleaningContractDeliveryData(
-      data: (json['data'] as List?)
-          ?.map((v) => CleaningContractDeliveryItem.fromJson(v))
-          .toList(),
-      pagination: json['pagination'] != null
+      data: list is List
+          ? list
+              .whereType<Map<String, dynamic>>()
+              .map(CleaningContractDeliveryItem.fromJson)
+              .toList()
+          : [],
+      pagination: json['pagination'] is Map<String, dynamic>
           ? Pagination.fromJson(json['pagination'])
           : null,
     );
@@ -136,16 +157,18 @@ class CleaningContractDeliveryItem {
       lang: json['lang'],
       lng: json['lng'],
       mapUrl: json['map_url'],
-      // Accept both delivery_* and discharge_* keys (discharges endpoint).
-      deliveryStatus: json['delivery_status'] ?? json['discharge_status'],
-      deliveryStatusLabel:
-          json['delivery_status_label'] ?? json['discharge_status_label'],
+      // Accept both delivery_* and discharge_* keys (discharges endpoint) and
+      // a plain `status` (some deployments use it for both endpoints).
+      deliveryStatus:
+          json['delivery_status'] ?? json['discharge_status'] ?? json['status'],
+      deliveryStatusLabel: json['delivery_status_label'] ??
+          json['discharge_status_label'] ??
+          json['status_label'],
       deliveryAssignedAt:
           json['delivery_assigned_at'] ?? json['discharge_assigned_at'],
       deliveredAt: json['delivered_at'] ?? json['discharged_at'],
       deliveryImage: json['delivery_image'] ?? json['discharge_image'],
-      deliveryLatitude:
-          json['delivery_latitude'] ?? json['discharge_latitude'],
+      deliveryLatitude: json['delivery_latitude'] ?? json['discharge_latitude'],
       deliveryLongitude:
           json['delivery_longitude'] ?? json['discharge_longitude'],
       deliveryLat: json['delivery_lat'],
@@ -215,7 +238,9 @@ class CleaningContractDeliveryItem {
 
   /// The record is finished — the container was delivered or discharged.
   bool get isCompleted =>
-      _normalizedStatus == 'delivered' || _normalizedStatus == 'discharged';
+      _normalizedStatus == 'delivered' ||
+      _normalizedStatus == 'discharged' ||
+      _normalizedStatus == 'completed';
 }
 
 class Pagination {

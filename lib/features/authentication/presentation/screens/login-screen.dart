@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:hawiah_driver/core/custom_widgets/global-elevated-button-widget.dart';
 import 'package:hawiah_driver/core/hive/hive_methods.dart';
 import 'package:hawiah_driver/core/theme/app_colors.dart';
 import 'package:hawiah_driver/core/theme/app_text_style.dart';
 import 'package:hawiah_driver/features/authentication/presentation/controllers/auth-cubit/auth-cubit.dart';
 import 'package:hawiah_driver/features/authentication/presentation/controllers/auth-cubit/auth-state.dart';
 import 'package:hawiah_driver/features/authentication/presentation/screens/forget-password-screen.dart';
+import 'package:hawiah_driver/features/authentication/presentation/screens/register-screen.dart';
 import 'package:hawiah_driver/features/authentication/presentation/widgets/common/appbar-auth-sidget.dart';
 import 'package:hawiah_driver/features/authentication/presentation/widgets/common/phone-input-widget.dart';
 import 'package:hawiah_driver/features/authentication/presentation/widgets/login-widgets/action-buttons-widget.dart';
@@ -74,6 +76,27 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   SizedBox(height: 20.h),
                   ActionButtonsWidget(formKey: formKey),
+                  Center(
+                    child: GlobalElevatedButton(
+                      label: "sign_up".tr(),
+                      onPressed: state is AuthLoading
+                          ? null
+                          : () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const RegisterScreen(),
+                                ),
+                              );
+                            },
+                      backgroundColor: AppColor.selectedLightBlueColor,
+                      textColor: AppColor.mainAppColor,
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      borderRadius: BorderRadius.circular(10),
+                      fixedWidth: 0.80,
+                    ),
+                  ),
                 ],
               ),
             ),

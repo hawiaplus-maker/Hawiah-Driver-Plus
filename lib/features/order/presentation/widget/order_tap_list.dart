@@ -60,7 +60,7 @@ class _OrderTapListState extends State<OrderTapList> {
     final canLoadMore = cubit.isProjectWorkMode
         ? cubit.canLoadMoreProject
         : cubit.isCleaningContractMode
-            ? cubit.canLoadMoreCleaningContract
+            ? cubit.canLoadMoreDischarges
             : (widget.isCurrent
                 ? cubit.canLoadMoreCurrent
                 : cubit.canLoadMoreOld);
@@ -76,9 +76,8 @@ class _OrderTapListState extends State<OrderTapList> {
           isLoadMore: true,
         );
       } else if (cubit.isCleaningContractMode) {
-        cubit.getCleaningContractDeliveries(
-          orderStatus: widget.isCurrent ? 0 : 1,
-          page: cubit.cleaningCurrentPage + 1,
+        cubit.getCleaningContractDischarges(
+          page: cubit.dischargeCurrentPage + 1,
           isLoadMore: true,
         );
       } else {
@@ -105,10 +104,7 @@ class _OrderTapListState extends State<OrderTapList> {
         isRefresh: true,
       );
     } else if (cubit.isCleaningContractMode) {
-      await cubit.getCleaningContractDeliveries(
-        orderStatus: widget.isCurrent ? 0 : 1,
-        isRefresh: true,
-      );
+      await cubit.getCleaningContractDischarges(isRefresh: true);
     } else {
       await cubit.getOrders(
         orderStatus: widget.isCurrent ? 0 : 1,
@@ -138,31 +134,26 @@ class _OrderTapListState extends State<OrderTapList> {
         final cubit = context.watch<OrderCubit>();
         final isCleaning = cubit.isCleaningContractMode;
         final List<dynamic> orders;
-        if (widget.isDischarges) {
-          orders = cubit.cleaningDischarges;
-        } else if (cubit.isProjectWorkMode && !widget.isDischarges) {
+        if (cubit.isProjectWorkMode && !widget.isDischarges) {
           orders = widget.isCurrent
               ? cubit.projectCurrentOrders
               : cubit.projectOldOrders;
-        } else if (isCleaning) {
+        } else if (widget.isDischarges || isCleaning) {
+          // Cleaning mode: both tabs come from the discharges endpoint.
           orders = widget.isCurrent
-              ? cubit.cleaningCurrentOrders
-              : cubit.cleaningOldOrders;
+              ? cubit.cleaningCurrentDischarges
+              : cubit.cleaningOldDischarges;
         } else {
-          orders =
-              widget.isCurrent ? cubit.currentOrders : cubit.oldOrders;
+          orders = widget.isCurrent ? cubit.currentOrders : cubit.oldOrders;
         }
-        final isPaginating = cubit.isProjectWorkMode && !widget.isDischarges
-            ? cubit.isLoadingMoreProject
-            : widget.isDischarges
-                ? cubit.isLoadingMoreDischarges
-                : isCleaning
-                    ? cubit.isLoadingMoreCleaningContract
-                    : (widget.isCurrent
-                        ? cubit.isLoadingMoreCurrent
-                        : cubit.isLoadingMoreOld);
-        final bool showCleaningCards =
-            widget.isDischarges || isCleaning;
+        final isPaginating = widget.isDischarges
+            ? cubit.isLoadingMoreDischarges
+            : cubit.isProjectWorkMode
+                ? cubit.isLoadingMoreProject
+                : (widget.isCurrent
+                    ? cubit.isLoadingMoreCurrent
+                    : cubit.isLoadingMoreOld);
+        final bool showCleaningCards = widget.isDischarges || isCleaning;
         // لو لسه أول تحميل
         if (state is OrderLoading) {
           return Center(
@@ -190,7 +181,8 @@ class _OrderTapListState extends State<OrderTapList> {
                   return SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     child: ConstrainedBox(
-                      constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                      constraints:
+                          BoxConstraints(minHeight: constraints.maxHeight),
                       child: Center(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,

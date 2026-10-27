@@ -22,6 +22,14 @@ class ProfileUserInfoLoaded extends ProfileState {
 
 class ProfileUnAuthorized extends ProfileState {}
 
+/// The session is valid but the server does not allow the account to use the
+/// app (inactive account, missing user data, or an unsuccessful user-info
+/// response). The local session has already been cleared.
+class ProfileAccessDenied extends ProfileState {
+  final String message;
+  ProfileAccessDenied(this.message);
+}
+
 class ProfileUpdateSuccess extends ProfileState {
   final String message;
   ProfileUpdateSuccess(this.message);

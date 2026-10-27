@@ -1,24 +1,12 @@
 import java.util.Properties
 import java.io.FileInputStream
-import java.io.File
 
 plugins {
     id("com.android.application")
     id("com.google.gms.google-services")
-    id("kotlin-android")
+    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
-
-// Load local.properties
-val localProperties = Properties()
-val localPropertiesFile = rootProject.file("local.properties")
-if (localPropertiesFile.exists()) {
-    localProperties.load(FileInputStream(localPropertiesFile))
-}
-
-// Flutter version
-val flutterVersionCode = localProperties.getProperty("flutter.versionCode")?.toInt() ?: 1
-val flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "1.0.0"
 
 // Load keystore
 val keystoreProperties = Properties()
@@ -30,40 +18,26 @@ if (keystoreFile.exists()) {
 android {
     namespace = "com.future.hawiah.driver.plus"
 
-    compileSdk = 36
-    ndkVersion = "27.0.12077973"
+    compileSdk = flutter.compileSdkVersion
+    // Flutter 3.47 uses NDK 28.2, which builds 16 KB aligned native libraries.
+    ndkVersion = flutter.ndkVersion
 
     defaultConfig {
         applicationId = "com.future.hawiah.driver.plus"
         minSdk = flutter.minSdkVersion
-        targetSdk = 36
-        versionCode = flutterVersionCode
-        versionName = flutterVersionName
+        targetSdk = flutter.targetSdkVersion
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
 
         ndk {
             abiFilters += listOf("arm64-v8a", "x86_64")
         }
-
-        externalNativeBuild {
-            cmake {
-
-                arguments(
-                    "-DANDROID_STL=c++_shared",
-                    "-DANDROID_EXT_LINKER_FLAGS=-Wl,-z,max-page-size=16384"
-                )
-                cppFlags += "-Wl,-z,max-page-size=16384"
-            }
-        }
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
         isCoreLibraryDesugaringEnabled = true
-    }
-
-    kotlinOptions {
-        jvmTarget = "11"
     }
 
     signingConfigs {
@@ -78,16 +52,28 @@ android {
     buildTypes {
         getByName("release") {
             signingConfig = signingConfigs.getByName("release")
-            isMinifyEnabled = false
-            isShrinkResources = false
+            // R8 shrinks/obfuscates the app and generates the mapping file
+            // needed for readable Play Console crash/ANR reports.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 
-    // التعديل الصحيح لضمان عدم ضغط المكتبات ومحاذاتها
+    // Keep native libraries uncompressed and 16 KB aligned inside the APK/AAB.
     packaging {
         jniLibs {
             useLegacyPackaging = false
         }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
     }
 }
 
@@ -96,7 +82,5 @@ flutter {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 }
-

@@ -3,11 +3,11 @@ import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gap/gap.dart';
 import 'package:hawiah_driver/core/custom_widgets/custom_app_bar/custom_app_bar.dart';
 import 'package:hawiah_driver/core/custom_widgets/custom_button.dart';
-import 'package:hawiah_driver/core/custom_widgets/custom_image/custom_network_image.dart';
 import 'package:hawiah_driver/core/custom_widgets/custom_loading/custom_loading.dart';
-import 'package:hawiah_driver/core/custom_widgets/global-elevated-button-widget.dart';
 import 'package:hawiah_driver/core/images/image_methods.dart';
 import 'package:hawiah_driver/core/locale/app_locale_key.dart';
 import 'package:hawiah_driver/core/theme/app_colors.dart';
@@ -15,10 +15,12 @@ import 'package:hawiah_driver/core/theme/app_text_style.dart';
 import 'package:hawiah_driver/core/utils/navigator_methods.dart';
 import 'package:hawiah_driver/features/layout/presentation/screens/layout-screen.dart';
 import 'package:hawiah_driver/features/location/service/location_service.dart';
+import 'package:hawiah_driver/features/order/presentation/model/single_order_model.dart';
 import 'package:hawiah_driver/features/order/presentation/order-cubit/order-cubit.dart';
 import 'package:hawiah_driver/features/order/presentation/order-cubit/order-state.dart';
 import 'package:hawiah_driver/features/order/presentation/screens/order-otp-screen.dart';
 import 'package:hawiah_driver/features/order/presentation/widget/hawiah_details.dart';
+import 'package:hawiah_driver/features/order/presentation/widget/order_details_images.dart';
 import 'package:hawiah_driver/features/order/presentation/widget/support_card_widget.dart';
 import 'package:hawiah_driver/features/order/presentation/widget/user_card_widget.dart';
 import 'package:hawiah_driver/features/setting/cubit/setting_cubit.dart';
@@ -88,56 +90,28 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     } else if (state is CurrentOrderError) {
       return Center(child: Text(state.message));
     } else if (state is CurrentOrderLoaded) {
-      final ordersData = state.order;
+      final order = state.order;
       final support = sl<SettingCubit>().setting?.support ?? "";
-      final isDelivered = ordersData.data?.status?.en == "Delivered";
+      final images = order.data?.containerImages ?? <ContainerImage>[];
+      final actions = _buildActions(order, support);
 
       return SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            HawiahDetails(ordersDate: ordersData),
-            const SizedBox(height: 16),
-
-            // Unified styling for the information section
-            widget.isCurrent
-                ? _buildCurrentOrderInfo(ordersData, support, isDelivered)
-                : UserCardWidget(ordersData: ordersData),
-
-            if (ordersData.data?.containerImages?.isNotEmpty ?? false) ...[
-              Text(AppLocaleKey.imagesFromDeliveryLocation.tr(), style: AppTextStyle.text16_700),
-              const SizedBox(height: 16),
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  border: Border.all(color: AppColor.mainAppColor),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: GridView.builder(
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 16,
-                      crossAxisSpacing: 16,
-                    ),
-                    itemCount: ordersData.data?.containerImages?.length ?? 0,
-                    itemBuilder: (context, index) {
-                      final image = ordersData.data?.containerImages?[index];
-                      return CustomNetworkImage(
-                          radius: 5, hasZoom: true, imageUrl: image?.url ?? "");
-                    },
-                  ),
-                ),
-              ),
+            // Details, customer and images — the same sections and order as
+            // the project details page.
+            HawiahDetails(ordersDate: order),
+            Gap(16.h),
+            UserCardWidget(ordersData: order),
+            if (images.isNotEmpty) ...[
+              Gap(16.h),
+              OrderDetailsImages(images: images),
             ],
-
-            // Empty container action (Order Status 9)
-            if (ordersData.data?.orderStatus == 9) ...[
-              const SizedBox(height: 20),
-              _buildEmptyContainerButton(ordersData.data?.id ?? 0),
+            if (actions.isNotEmpty) ...[
+              Gap(16.h),
+              ...actions,
             ],
           ],
         ),
@@ -146,38 +120,49 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     return const Center(child: CustomLoading());
   }
 
-  Widget _buildCurrentOrderInfo(dynamic ordersData, String support, bool isDelivered) {
-    return Container(
-      padding: const EdgeInsets.all(12.0),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      child: Column(
-        children: [
-          UserCardWidget(ordersData: ordersData),
-          if (support.isNotEmpty) ...[
-            const SizedBox(height: 20.0),
-            SuppprtCardWidget(support: support),
-          ],
-          const SizedBox(height: 30),
-          if (!isDelivered) _buildConfirmButton(ordersData),
-        ],
-      ),
-    );
+  /// The footer of the page: the primary action, the empty-container action
+  /// for status 9 and the technical support card — current orders only, in the
+  /// same order as the project details page.
+  List<Widget> _buildActions(SingleOrderModel order, String support) {
+    final actions = <Widget>[];
+
+    if (widget.isCurrent && !_isFinished(order)) {
+      actions.add(_buildConfirmButton(order));
+    }
+
+    if (order.data?.orderStatus == 9) {
+      if (actions.isNotEmpty) actions.add(Gap(16.h));
+      actions.add(_buildEmptyContainerButton(order.data?.id ?? 0));
+    }
+
+    if (widget.isCurrent && support.isNotEmpty) {
+      if (actions.isNotEmpty) actions.add(Gap(16.h));
+      actions.add(SuppprtCardWidget(support: support));
+    }
+
+    return actions;
   }
 
-  Widget _buildConfirmButton(dynamic ordersData) {
-    return GlobalElevatedButton(
-      label: AppLocaleKey.confirmOrder.tr(),
+  bool _isFinished(SingleOrderModel order) {
+    final status = order.data?.status?.en;
+    return status == "Delivered" || status == "Finish Order";
+  }
+
+  Widget _buildConfirmButton(SingleOrderModel order) {
+    return CustomButton(
+      height: 50,
+      radius: 10,
+      text: AppLocaleKey.confirmOrder.tr(),
+      style: AppTextStyle.text14_600.copyWith(color: Colors.white),
+      color: AppColor.mainAppColor,
       onPressed: () => _handleActionWithLocationAndImage(
         onProcessed: (image, lat, long) {
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => OrderOtpScreen(
-                otp: ordersData.data?.otp ?? "",
-                id: ordersData.data?.id,
+                otp: order.data?.otp ?? "",
+                id: order.data?.id,
                 image: image,
                 lat: lat,
                 long: long,
@@ -186,16 +171,17 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
           );
         },
       ),
-      backgroundColor: AppColor.mainAppColor,
-      textColor: Colors.white,
-      fixedWidth: 0.80,
     );
   }
 
   Widget _buildEmptyContainerButton(int orderId) {
     return CustomButton(
+      height: 50,
+      radius: 10,
       text: AppLocaleKey.emptythecontainer.tr(),
-      borderColor: AppColor.secondAppColor,
+      color: AppColor.secondAppColor,
+      borderColor: AppColor.mainAppColor,
+      style: AppTextStyle.text14_600.copyWith(color: AppColor.mainAppColor),
       onPressed: () => _handleActionWithLocationAndImage(
         onProcessed: (image, lat, long) {
           context.read<OrderCubit>().confirmEmptyOrder(
@@ -222,7 +208,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     final locationService = sl<LocationService>();
 
     // 0. Check if location service is enabled first
-    bool isLocationServiceEnabled = await locationService.checkAndRequestLocationService();
+    bool isLocationServiceEnabled =
+        await locationService.checkAndRequestLocationService();
     if (!isLocationServiceEnabled) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

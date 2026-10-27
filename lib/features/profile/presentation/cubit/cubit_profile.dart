@@ -26,13 +26,18 @@ class ProfileCubit extends Cubit<ProfileState> {
 
   /// Loads the session user via `GET /service-providers/user-info`.
   ///
-  /// Used as the app-entry auth gate: persists the work-type flags
-  /// (order_work / project_work / cleaning_contract_work) to Hive and
-  /// reports unauthenticated responses through [onError] so the splash
-  /// screen can redirect to the login screen.
+  /// This is the app-entry access gate, not just a data fetch: a stored token
+  /// only proves that a session existed once, while the account may have been
+  /// deactivated since then. Entry is allowed only when the endpoint succeeds,
+  /// returns the user and marks the account as active. Inactive accounts are
+  /// logged out locally so the stale token can't be reused.
+  ///
+  /// Every outcome reports through exactly one callback, so the splash screen
+  /// can never stay waiting on a response branch that wasn't handled.
   Future<void> fetchUserInfo({
     VoidCallback? onSuccess,
-    VoidCallback? onError,
+    ValueChanged<String>? onDenied,
+    ValueChanged<String>? onError,
   }) async {
     log('============================= Fetch User Info ==============================');
     emit(ProfileLoading());
@@ -40,53 +45,79 @@ class ProfileCubit extends Cubit<ProfileState> {
     try {
       final response = await ApiHelper.instance.get(Urls.userInfo);
 
-      if (response.state == ResponseState.complete && response.data != null) {
-        final info = UserInfoModel.fromJson(response.data!);
-        if (info.data != null) {
-          // Keep the work-type flags in sync with the server on every app start.
-          HiveMethods.updateOrderWork(info.data!.orderWork);
-          HiveMethods.updateProjectWork(info.data!.projectWork);
-          HiveMethods.updateCleaningContractWork(info.data!.cleaningContractWork);
+      if (response.state == ResponseState.complete) {
+        final raw = response.data;
+        if (raw is Map) {
+          final info = UserInfoModel.fromJson(Map<String, dynamic>.from(raw));
+          _userInfo = info;
+
+          if (info.canUseApp) {
+            final data = info.data!;
+            // Keep the work-type flags in sync with the server on every start.
+            HiveMethods.updateOrderWork(data.orderWork);
+            HiveMethods.updateProjectWork(data.projectWork);
+            HiveMethods.updateCleaningContractWork(data.cleaningContractWork);
+            // Populate the shared profile user if it wasn't fetched yet. The
+            // splash no longer calls fetchProfile, so screens reading
+            // `cubit.user` (e.g. chat, profile) would otherwise hit a null user.
+            _user ??= UserProfileModel(
+              id: data.id,
+              name: data.name,
+              username: '',
+              mobile: data.mobile,
+              email: data.email,
+              city: '',
+              nationalId: '',
+              walletLimit: '',
+              image: data.image,
+            );
+            emit(ProfileUserInfoLoaded(info));
+            log('User info loaded: id=${data.id}, name=${data.name}');
+            onSuccess?.call();
+            return;
+          }
+
+          // A successful HTTP call doesn't mean the account can use the app.
+          // Prefer the API message when it explains the refusal, otherwise use
+          // the localized inactive-account message.
+          final message = !info.success && info.message.isNotEmpty ? info.message : tr(AppLocaleKey.accountInactive);
+          log('User access denied: $message');
+          _clearSession();
+          emit(ProfileAccessDenied(message));
+          onDenied?.call(message);
+          return;
         }
-        _userInfo = info;
-        // Populate the shared profile user if it wasn't fetched yet. The splash
-        // no longer calls fetchProfile, so screens reading `cubit.user` (e.g.
-        // chat, profile) would otherwise hit a null user.
-        _user ??= UserProfileModel(
-          id: info.data!.id,
-          name: info.data!.name,
-          username: '',
-          mobile: info.data!.mobile,
-          email: info.data!.email,
-          city: '',
-          nationalId: '',
-          walletLimit: '',
-          image: info.data!.image,
-        );
-        emit(ProfileUserInfoLoaded(info));
-        log('User info loaded: id=${info.data?.id}, name=${info.data?.name}');
-        onSuccess?.call();
+
+        final message = tr(AppLocaleKey.anErrorOccurred);
+        emit(ProfileError(message));
+        onError?.call(message);
         return;
       }
 
       if (response.state == ResponseState.unauthorized) {
+        _clearSession();
         emit(ProfileUnAuthorized());
-        onError?.call();
+        final message = tr(AppLocaleKey.sessionExpired);
+        onError?.call(message);
         return;
       }
 
-      if (response.state == ResponseState.error) {
-        emit(ProfileError(response.getMessage().isNotEmpty
-            ? response.getMessage()
-            : "Failed to fetch user info"));
-        onError?.call();
-        return;
-      }
+      final message = response.getMessage().isNotEmpty ? response.getMessage() : tr(AppLocaleKey.anErrorOccurred);
+      emit(ProfileError(message));
+      onError?.call(message);
     } catch (e, stackTrace) {
       log("Exception in fetchUserInfo: $e", stackTrace: stackTrace);
-      emit(ProfileError("Failed to fetch user info: $e"));
-      onError?.call();
+      final message = "Failed to fetch user info: $e";
+      emit(ProfileError(message));
+      onError?.call(message);
     }
+  }
+
+  /// Drops the local session and any cached user data.
+  void _clearSession() {
+    HiveMethods.clearSession();
+    _userInfo = null;
+    _user = null;
   }
 
   Future<void> fetchProfile({VoidCallback? onSuccess, VoidCallback? onError}) async {

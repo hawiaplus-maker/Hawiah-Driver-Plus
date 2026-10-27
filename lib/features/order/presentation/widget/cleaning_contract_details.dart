@@ -19,7 +19,7 @@ class CleaningContractDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDelivered = order.deliveryStatus?.toLowerCase() == 'delivered';
+    final isDelivered = order.isCompleted;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),

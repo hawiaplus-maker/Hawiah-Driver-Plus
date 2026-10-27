@@ -24,7 +24,15 @@ class AuthLoginSuccess extends AuthSuccess {
 }
 
 class AuthRegisterSuccess extends AuthSuccess {
-  AuthRegisterSuccess({required super.message, super.data});
+  /// Whether the register response already returned a session token, so the
+  /// driver can go straight to the app instead of signing in again.
+  final bool isAuthenticated;
+
+  AuthRegisterSuccess({
+    required super.message,
+    super.data,
+    this.isAuthenticated = false,
+  });
 }
 
 class AuthForgotPasswordSuccess extends AuthSuccess {

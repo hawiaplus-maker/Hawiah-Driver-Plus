@@ -31,6 +31,8 @@ class AppLocaleKey {
   static const String noData = 'noData';
   static const String mustAgreeToTerms = 'mustAgreeToTerms';
   static const String incorrectLoginData = 'incorrectLoginData';
+  static const String accountInactive = 'accountInactive';
+  static const String sessionExpired = 'sessionExpired';
   static const String noInternetConnection = 'noInternetConnection';
   static const String verificationCodeResent = 'verificationCodeResent';
   static const String errorDuringProcess = 'errorDuringProcess';
